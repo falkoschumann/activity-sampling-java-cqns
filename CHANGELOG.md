@@ -15,5 +15,5 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 [1]: https://keepachangelog.com/en/1.0.0/
 [2]: https://semver.org/spec/v2.0.0.html
-[Unreleased]: https://github.com/falkoschumann/java-todomvc/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/falkoschumann/java-todomvc/releases/tag/v1.0.0
+[Unreleased]: https://github.com/falkoschumann/activity-sampling-java/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/falkoschumann/activity-sampling-java/releases/tag/v1.0.0

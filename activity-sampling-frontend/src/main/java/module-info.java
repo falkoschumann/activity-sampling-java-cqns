@@ -1,10 +1,10 @@
-module de.muspellheim.todomvc.frontend {
-  requires transitive de.muspellheim.todomvc.contract;
+module de.muspellheim.activitysampling.frontend {
+  requires transitive de.muspellheim.activitysampling.contract;
   requires transitive javafx.controls;
   requires javafx.fxml;
   requires static lombok;
 
-  exports de.muspellheim.todomvc.frontend;
+  exports de.muspellheim.activitysampling.frontend;
 
-  opens de.muspellheim.todomvc.frontend;
+  opens de.muspellheim.activitysampling.frontend;
 }

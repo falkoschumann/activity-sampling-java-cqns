@@ -1,5 +1,5 @@
 /*
- * TodoMVC - Frontend
+ * Activity Sampling - Frontend
  * Copyright (c) $YEAR Falko Schumann <falko.schumann@muspellheim.de>
  */
 

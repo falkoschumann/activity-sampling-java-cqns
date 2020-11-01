@@ -1,8 +1,8 @@
-module de.muspellheim.todomvc.backend {
-  requires transitive de.muspellheim.todomvc.contract;
+module de.muspellheim.activitysampling.backend {
+  requires transitive de.muspellheim.activitysampling.contract;
   requires com.google.gson;
   requires static lombok;
 
-  exports de.muspellheim.todomvc.backend;
-  exports de.muspellheim.todomvc.backend.adapters;
+  exports de.muspellheim.activitysampling.backend;
+  exports de.muspellheim.activitysampling.backend.adapters;
 }

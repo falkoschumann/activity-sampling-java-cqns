@@ -1,4 +1,4 @@
-# TodoMVC
+# Activity Sampling
 
 [![Build Status](https://travis-ci.org/falkoschumann/activity-sampling-java.svg?branch=master)](https://travis-ci.org/falkoschumann/activity-sampling-java)
 

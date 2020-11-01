@@ -1,9 +1,9 @@
-module de.muspellheim.todomvc.contract {
+module de.muspellheim.activitysampling.contract {
   requires static lombok;
 
-  exports de.muspellheim.todomvc.contract.data;
-  exports de.muspellheim.todomvc.contract.messages.commands;
-  exports de.muspellheim.todomvc.contract.messages.queries;
+  exports de.muspellheim.activitysampling.contract.data;
+  exports de.muspellheim.activitysampling.contract.messages.commands;
+  exports de.muspellheim.activitysampling.contract.messages.queries;
 
-  opens de.muspellheim.todomvc.contract.data;
+  opens de.muspellheim.activitysampling.contract.data;
 }

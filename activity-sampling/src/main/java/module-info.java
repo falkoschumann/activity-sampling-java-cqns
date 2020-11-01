@@ -1,7 +1,7 @@
-module de.muspellheim.todomvc {
-  requires de.muspellheim.todomvc.backend;
-  requires de.muspellheim.todomvc.frontend;
+module de.muspellheim.activitysampling {
+  requires de.muspellheim.activitysampling.backend;
+  requires de.muspellheim.activitysampling.frontend;
   requires static lombok;
 
-  exports de.muspellheim.todomvc;
+  exports de.muspellheim.activitysampling;
 }

@@ -14,12 +14,12 @@ javafx {
 }
 
 application {
-    mainModule = 'de.muspellheim.todomvc'
-    mainClass = 'de.muspellheim.todomvc.App'
+    mainModule = 'de.muspellheim.activitysampling'
+    mainClass = 'de.muspellheim.activitysampling.App'
 }
 
 jlink {
     launcher {
-        name = 'todomvc'
+        name = 'activitysampling'
     }
 }
