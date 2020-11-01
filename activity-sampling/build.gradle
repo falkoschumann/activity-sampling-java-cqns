@@ -5,8 +5,8 @@ plugins {
 }
 
 dependencies {
-    implementation project(':todomvc-frontend')
-    implementation project(':todomvc-backend')
+    implementation project(':activity-sampling-frontend')
+    implementation project(':activity-sampling-backend')
 }
 
 javafx {
