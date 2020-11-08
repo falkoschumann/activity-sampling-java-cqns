@@ -6,8 +6,11 @@
 package de.muspellheim.activitysampling;
 
 import de.muspellheim.activitysampling.backend.MessageHandler;
+import de.muspellheim.activitysampling.backend.PeriodCheck;
 import de.muspellheim.activitysampling.backend.adapters.TodoJsonRepository;
 import de.muspellheim.activitysampling.contract.messages.queries.TodoListQuery;
+import de.muspellheim.activitysampling.frontend.ActivitySamplingView;
+import de.muspellheim.activitysampling.frontend.AppTrayIcon;
 import de.muspellheim.activitysampling.frontend.TodoAppViewController;
 import java.nio.file.Paths;
 import javafx.application.Application;
@@ -17,7 +20,8 @@ import javafx.stage.Stage;
 public class App extends Application {
   private Stage stage;
   private MessageHandler messageHandler;
-  private TodoAppViewController controller;
+  private TodoAppViewController todoAppViewController;
+  private AppTrayIcon trayIconController;
 
   public static void main(String[] args) {
     Application.launch(args);
@@ -25,10 +29,33 @@ public class App extends Application {
 
   @Override
   public void start(Stage primaryStage) {
-    stage = primaryStage;
-    build();
-    bind();
-    run();
+    var root = new ActivitySamplingView();
+    root.setOnLogActivityCommand(c -> System.out.println(c));
+
+    trayIconController = new AppTrayIcon();
+
+    var periodTimer = new PeriodCheck();
+    periodTimer.setOnPeriodStartedNotification(n -> root.display(n));
+    periodTimer.setOnPeriodProgressedNotification(n -> root.display(n));
+    periodTimer.setOnPeriodEndedNotification(
+        n -> {
+          root.display(n);
+          trayIconController.display(n);
+        });
+    periodTimer.run();
+
+    var scene = new Scene(root);
+    primaryStage.setScene(scene);
+    primaryStage.show();
+    // stage = primaryStage;
+    // build();
+    // bind();
+    // run();
+  }
+
+  @Override
+  public void stop() {
+    trayIconController.dispose();
   }
 
   private void build() {
@@ -38,44 +65,44 @@ public class App extends Application {
 
     var root = TodoAppViewController.load();
     var view = root.getKey();
-    controller = root.getValue();
+    todoAppViewController = root.getValue();
     Scene scene = new Scene(view);
     stage.setScene(scene);
     stage.setTitle("Activity Sampling");
   }
 
   private void bind() {
-    controller.setOnNewTodoCommand(
+    todoAppViewController.setOnNewTodoCommand(
         it -> {
           messageHandler.handle(it);
           runQuery();
         });
-    controller.setOnToggleAllCommand(
+    todoAppViewController.setOnToggleAllCommand(
         it -> {
           messageHandler.handle(it);
           runQuery();
         });
-    controller.setOnToggleCommand(
+    todoAppViewController.setOnToggleCommand(
         it -> {
           messageHandler.handle(it);
           runQuery();
         });
-    controller.setOnDestroyCommand(
+    todoAppViewController.setOnDestroyCommand(
         it -> {
           messageHandler.handle(it);
           runQuery();
         });
-    controller.setOnEditCommand(
+    todoAppViewController.setOnEditCommand(
         it -> {
           messageHandler.handle(it);
           runQuery();
         });
-    controller.setOnClearCompletedCommand(
+    todoAppViewController.setOnClearCompletedCommand(
         it -> {
           messageHandler.handle(it);
           runQuery();
         });
-    controller.setOnTodoListQuery(it -> runQuery());
+    todoAppViewController.setOnTodoListQuery(it -> runQuery());
   }
 
   private void run() {
@@ -85,6 +112,6 @@ public class App extends Application {
 
   private void runQuery() {
     var result = messageHandler.handle(new TodoListQuery());
-    controller.display(result);
+    todoAppViewController.display(result);
   }
 }
