@@ -42,7 +42,7 @@ public class App extends Application {
           root.display(n);
           trayIconController.display(n);
         });
-    periodTimer.run();
+    // TODO: periodTimer.run();
 
     var scene = new Scene(root);
     primaryStage.setScene(scene);

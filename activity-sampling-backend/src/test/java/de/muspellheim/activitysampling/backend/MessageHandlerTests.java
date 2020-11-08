@@ -23,7 +23,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MessageHandlerTests {
+class MessageHandlerTests {
   private TestingTodoRepository repository;
   private MessageHandler messageHandler;
 
