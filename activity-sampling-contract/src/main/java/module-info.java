@@ -6,4 +6,7 @@ module de.muspellheim.activitysampling.contract {
   exports de.muspellheim.activitysampling.contract.messages.queries;
 
   opens de.muspellheim.activitysampling.contract.data;
+
+  exports de.muspellheim.activitysampling.contract.messages.notifications;
+  exports de.muspellheim.activitysampling.contract.util;
 }
