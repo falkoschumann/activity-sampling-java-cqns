@@ -11,7 +11,6 @@ import de.muspellheim.activitysampling.contract.messages.notifications.PeriodPro
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodStartedNotification;
 import de.muspellheim.activitysampling.contract.util.DurationStringConverter;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -31,14 +30,14 @@ public class ActivitySamplingView extends VBox {
   public static final int MARGIN = 12;
   public static final int GAP = 4;
 
+  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+
   private final BooleanProperty enableForm;
 
   private final DurationStringConverter durationStringConverter;
 
   private final ProgressBar progressBar;
   private final Label remainingTimeLabel;
-
-  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
 
   private Duration period;
 
@@ -59,7 +58,7 @@ public class ActivitySamplingView extends VBox {
     var activityLabel = new Label("Activity");
     getChildren().add(activityLabel);
 
-    TextField activityText = new TextField();
+    var activityText = new TextField();
     activityText.setPromptText("What are you working on?");
     activityText.setDisable(true);
     getChildren().add(activityText);
@@ -68,12 +67,12 @@ public class ActivitySamplingView extends VBox {
     setMargin(optionalTagsLabel, new Insets(GAP, 0, 0, 0));
     getChildren().add(optionalTagsLabel);
 
-    TextField optionalTagsText = new TextField();
+    var optionalTagsText = new TextField();
     optionalTagsText.setPromptText("Customer, Project, Product");
     optionalTagsText.setDisable(true);
     getChildren().add(optionalTagsText);
 
-    Button logButton = new Button("Log");
+    var logButton = new Button("Log");
     logButton.setMaxWidth(Double.MAX_VALUE);
     logButton.setDisable(true);
     logButton.setDefaultButton(true);
@@ -103,9 +102,7 @@ public class ActivitySamplingView extends VBox {
           if (onLogActivityCommand == null) return;
 
           enableForm.set(false);
-          LogActivityCommand command =
-              new LogActivityCommand(
-                  LocalDateTime.now(), period, activityText.getText(), optionalTagsText.getText());
+          var command = new LogActivityCommand(activityText.getText(), optionalTagsText.getText());
           onLogActivityCommand.accept(command);
         });
   }
@@ -123,8 +120,7 @@ public class ActivitySamplingView extends VBox {
     Platform.runLater(
         () -> {
           updateRemainingTime(notification.getRemainingTime());
-          double progress =
-              (double) notification.getRemainingTime().getSeconds() / period.getSeconds();
+          var progress = (double) notification.getElapsedTime().getSeconds() / period.getSeconds();
           progressBar.setProgress(progress);
         });
   }

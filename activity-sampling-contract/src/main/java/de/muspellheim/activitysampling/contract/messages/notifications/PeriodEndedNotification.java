@@ -5,7 +5,11 @@
 
 package de.muspellheim.activitysampling.contract.messages.notifications;
 
+import java.time.Duration;
+import lombok.NonNull;
 import lombok.Value;
 
 @Value
-public class PeriodEndedNotification {}
+public class PeriodEndedNotification {
+  @NonNull Duration period;
+}

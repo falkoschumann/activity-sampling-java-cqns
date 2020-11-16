@@ -1,3 +1,8 @@
+/*
+ * Activity Sampling - Backend
+ * Copyright (c) 2020 Falko Schumann <falko.schumann@muspellheim.de>
+ */
+
 package de.muspellheim.activitysampling.backend;
 
 import java.util.concurrent.TimeUnit;
@@ -10,6 +15,6 @@ class ClockTests {
     clock.setOnTick(e -> System.out.println(e));
     clock.run();
 
-    TimeUnit.SECONDS.sleep(10);
+    TimeUnit.SECONDS.sleep(3);
   }
 }

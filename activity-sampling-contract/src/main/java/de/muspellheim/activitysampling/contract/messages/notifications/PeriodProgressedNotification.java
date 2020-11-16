@@ -11,5 +11,7 @@ import lombok.Value;
 
 @Value
 public class PeriodProgressedNotification {
+  @NonNull Duration period;
+  @NonNull Duration elapsedTime;
   @NonNull Duration remainingTime;
 }

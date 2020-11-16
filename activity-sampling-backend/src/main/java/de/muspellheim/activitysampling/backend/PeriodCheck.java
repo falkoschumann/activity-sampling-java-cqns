@@ -16,11 +16,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class PeriodCheck {
+  @Getter @Setter private Duration period = Duration.ofMinutes(20);
   @Getter @Setter private Consumer<PeriodStartedNotification> onPeriodStartedNotification;
   @Getter @Setter private Consumer<PeriodProgressedNotification> onPeriodProgressedNotification;
   @Getter @Setter private Consumer<PeriodEndedNotification> onPeriodEndedNotification;
 
-  private Duration period = Duration.ofMinutes(20);
   private LocalDateTime start;
 
   public void handle(ClockTickedNotification notification) {
@@ -32,8 +32,12 @@ public class PeriodCheck {
 
     var elapsedTime = Duration.between(start, notification.getTimestamp());
     var remainingTime = period.minus(elapsedTime);
-    onPeriodProgressedNotification.accept(new PeriodProgressedNotification(remainingTime));
-
-    // onPeriodEndedNotification.accept(new PeriodEndedNotification());
+    if (remainingTime.isZero() || remainingTime.isNegative()) {
+      onPeriodEndedNotification.accept(new PeriodEndedNotification(period));
+      start = null;
+    } else {
+      onPeriodProgressedNotification.accept(
+          new PeriodProgressedNotification(period, elapsedTime, remainingTime));
+    }
   }
 }

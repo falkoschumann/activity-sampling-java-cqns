@@ -3,16 +3,16 @@
  * Copyright (c) 2020 Falko Schumann <falko.schumann@muspellheim.de>
  */
 
-package de.muspellheim.activitysampling.contract.data;
+package de.muspellheim.activitysampling.contract.messages.events;
 
 import java.time.Duration;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.NonNull;
 import lombok.Value;
 
 @Value
-public class Activity {
-  @NonNull LocalDate timestamp;
+public class ActivityLoggedEvent {
+  @NonNull LocalDateTime timestamp;
   @NonNull Duration period;
   @NonNull String activity;
   String tags;

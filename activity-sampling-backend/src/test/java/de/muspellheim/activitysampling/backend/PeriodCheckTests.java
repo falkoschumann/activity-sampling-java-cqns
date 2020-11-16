@@ -1,7 +1,11 @@
+/*
+ * Activity Sampling - Backend
+ * Copyright (c) 2020 Falko Schumann <falko.schumann@muspellheim.de>
+ */
+
 package de.muspellheim.activitysampling.backend;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import de.muspellheim.activitysampling.contract.messages.notifications.ClockTickedNotification;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
@@ -9,30 +13,29 @@ import de.muspellheim.activitysampling.contract.messages.notifications.PeriodPro
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodStartedNotification;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class PeriodCheckTests {
   private PeriodCheck periodCheck;
-  private PeriodStartedNotification periodStartedNotification;
-  private PeriodProgressedNotification periodProgressedNotification;
-  private PeriodEndedNotification periodEndedNotification;
+  private List<Object> messages;
 
   @BeforeEach
   void setUp() {
     periodCheck = new PeriodCheck();
-    periodCheck.setOnPeriodStartedNotification(n -> periodStartedNotification = n);
-    periodCheck.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
-    periodCheck.setOnPeriodEndedNotification(n -> periodEndedNotification = n);
+    messages = new ArrayList<>();
+    periodCheck.setOnPeriodStartedNotification(n -> messages.add(n));
+    periodCheck.setOnPeriodProgressedNotification(n -> messages.add(n));
+    periodCheck.setOnPeriodEndedNotification(n -> messages.add(n));
   }
 
   @Test
   void periodStarted() {
     periodCheck.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 20)));
 
-    assertEquals(new PeriodStartedNotification(Duration.ofMinutes(20)), periodStartedNotification);
-    assertNull(periodProgressedNotification);
-    assertNull(periodEndedNotification);
+    assertEquals(List.of(new PeriodStartedNotification(Duration.ofMinutes(20))), messages);
   }
 
   @Test
@@ -41,13 +44,26 @@ class PeriodCheckTests {
 
     periodCheck.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 31, 45)));
 
-    assertEquals(new PeriodStartedNotification(Duration.ofMinutes(20)), periodStartedNotification);
     assertEquals(
-        new PeriodProgressedNotification(Duration.ofMinutes(8).plusSeconds(15)),
-        periodProgressedNotification);
-    assertNull(periodEndedNotification);
+        List.of(
+            new PeriodStartedNotification(Duration.ofMinutes(20)),
+            new PeriodProgressedNotification(
+                Duration.ofMinutes(20),
+                Duration.ofMinutes(11).plusSeconds(45),
+                Duration.ofMinutes(8).plusSeconds(15))),
+        messages);
   }
 
   @Test
-  void periodEnded() {}
+  void periodEnded() {
+    periodCheck.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 20)));
+
+    periodCheck.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 40)));
+
+    assertEquals(
+        List.of(
+            new PeriodStartedNotification(Duration.ofMinutes(20)),
+            new PeriodEndedNotification(Duration.ofMinutes(20))),
+        messages);
+  }
 }
