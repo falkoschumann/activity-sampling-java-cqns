@@ -2,24 +2,24 @@
 
 Lorem ipsum.
 
-== System Context
+== System Context Diagram für Activity Sampling
 
-image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/falkoschumann/java-todomvc/master/doc/SystemContextView.puml[System Context]
+image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/falkoschumann/activity-sampling-java/master/doc/SystemContextDiagramActivitySampling.puml[System Context Diagram für Activity Sampling]
 
 Lorem ipsum.
 
 == Containers
 
-=== Containers for System TodoMVC
+=== Container Diagram für Activity Sampling
 
-image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/falkoschumann/java-todomvc/master/doc//ContainerTodoMVCView.puml[Containers for System TodoMVC]
+image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/falkoschumann/activity-sampling-java/master/doc//ContainerDiagramActivitySampling.puml[Container Diagram für Activity Sampling]
 
 Lorem ipsum.
 
 == Components
 
-=== Components for Conatiner TodoMVC
+=== Component Diagram für Activity Sampling
 
-image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/falkoschumann/java-todomvc/master/doc//ComponentTodoMVCView.puml[Components for Conatiner TodoMVC]
+image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/falkoschumann/activity-sampling-java/master/doc//ComponentDiagramActivitySampling.puml[Component Diagram für Activity Sampling]
 
 Lorem ipsum.

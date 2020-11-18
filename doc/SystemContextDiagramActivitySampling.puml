@@ -1,0 +1,10 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Context.puml
+
+title System Context für Activity Sampling
+
+Person(softwareDeveloper, "Softwareentwickler", "Ein Softwareentwickler möchte den Aufwand für seine Aufgaben dokumentieren.")
+System(activitySampling, "Activity Sampling", "Erlaubt dem Nutzer das Protokollieren seiner Aktivitäten.")
+
+Rel(softwareDeveloper, activitySampling, "Protokolliert Aktivitäten")
+@enduml
