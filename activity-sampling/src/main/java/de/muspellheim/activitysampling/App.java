@@ -6,7 +6,7 @@
 package de.muspellheim.activitysampling;
 
 import de.muspellheim.activitysampling.backend.Clock;
-import de.muspellheim.activitysampling.backend.PeriodCheck;
+import de.muspellheim.activitysampling.backend.messagehandlers.ClockTickedNotificationHandler;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingView;
 import de.muspellheim.activitysampling.frontend.AppTrayIcon;
 import java.time.Duration;
@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 
 public class App extends Application {
   private Clock clock;
-  private PeriodCheck periodCheck;
+  private ClockTickedNotificationHandler clockTickedNotificationHandler;
 
   private Stage stage;
   private ActivitySamplingView activitySamplingView;
@@ -43,8 +43,8 @@ public class App extends Application {
     activitySamplingView = new ActivitySamplingView();
     trayIconController = new AppTrayIcon();
     clock = new Clock();
-    periodCheck = new PeriodCheck();
-    periodCheck.setPeriod(Duration.ofMinutes(1));
+    clockTickedNotificationHandler = new ClockTickedNotificationHandler();
+    clockTickedNotificationHandler.setPeriod(Duration.ofMinutes(1));
 
     var scene = new Scene(activitySamplingView);
     stage.setScene(scene);
@@ -53,11 +53,13 @@ public class App extends Application {
   private void bind() {
     activitySamplingView.setOnLogActivityCommand(c -> System.out.println(c));
 
-    clock.setOnTick(n -> periodCheck.handle(n));
+    clock.setOnTick(n -> clockTickedNotificationHandler.handle(n));
 
-    periodCheck.setOnPeriodStartedNotification(n -> activitySamplingView.display(n));
-    periodCheck.setOnPeriodProgressedNotification(n -> activitySamplingView.display(n));
-    periodCheck.setOnPeriodEndedNotification(
+    clockTickedNotificationHandler.setOnPeriodStartedNotification(
+        n -> activitySamplingView.display(n));
+    clockTickedNotificationHandler.setOnPeriodProgressedNotification(
+        n -> activitySamplingView.display(n));
+    clockTickedNotificationHandler.setOnPeriodEndedNotification(
         n -> {
           activitySamplingView.display(n);
           trayIconController.display(n);

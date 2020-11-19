@@ -3,7 +3,7 @@
  * Copyright (c) 2020 Falko Schumann <falko.schumann@muspellheim.de>
  */
 
-package de.muspellheim.activitysampling.backend;
+package de.muspellheim.activitysampling.backend.messagehandlers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,13 +18,13 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class PeriodCheckTests {
-  private PeriodCheck periodCheck;
+class ClockTickedNotificationHandlerTests {
+  private ClockTickedNotificationHandler periodCheck;
   private List<Object> messages;
 
   @BeforeEach
   void setUp() {
-    periodCheck = new PeriodCheck();
+    periodCheck = new ClockTickedNotificationHandler();
     messages = new ArrayList<>();
     periodCheck.setOnPeriodStartedNotification(n -> messages.add(n));
     periodCheck.setOnPeriodProgressedNotification(n -> messages.add(n));

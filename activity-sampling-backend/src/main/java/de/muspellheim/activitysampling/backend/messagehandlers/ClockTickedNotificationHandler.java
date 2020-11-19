@@ -3,7 +3,7 @@
  * Copyright (c) 2020 Falko Schumann <falko.schumann@muspellheim.de>
  */
 
-package de.muspellheim.activitysampling.backend;
+package de.muspellheim.activitysampling.backend.messagehandlers;
 
 import de.muspellheim.activitysampling.contract.messages.notifications.ClockTickedNotification;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PeriodCheck {
+public class ClockTickedNotificationHandler {
   @Getter @Setter private Duration period = Duration.ofMinutes(20);
   @Getter @Setter private Consumer<PeriodStartedNotification> onPeriodStartedNotification;
   @Getter @Setter private Consumer<PeriodProgressedNotification> onPeriodProgressedNotification;
