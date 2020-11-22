@@ -28,7 +28,7 @@ class LogActivityCommandHandlerTests {
   void setUp() {
     handler =
         new LogActivityCommandHandler(
-            Clock.fixed(Instant.ofEpochSecond(1606063637), ZoneId.systemDefault()));
+            Clock.fixed(Instant.ofEpochSecond(1606063637), ZoneId.of("Europe/Berlin")));
     messages = new ArrayList<>();
     handler.setOnActivityLoggedEvent(e -> messages.add(e));
   }
