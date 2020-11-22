@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-public class Clock {
+public class SystemClock {
   private final Timer timer = new Timer(true);
 
   @Getter @Setter private Consumer<ClockTickedNotification> onTick;

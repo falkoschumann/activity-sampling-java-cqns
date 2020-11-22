@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class ClockTests {
   @Test
   void test() throws InterruptedException {
-    var clock = new Clock();
+    var clock = new SystemClock();
     clock.setOnTick(e -> System.out.println(e));
     clock.run();
 
