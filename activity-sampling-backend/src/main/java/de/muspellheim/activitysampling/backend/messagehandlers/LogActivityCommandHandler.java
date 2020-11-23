@@ -5,43 +5,41 @@
 
 package de.muspellheim.activitysampling.backend.messagehandlers;
 
+import de.muspellheim.activitysampling.backend.EventStore;
+import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
-import de.muspellheim.activitysampling.contract.messages.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
 import java.time.Clock;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.function.Consumer;
-import lombok.Getter;
-import lombok.Setter;
+import java.time.Instant;
 
 public class LogActivityCommandHandler {
 
-  @Getter @Setter private Consumer<ActivityLoggedEvent> onActivityLoggedEvent;
-
+  private final EventStore eventStore;
   private final Clock clock;
 
-  private LocalDateTime timestamp;
+  private Instant timestamp;
   private Duration period;
 
-  public LogActivityCommandHandler() {
-    this(Clock.systemDefaultZone());
+  public LogActivityCommandHandler(EventStore eventStore) {
+    this(eventStore, Clock.systemDefaultZone());
   }
 
-  public LogActivityCommandHandler(Clock clock) {
+  public LogActivityCommandHandler(EventStore eventStore, Clock clock) {
+    this.eventStore = eventStore;
     this.clock = clock;
   }
 
   public CommandStatus handle(LogActivityCommand command) {
-    onActivityLoggedEvent.accept(
+    eventStore.record(
         new ActivityLoggedEvent(timestamp, period, command.getActivity(), command.getTags()));
     return new Success();
   }
 
   public void handle(PeriodEndedNotification notification) {
-    timestamp = LocalDateTime.now(clock);
+    timestamp = Instant.now(clock);
     period = notification.getPeriod();
   }
 }

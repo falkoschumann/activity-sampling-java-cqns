@@ -5,6 +5,8 @@
 
 package de.muspellheim.activitysampling;
 
+import de.muspellheim.activitysampling.backend.EventStore;
+import de.muspellheim.activitysampling.backend.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.SystemClock;
 import de.muspellheim.activitysampling.backend.messagehandlers.ClockTickedNotificationHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
@@ -42,7 +44,9 @@ public class App extends Application {
   }
 
   private void build() {
-    logActivityCommandHandler = new LogActivityCommandHandler();
+    EventStore eventStore = new MemoryEventStore();
+    eventStore.setOnRecorded(e -> System.out.println(e));
+    logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
     clockTickedNotificationHandler = new ClockTickedNotificationHandler();
     clockTickedNotificationHandler.setPeriod(Duration.ofMinutes(1));
 
@@ -55,8 +59,6 @@ public class App extends Application {
   }
 
   private void bind() {
-    logActivityCommandHandler.setOnActivityLoggedEvent(e -> System.out.println(e));
-
     clockTickedNotificationHandler.setOnPeriodStartedNotification(
         n -> activitySamplingView.display(n));
     clockTickedNotificationHandler.setOnPeriodProgressedNotification(

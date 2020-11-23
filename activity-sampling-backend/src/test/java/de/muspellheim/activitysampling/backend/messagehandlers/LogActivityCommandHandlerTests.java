@@ -5,39 +5,43 @@
 
 package de.muspellheim.activitysampling.backend.messagehandlers;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import de.muspellheim.activitysampling.backend.Event;
+import de.muspellheim.activitysampling.backend.EventStore;
+import de.muspellheim.activitysampling.backend.MemoryEventStore;
+import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
-import de.muspellheim.activitysampling.contract.messages.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class LogActivityCommandHandlerTests {
+  private static final Instant TIMESTAMP = Instant.ofEpochSecond(1606063637);
+
+  private EventStore eventStore;
   private LogActivityCommandHandler handler;
-  private List<Object> messages;
 
   @BeforeEach
   void setUp() {
+    eventStore = new MemoryEventStore();
     handler =
         new LogActivityCommandHandler(
-            Clock.fixed(Instant.ofEpochSecond(1606063637), ZoneId.of("Europe/Berlin")));
-    messages = new ArrayList<>();
-    handler.setOnActivityLoggedEvent(e -> messages.add(e));
+            eventStore, Clock.fixed(TIMESTAMP, ZoneId.of("Europe/Berlin")));
   }
 
   @Test
   void periodEnded() {
     handler.handle(new PeriodEndedNotification(Duration.ofMinutes(20)));
 
-    assertEquals(List.of(), messages);
+    assertEquals(List.of(), eventStore.replay());
   }
 
   @Test
@@ -46,13 +50,22 @@ class LogActivityCommandHandlerTests {
 
     handler.handle(new LogActivityCommand("Lorem ipsum", "Foobar"));
 
-    assertEquals(
-        List.of(
-            new ActivityLoggedEvent(
-                LocalDateTime.of(2020, 11, 22, 17, 47, 17),
+    List<Event> events = eventStore.replay();
+    assertAll(
+        () -> assertEquals(1, events.size(), "Number of events"),
+        () -> assertNotNull(events.get(0).getId(), "Event id"),
+        () -> assertEquals(TIMESTAMP, events.get(0).getTimestamp(), "Event timestamp"),
+        () ->
+            assertEquals(
                 Duration.ofMinutes(20),
+                ((ActivityLoggedEvent) events.get(0)).getPeriod(),
+                "Event period"),
+        () ->
+            assertEquals(
                 "Lorem ipsum",
-                "Foobar")),
-        messages);
+                ((ActivityLoggedEvent) events.get(0)).getActivity(),
+                "Event activity"),
+        () ->
+            assertEquals("Foobar", ((ActivityLoggedEvent) events.get(0)).getTags(), "Event tags"));
   }
 }
