@@ -1,0 +1,8 @@
+plugins {
+    id 'todomvc.java-library-conventions'
+    id 'org.openjfx.javafxplugin'
+}
+
+javafx {
+    modules = ['javafx.controls']
+}

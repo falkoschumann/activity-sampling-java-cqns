@@ -1,7 +1,5 @@
 plugins {
-    id 'application'
-    id 'org.openjfx.javafxplugin'
-    id 'org.beryx.jlink'
+    id 'todomvc.java-applicationfx-conventions'
 }
 
 dependencies {
@@ -9,17 +7,13 @@ dependencies {
     implementation project(':activity-sampling-backend')
 }
 
-javafx {
-    modules = ['javafx.controls']
-}
-
 application {
     mainModule = 'de.muspellheim.activitysampling'
-    mainClass = 'de.muspellheim.activitysampling.App'
+    mainClassName = 'de.muspellheim.activitysampling.App'
 }
 
 jlink {
     launcher {
-        name = 'activitysampling'
+        name = 'activity-sampling'
     }
 }
