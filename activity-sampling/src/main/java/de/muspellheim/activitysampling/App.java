@@ -5,8 +5,8 @@
 
 package de.muspellheim.activitysampling;
 
+import de.muspellheim.activitysampling.backend.CsvEventStore;
 import de.muspellheim.activitysampling.backend.EventStore;
-import de.muspellheim.activitysampling.backend.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.SystemClock;
 import de.muspellheim.activitysampling.backend.messagehandlers.ClockTickedNotificationHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
@@ -44,8 +44,7 @@ public class App extends Application {
   }
 
   private void build() {
-    EventStore eventStore = new MemoryEventStore();
-    eventStore.setOnRecorded(e -> System.out.println(e));
+    EventStore eventStore = new CsvEventStore("activity-log.csv");
     logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
     clockTickedNotificationHandler = new ClockTickedNotificationHandler();
     clockTickedNotificationHandler.setPeriod(Duration.ofMinutes(1));

@@ -9,7 +9,6 @@ import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCom
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodProgressedNotification;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodStartedNotification;
-import de.muspellheim.activitysampling.contract.util.DurationStringConverter;
 import java.time.Duration;
 import java.util.function.Consumer;
 import javafx.application.Platform;
@@ -23,6 +22,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 public class ActivitySamplingView extends VBox {
@@ -30,7 +30,7 @@ public class ActivitySamplingView extends VBox {
   public static final int MARGIN = 12;
   public static final int GAP = 4;
 
-  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter @NonNull private Consumer<LogActivityCommand> onLogActivityCommand = e -> {};
 
   private final BooleanProperty enableForm;
 

@@ -16,7 +16,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 public class LogActivityCommandHandler {
-
   private final EventStore eventStore;
   private final Clock clock;
 

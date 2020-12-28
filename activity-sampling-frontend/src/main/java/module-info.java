@@ -5,6 +5,4 @@ module de.muspellheim.activitysampling.frontend {
   requires static lombok;
 
   exports de.muspellheim.activitysampling.frontend;
-
-  opens de.muspellheim.activitysampling.frontend;
 }
