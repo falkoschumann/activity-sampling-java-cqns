@@ -11,9 +11,3 @@ application {
     mainModule = 'de.muspellheim.activitysampling'
     mainClassName = 'de.muspellheim.activitysampling.App'
 }
-
-jlink {
-    launcher {
-        name = 'activity-sampling'
-    }
-}
