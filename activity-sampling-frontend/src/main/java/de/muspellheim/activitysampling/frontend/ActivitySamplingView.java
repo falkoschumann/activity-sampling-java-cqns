@@ -25,12 +25,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class ActivitySamplingView extends VBox {
-  public static final int MARGIN = 12;
-  public static final int GAP = 4;
-
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
 
-  private final BooleanProperty enableForm = new SimpleBooleanProperty(false);
+  private final BooleanProperty formEnabled = new SimpleBooleanProperty(false);
 
   private final ProgressBar progressBar;
   private final Label remainingTimeLabel;
@@ -43,43 +40,45 @@ public class ActivitySamplingView extends VBox {
     var activityText = new TextField();
     activityText.setPromptText("What are you working on?");
     activityText.setDisable(true);
-    activityText.disableProperty().bind(enableForm.not());
+    activityText.disableProperty().bind(formEnabled.not());
 
     var optionalTagsLabel = new Label("Optional tags");
-    VBox.setMargin(optionalTagsLabel, new Insets(GAP, 0, 0, 0));
+    VBox.setMargin(optionalTagsLabel, new Insets(Views.GAP, 0, 0, 0));
 
     var optionalTagsText = new TextField();
     optionalTagsText.setPromptText("Customer, Project, Product");
     optionalTagsText.setDisable(true);
-    optionalTagsText.disableProperty().bind(enableForm.not());
+    optionalTagsText.disableProperty().bind(formEnabled.not());
 
     var logButton = new Button("Log");
     logButton.setMaxWidth(Double.MAX_VALUE);
     logButton.setDisable(true);
     logButton.setDefaultButton(true);
-    logButton.disableProperty().bind(enableForm.not().or(activityText.textProperty().isEmpty()));
+    logButton.disableProperty().bind(formEnabled.not().or(activityText.textProperty().isEmpty()));
     logButton.setOnAction(
         e -> {
-          if (onLogActivityCommand == null) return;
+          if (onLogActivityCommand == null) {
+            return;
+          }
 
-          enableForm.set(false);
+          formEnabled.set(false);
           var command = new LogActivityCommand(activityText.getText(), optionalTagsText.getText());
           onLogActivityCommand.accept(command);
         });
-    VBox.setMargin(logButton, new Insets(GAP, 0, 0, 0));
+    VBox.setMargin(logButton, new Insets(Views.GAP, 0, 0, 0));
 
     remainingTimeLabel = new Label("00:20:00");
     remainingTimeLabel.setMaxWidth(Double.MAX_VALUE);
     remainingTimeLabel.setAlignment(Pos.CENTER);
-    VBox.setMargin(remainingTimeLabel, new Insets(GAP, 0, 0, 0));
+    VBox.setMargin(remainingTimeLabel, new Insets(Views.GAP, 0, 0, 0));
 
     progressBar = new ProgressBar();
     progressBar.setMaxWidth(Double.MAX_VALUE);
     progressBar.setProgress(0);
 
     setStyle("-fx-font-family: Verdana;");
-    setPadding(new Insets(MARGIN));
-    setSpacing(GAP);
+    setPadding(new Insets(Views.MARGIN));
+    setSpacing(Views.GAP);
     setPrefWidth(360);
     getChildren()
         .addAll(
@@ -115,7 +114,7 @@ public class ActivitySamplingView extends VBox {
         () -> {
           updateRemainingTime(Duration.ZERO);
           progressBar.setProgress(1.0);
-          enableForm.set(true);
+          formEnabled.set(true);
         });
   }
 
