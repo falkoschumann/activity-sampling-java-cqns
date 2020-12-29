@@ -50,7 +50,7 @@ public class ActivitySamplingView extends VBox {
 
     durationStringConverter = new DurationStringConverter();
 
-    getStylesheets().add("/de/muspellheim/activitysampling/frontend/style.css");
+    setStyle("-fx-font-family: Verdana;");
     setPadding(new Insets(MARGIN));
     setSpacing(GAP);
     setPrefWidth(360);
