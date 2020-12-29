@@ -23,6 +23,12 @@ public class ClockTickedNotificationHandler {
 
   private LocalDateTime start;
 
+  public ClockTickedNotificationHandler() {}
+
+  public ClockTickedNotificationHandler(Duration period) {
+    setPeriod(period);
+  }
+
   public void handle(ClockTickedNotification notification) {
     if (start == null) {
       start = notification.getTimestamp();

@@ -8,6 +8,7 @@ package de.muspellheim.activitysampling.backend.messagehandlers;
 import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
+import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
@@ -32,9 +33,13 @@ public class LogActivityCommandHandler {
   }
 
   public CommandStatus handle(LogActivityCommand command) {
-    eventStore.record(
-        new ActivityLoggedEvent(timestamp, period, command.getActivity(), command.getTags()));
-    return new Success();
+    try {
+      eventStore.record(
+          new ActivityLoggedEvent(timestamp, period, command.getActivity(), command.getTags()));
+      return new Success();
+    } catch (Exception e) {
+      return new Failure(e.toString());
+    }
   }
 
   public void handle(PeriodEndedNotification notification) {

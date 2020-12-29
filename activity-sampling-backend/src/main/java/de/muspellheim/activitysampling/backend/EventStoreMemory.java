@@ -9,17 +9,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 
-public class MemoryEventStore implements EventStore {
-  @Getter @Setter @NonNull Consumer<Event> onRecorded = e -> {};
+public class EventStoreMemory implements EventStore {
+  @Getter @Setter Consumer<Event> onRecorded;
 
   private final List<Event> events = new ArrayList<>();
 
   @Override
   public void record(Event event) {
     events.add(event);
+
+    if (onRecorded == null) {
+      return;
+    }
+
     onRecorded.accept(event);
   }
 

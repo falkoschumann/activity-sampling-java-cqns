@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import de.muspellheim.activitysampling.backend.Event;
 import de.muspellheim.activitysampling.backend.EventStore;
-import de.muspellheim.activitysampling.backend.MemoryEventStore;
+import de.muspellheim.activitysampling.backend.EventStoreMemory;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
@@ -31,21 +31,21 @@ class LogActivityCommandHandlerTests {
 
   @BeforeEach
   void setUp() {
-    eventStore = new MemoryEventStore();
+    eventStore = new EventStoreMemory();
     handler =
         new LogActivityCommandHandler(
             eventStore, Clock.fixed(TIMESTAMP, ZoneId.of("Europe/Berlin")));
   }
 
   @Test
-  void periodEnded() {
+  void periodEnded() throws Exception {
     handler.handle(new PeriodEndedNotification(Duration.ofMinutes(20)));
 
     assertEquals(List.of(), eventStore.replay());
   }
 
   @Test
-  void logActivity() {
+  void logActivity() throws Exception {
     handler.handle(new PeriodEndedNotification(Duration.ofMinutes(20)));
 
     handler.handle(new LogActivityCommand("Lorem ipsum", "Foobar"));

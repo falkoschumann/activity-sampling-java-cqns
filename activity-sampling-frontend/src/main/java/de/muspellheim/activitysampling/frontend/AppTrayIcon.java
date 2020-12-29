@@ -18,7 +18,10 @@ public class AppTrayIcon {
   private TrayIcon trayIcon;
 
   public AppTrayIcon() {
-    if (!SystemTray.isSupported()) return;
+    if (!SystemTray.isSupported()) {
+      System.out.println("System tray is not supported on this platform");
+      return;
+    }
 
     tray = SystemTray.getSystemTray();
     var url = getClass().getResource("app.png");
@@ -33,13 +36,17 @@ public class AppTrayIcon {
   }
 
   public void display(PeriodEndedNotification notification) {
-    if (trayIcon == null) return;
+    if (trayIcon == null) {
+      return;
+    }
 
     trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
   }
 
   public void dispose() {
-    if (trayIcon == null) return;
+    if (trayIcon == null) {
+      return;
+    }
 
     EventQueue.invokeLater(() -> tray.remove(trayIcon));
   }

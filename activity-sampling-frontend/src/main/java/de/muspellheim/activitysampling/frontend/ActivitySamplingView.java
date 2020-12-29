@@ -22,19 +22,15 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 
 public class ActivitySamplingView extends VBox {
-
   public static final int MARGIN = 12;
   public static final int GAP = 4;
 
-  @Getter @Setter @NonNull private Consumer<LogActivityCommand> onLogActivityCommand = e -> {};
+  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
 
-  private final BooleanProperty enableForm;
-
-  private final DurationStringConverter durationStringConverter;
+  private final BooleanProperty enableForm = new SimpleBooleanProperty(false);
 
   private final ProgressBar progressBar;
   private final Label remainingTimeLabel;
@@ -42,60 +38,25 @@ public class ActivitySamplingView extends VBox {
   private Duration period;
 
   public ActivitySamplingView() {
-    /*
-     * Build
-     */
-
-    enableForm = new SimpleBooleanProperty(false);
-
-    durationStringConverter = new DurationStringConverter();
-
-    setStyle("-fx-font-family: Verdana;");
-    setPadding(new Insets(MARGIN));
-    setSpacing(GAP);
-    setPrefWidth(360);
-
     var activityLabel = new Label("Activity");
-    getChildren().add(activityLabel);
 
     var activityText = new TextField();
     activityText.setPromptText("What are you working on?");
     activityText.setDisable(true);
-    getChildren().add(activityText);
+    activityText.disableProperty().bind(enableForm.not());
 
     var optionalTagsLabel = new Label("Optional tags");
-    setMargin(optionalTagsLabel, new Insets(GAP, 0, 0, 0));
-    getChildren().add(optionalTagsLabel);
+    VBox.setMargin(optionalTagsLabel, new Insets(GAP, 0, 0, 0));
 
     var optionalTagsText = new TextField();
     optionalTagsText.setPromptText("Customer, Project, Product");
     optionalTagsText.setDisable(true);
-    getChildren().add(optionalTagsText);
+    optionalTagsText.disableProperty().bind(enableForm.not());
 
     var logButton = new Button("Log");
     logButton.setMaxWidth(Double.MAX_VALUE);
     logButton.setDisable(true);
     logButton.setDefaultButton(true);
-    setMargin(logButton, new Insets(GAP, 0, 0, 0));
-    getChildren().add(logButton);
-
-    remainingTimeLabel = new Label("00:20:00");
-    remainingTimeLabel.setMaxWidth(Double.MAX_VALUE);
-    remainingTimeLabel.setAlignment(Pos.CENTER);
-    setMargin(remainingTimeLabel, new Insets(GAP, 0, 0, 0));
-    getChildren().add(remainingTimeLabel);
-
-    progressBar = new ProgressBar();
-    progressBar.setMaxWidth(Double.MAX_VALUE);
-    progressBar.setProgress(0);
-    getChildren().add(progressBar);
-
-    /*
-     * Bind
-     */
-
-    activityText.disableProperty().bind(enableForm.not());
-    optionalTagsText.disableProperty().bind(enableForm.not());
     logButton.disableProperty().bind(enableForm.not().or(activityText.textProperty().isEmpty()));
     logButton.setOnAction(
         e -> {
@@ -105,6 +66,30 @@ public class ActivitySamplingView extends VBox {
           var command = new LogActivityCommand(activityText.getText(), optionalTagsText.getText());
           onLogActivityCommand.accept(command);
         });
+    VBox.setMargin(logButton, new Insets(GAP, 0, 0, 0));
+
+    remainingTimeLabel = new Label("00:20:00");
+    remainingTimeLabel.setMaxWidth(Double.MAX_VALUE);
+    remainingTimeLabel.setAlignment(Pos.CENTER);
+    VBox.setMargin(remainingTimeLabel, new Insets(GAP, 0, 0, 0));
+
+    progressBar = new ProgressBar();
+    progressBar.setMaxWidth(Double.MAX_VALUE);
+    progressBar.setProgress(0);
+
+    setStyle("-fx-font-family: Verdana;");
+    setPadding(new Insets(MARGIN));
+    setSpacing(GAP);
+    setPrefWidth(360);
+    getChildren()
+        .addAll(
+            activityLabel,
+            activityText,
+            optionalTagsLabel,
+            optionalTagsText,
+            logButton,
+            remainingTimeLabel,
+            progressBar);
   }
 
   public void display(PeriodStartedNotification notification) {
@@ -135,7 +120,7 @@ public class ActivitySamplingView extends VBox {
   }
 
   private void updateRemainingTime(Duration remainingTime) {
-    var text = durationStringConverter.toString(remainingTime);
+    var text = new DurationStringConverter().toString(remainingTime);
     remainingTimeLabel.setText(text);
   }
 }

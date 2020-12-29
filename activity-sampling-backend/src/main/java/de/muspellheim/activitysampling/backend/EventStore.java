@@ -14,21 +14,23 @@ public interface EventStore {
 
   void setOnRecorded(Consumer<Event> consumer);
 
-  void record(Event event);
+  void record(Event event) throws Exception;
 
-  default void record(List<Event> events) {
-    events.forEach(this::record);
+  default void record(List<Event> events) throws Exception {
+    for (Event event : events) {
+      record(event);
+    }
   }
 
-  List<Event> replay();
+  List<Event> replay() throws Exception;
 
-  default List<Event> replay(Class<? extends Event> eventType) {
+  default List<Event> replay(Class<? extends Event> eventType) throws Exception {
     return replay().stream()
         .filter(it -> it.getClass().equals(eventType))
         .collect(Collectors.toList());
   }
 
-  default List<Event> replay(List<Class<? extends Event>> eventTypes) {
+  default List<Event> replay(List<Class<? extends Event>> eventTypes) throws Exception {
     return replay().stream()
         .filter(it -> eventTypes.contains(it.getClass()))
         .collect(Collectors.toList());

@@ -1,9 +1,9 @@
 /*
- * Activity Sampling - Backend
+ * Activity Sampling - Frontend
  * Copyright (c) 2020 Falko Schumann <falko.schumann@muspellheim.de>
  */
 
-package de.muspellheim.activitysampling.backend;
+package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.messages.notifications.ClockTickedNotification;
 import java.time.LocalDateTime;
@@ -20,18 +20,19 @@ public class SystemClock {
   @Getter @Setter private Consumer<ClockTickedNotification> onTick;
 
   public void run() {
-    timer.schedule(
-        new TimerTask() {
-          @Override
-          public void run() {
-            if (onTick == null) return;
+    timer.schedule(new SystemClockTask(), 0, 1000);
+  }
 
-            var timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-            var notification = new ClockTickedNotification(timestamp);
-            onTick.accept(notification);
-          }
-        },
-        0,
-        1000);
+  private class SystemClockTask extends TimerTask {
+    @Override
+    public void run() {
+      if (onTick == null) {
+        return;
+      }
+
+      var timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+      var notification = new ClockTickedNotification(timestamp);
+      onTick.accept(notification);
+    }
   }
 }
