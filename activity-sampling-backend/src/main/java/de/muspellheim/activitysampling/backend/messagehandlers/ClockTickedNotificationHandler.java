@@ -16,14 +16,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class ClockTickedNotificationHandler {
-  @Getter @Setter private Duration period = Duration.ofMinutes(20);
+  @Getter @Setter private Duration period;
   @Getter @Setter private Consumer<PeriodStartedNotification> onPeriodStartedNotification;
   @Getter @Setter private Consumer<PeriodProgressedNotification> onPeriodProgressedNotification;
   @Getter @Setter private Consumer<PeriodEndedNotification> onPeriodEndedNotification;
 
   private LocalDateTime start;
 
-  public ClockTickedNotificationHandler() {}
+  public ClockTickedNotificationHandler() {
+    this(Duration.ofMinutes(20));
+  }
 
   public ClockTickedNotificationHandler(Duration period) {
     setPeriod(period);
@@ -38,7 +40,7 @@ public class ClockTickedNotificationHandler {
 
     var elapsedTime = Duration.between(start, notification.getTimestamp());
     var remainingTime = period.minus(elapsedTime);
-    if (remainingTime.isZero() || remainingTime.isNegative()) {
+    if (remainingTime.toSeconds() <= 0) {
       onPeriodEndedNotification.accept(new PeriodEndedNotification(period));
       start = null;
     } else {

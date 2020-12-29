@@ -10,6 +10,8 @@ import de.muspellheim.activitysampling.backend.EventStoreCsv;
 import de.muspellheim.activitysampling.backend.EventStoreMemory;
 import de.muspellheim.activitysampling.backend.messagehandlers.ClockTickedNotificationHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
+import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
+import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingView;
 import de.muspellheim.activitysampling.frontend.AppTrayIcon;
 import de.muspellheim.activitysampling.frontend.SystemClock;
@@ -57,7 +59,11 @@ public class App extends Application {
         });
 
     clock.setOnTick(it -> clockTickedNotificationHandler.handle(it));
-    view.setOnLogActivityCommand(it -> logActivityCommandHandler.handle(it));
+    view.setOnLogActivityCommand(
+        it -> {
+          var status = logActivityCommandHandler.handle(it);
+          handleCommandStatus(status);
+        });
 
     var scene = new Scene(view);
     stage.setScene(scene);
@@ -65,6 +71,12 @@ public class App extends Application {
     stage.show();
 
     clock.run();
+  }
+
+  private void handleCommandStatus(CommandStatus status) {
+    if (status instanceof Failure) {
+      System.err.println(status);
+    }
   }
 
   @Override
