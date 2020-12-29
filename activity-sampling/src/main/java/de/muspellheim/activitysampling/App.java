@@ -12,11 +12,13 @@ import de.muspellheim.activitysampling.backend.messagehandlers.ClockTickedNotifi
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
 import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
 import de.muspellheim.activitysampling.contract.messages.commands.Failure;
+import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingView;
 import de.muspellheim.activitysampling.frontend.AppTrayIcon;
 import de.muspellheim.activitysampling.frontend.SystemClock;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.function.Consumer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -60,12 +62,16 @@ public class App extends Application {
         });
 
     clock.setOnTick(it -> clockTickedNotificationHandler.handle(it));
-    view.setOnLogActivityCommand(
+    Consumer<LogActivityCommand> handleLogActivityCommandConsumer =
         it -> {
-          trayIcon.dispose();
           var status = logActivityCommandHandler.handle(it);
-          handleCommandStatus(status);
-        });
+          if (handleCommandStatus(status)) {
+            trayIcon.setLastActivity(it);
+            trayIcon.dispose();
+          }
+        };
+    view.setOnLogActivityCommand(handleLogActivityCommandConsumer);
+    trayIcon.setOnLogActivityCommand(handleLogActivityCommandConsumer);
 
     var scene = new Scene(view);
     stage.setScene(scene);
@@ -75,10 +81,13 @@ public class App extends Application {
     clock.run();
   }
 
-  private void handleCommandStatus(CommandStatus status) {
+  private boolean handleCommandStatus(CommandStatus status) {
     if (status instanceof Failure) {
       System.err.println(status);
+      return false;
     }
+
+    return true;
   }
 
   @Override

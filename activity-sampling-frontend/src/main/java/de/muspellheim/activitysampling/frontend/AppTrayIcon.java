@@ -5,15 +5,24 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
 import java.awt.AWTException;
 import java.awt.EventQueue;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
+import java.util.function.Consumer;
+import lombok.Getter;
+import lombok.Setter;
 
 public class AppTrayIcon {
+  @Getter @Setter LogActivityCommand lastActivity;
+  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+
   private SystemTray tray;
   private TrayIcon trayIcon;
 
@@ -35,6 +44,25 @@ public class AppTrayIcon {
       var url = getClass().getResource("app.png");
       var image = Toolkit.getDefaultToolkit().getImage(url);
       trayIcon = new TrayIcon(image);
+      if (lastActivity != null) {
+        String s = lastActivity.getActivity();
+        if (lastActivity.getTags() != null) {
+          s = "[" + lastActivity.getTags() + "] " + s;
+        }
+        MenuItem menuItem = new MenuItem(s);
+        menuItem.addActionListener(
+            it -> {
+              if (onLogActivityCommand == null) {
+                return;
+              }
+
+              onLogActivityCommand.accept(lastActivity);
+            });
+
+        var menu = new PopupMenu();
+        menu.add(menuItem);
+        trayIcon.setPopupMenu(menu);
+      }
 
       try {
         tray.add(trayIcon);
