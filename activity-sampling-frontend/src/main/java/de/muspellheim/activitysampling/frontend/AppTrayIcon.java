@@ -24,30 +24,37 @@ public class AppTrayIcon {
     }
 
     tray = SystemTray.getSystemTray();
-    var url = getClass().getResource("app.png");
-    var image = Toolkit.getDefaultToolkit().getImage(url);
-    trayIcon = new TrayIcon(image);
-    trayIcon.addActionListener(e -> System.out.println("Action: " + e));
-    try {
-      tray.add(trayIcon);
-    } catch (AWTException e) {
-      throw new IllegalStateException(e);
-    }
   }
 
   public void display(PeriodEndedNotification notification) {
-    if (trayIcon == null) {
+    if (tray == null) {
       return;
+    }
+
+    if (trayIcon == null) {
+      var url = getClass().getResource("app.png");
+      var image = Toolkit.getDefaultToolkit().getImage(url);
+      trayIcon = new TrayIcon(image);
+
+      try {
+        tray.add(trayIcon);
+      } catch (AWTException e) {
+        System.err.println(e.toString());
+      }
     }
 
     trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
   }
 
   public void dispose() {
-    if (trayIcon == null) {
+    if (tray == null) {
       return;
     }
 
-    EventQueue.invokeLater(() -> tray.remove(trayIcon));
+    EventQueue.invokeLater(
+        () -> {
+          tray.remove(trayIcon);
+          trayIcon = null;
+        });
   }
 }

@@ -34,6 +34,7 @@ public class App extends Application {
     if (getParameters().getUnnamed().contains("-demo")) {
       System.out.println("Run in demo mode...");
       eventStore = new EventStoreMemory();
+      eventStore.setOnRecorded(it -> System.out.println("Logged event: " + it));
     } else {
       var file = Paths.get(System.getProperty("user.home"), "activity-log.csv");
       eventStore = new EventStoreCsv(file);
@@ -61,6 +62,7 @@ public class App extends Application {
     clock.setOnTick(it -> clockTickedNotificationHandler.handle(it));
     view.setOnLogActivityCommand(
         it -> {
+          trayIcon.dispose();
           var status = logActivityCommandHandler.handle(it);
           handleCommandStatus(status);
         });
