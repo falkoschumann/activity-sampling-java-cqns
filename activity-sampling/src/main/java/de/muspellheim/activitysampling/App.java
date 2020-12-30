@@ -14,7 +14,6 @@ import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
 import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingView;
-import de.muspellheim.activitysampling.frontend.AppTrayIcon;
 import de.muspellheim.activitysampling.frontend.SystemClock;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -25,7 +24,6 @@ import javafx.stage.Stage;
 
 public class App extends Application {
   private EventStore eventStore;
-  private AppTrayIcon trayIcon;
 
   public static void main(String[] args) {
     Application.launch(args);
@@ -50,14 +48,12 @@ public class App extends Application {
 
     var clock = new SystemClock();
     var view = new ActivitySamplingView();
-    trayIcon = new AppTrayIcon();
 
     clockTickedNotificationHandler.setOnPeriodStartedNotification(it -> view.display(it));
     clockTickedNotificationHandler.setOnPeriodProgressedNotification(it -> view.display(it));
     clockTickedNotificationHandler.setOnPeriodEndedNotification(
         it -> {
           view.display(it);
-          trayIcon.display(it);
           logActivityCommandHandler.handle(it);
         });
 
@@ -65,13 +61,9 @@ public class App extends Application {
     Consumer<LogActivityCommand> handleLogActivityCommandConsumer =
         it -> {
           var status = logActivityCommandHandler.handle(it);
-          if (handleCommandStatus(status)) {
-            trayIcon.setLastActivity(it);
-            trayIcon.dispose();
-          }
+          handleCommandStatus(status);
         };
     view.setOnLogActivityCommand(handleLogActivityCommandConsumer);
-    trayIcon.setOnLogActivityCommand(handleLogActivityCommandConsumer);
 
     var scene = new Scene(view);
     stage.setScene(scene);
@@ -88,10 +80,5 @@ public class App extends Application {
     }
 
     return true;
-  }
-
-  @Override
-  public void stop() {
-    trayIcon.dispose();
   }
 }
