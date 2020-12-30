@@ -3,8 +3,10 @@
  * Copyright (c) 2020 Falko Schumann <falko.schumann@muspellheim.de>
  */
 
-package de.muspellheim.activitysampling.backend;
+package de.muspellheim.activitysampling.backend.adapters;
 
+import de.muspellheim.activitysampling.backend.Event;
+import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -20,12 +22,12 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-public class EventStoreCsv implements EventStore {
+public class CsvEventStore implements EventStore {
   @Getter @Setter Consumer<Event> onRecorded;
 
   private final Path file;
 
-  public EventStoreCsv(Path file) {
+  public CsvEventStore(Path file) {
     this.file = file;
   }
 

@@ -3,15 +3,17 @@
  * Copyright (c) 2020 Falko Schumann <falko.schumann@muspellheim.de>
  */
 
-package de.muspellheim.activitysampling.backend;
+package de.muspellheim.activitysampling.backend.adapters;
 
+import de.muspellheim.activitysampling.backend.Event;
+import de.muspellheim.activitysampling.backend.EventStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-public class EventStoreMemory implements EventStore {
+public class MemoryEventStore implements EventStore {
   @Getter @Setter Consumer<Event> onRecorded;
 
   private final List<Event> events = new ArrayList<>();
