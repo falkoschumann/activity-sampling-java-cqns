@@ -70,6 +70,8 @@ public class App extends Application {
     var scene = new Scene(view);
     stage.setScene(scene);
     stage.setTitle("Activity Sampling");
+    stage.setMinWidth(240);
+    stage.setMinHeight(420);
     stage.show();
 
     clock.run();

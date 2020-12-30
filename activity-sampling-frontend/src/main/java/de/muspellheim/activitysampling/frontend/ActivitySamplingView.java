@@ -15,6 +15,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +29,7 @@ public class ActivitySamplingView extends VBox {
   private final FormInput activityInput;
   private final FormInput optionalTagsInput;
   private final PeriodProgress periodProgress;
+  private final TextArea log;
   private final AppTrayIcon trayIcon;
 
   public ActivitySamplingView() {
@@ -54,11 +57,16 @@ public class ActivitySamplingView extends VBox {
 
     periodProgress = new PeriodProgress();
 
+    log = new TextArea();
+    log.setEditable(false);
+    log.setFocusTraversable(false);
+    VBox.setVgrow(log, Priority.ALWAYS);
+
     setStyle("-fx-font-family: Verdana;");
     setPadding(new Insets(Views.MARGIN));
     setSpacing(Views.UNRELATED_GAP);
-    setPrefWidth(360);
-    getChildren().setAll(activityInput, optionalTagsInput, logButton, periodProgress);
+    setPrefSize(360, 640);
+    getChildren().setAll(activityInput, optionalTagsInput, logButton, periodProgress, log);
 
     trayIcon = new AppTrayIcon();
     trayIcon.setOnLogActivityCommand(it -> handleLogActivity(it));
