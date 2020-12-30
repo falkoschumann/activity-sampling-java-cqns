@@ -19,30 +19,30 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class ClockTickedNotificationHandlerTests {
-  private ClockTickedNotificationHandler periodCheck;
+  private ClockTickedNotificationHandler handler;
   private List<Object> messages;
 
   @BeforeEach
   void setUp() {
-    periodCheck = new ClockTickedNotificationHandler();
+    handler = new ClockTickedNotificationHandler();
     messages = new ArrayList<>();
-    periodCheck.setOnPeriodStartedNotification(n -> messages.add(n));
-    periodCheck.setOnPeriodProgressedNotification(n -> messages.add(n));
-    periodCheck.setOnPeriodEndedNotification(n -> messages.add(n));
+    handler.setOnPeriodStartedNotification(n -> messages.add(n));
+    handler.setOnPeriodProgressedNotification(n -> messages.add(n));
+    handler.setOnPeriodEndedNotification(n -> messages.add(n));
   }
 
   @Test
   void periodStarted() {
-    periodCheck.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 20)));
+    handler.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 20)));
 
     assertEquals(List.of(new PeriodStartedNotification(Duration.ofMinutes(20))), messages);
   }
 
   @Test
   void periodProgressed() {
-    periodCheck.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 20)));
+    handler.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 20)));
 
-    periodCheck.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 31, 45)));
+    handler.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 31, 45)));
 
     assertEquals(
         List.of(
@@ -56,9 +56,9 @@ class ClockTickedNotificationHandlerTests {
 
   @Test
   void periodEnded() {
-    periodCheck.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 20)));
+    handler.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 20)));
 
-    periodCheck.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 40)));
+    handler.handle(new ClockTickedNotification(LocalDateTime.of(2020, 11, 8, 17, 40)));
 
     assertEquals(
         List.of(

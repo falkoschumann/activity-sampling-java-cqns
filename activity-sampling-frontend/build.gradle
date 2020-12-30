@@ -1,12 +1,7 @@
 plugins {
-    id 'java-library'
-    id 'org.openjfx.javafxplugin'
+    id 'todomvc.java-libraryfx-conventions'
 }
 
 dependencies {
     api project(':activity-sampling-contract')
-}
-
-javafx {
-    modules = ['javafx.controls', 'javafx.fxml']
 }
