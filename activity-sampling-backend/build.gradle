@@ -1,8 +1,7 @@
 plugins {
-    id 'java-library'
+    id 'todomvc.java-library-conventions'
 }
 
 dependencies {
     api project(':activity-sampling-contract')
-    implementation 'com.google.code.gson:gson:2.8.6'
 }

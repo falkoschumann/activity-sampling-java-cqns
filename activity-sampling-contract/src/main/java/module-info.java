@@ -3,5 +3,4 @@ module de.muspellheim.activitysampling.contract {
 
   exports de.muspellheim.activitysampling.contract.messages.commands;
   exports de.muspellheim.activitysampling.contract.messages.notifications;
-  exports de.muspellheim.activitysampling.contract.util;
 }
