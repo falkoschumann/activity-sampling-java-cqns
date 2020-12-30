@@ -6,9 +6,15 @@
 package de.muspellheim.activitysampling.backend;
 
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -26,30 +32,44 @@ public class EventStoreCsv implements EventStore {
   @Override
   public void record(Event event) throws Exception {
     if (Files.notExists(file)) {
-      Files.createDirectories(file.getParent());
-      String header = "id,timestamp,period,activity,tags\n";
-      Files.writeString(file, header, StandardCharsets.UTF_8);
+      createFile();
     }
 
-    ActivityLoggedEvent e = (ActivityLoggedEvent) event;
-    String record =
-        e.getId()
-            + ","
-            + e.getTimestamp()
-            + ","
-            + e.getPeriod()
-            + ","
-            + e.getActivity()
-            + ","
-            + e.getTags()
-            + "\n";
-    Files.writeString(file, record, StandardCharsets.UTF_8);
+    writeActivity((ActivityLoggedEvent) event);
 
     if (onRecorded == null) {
       return;
     }
 
     onRecorded.accept(event);
+  }
+
+  private void createFile() throws IOException {
+    Files.createDirectories(file.getParent());
+    String header = "id,timestamp,period,activity,tags\n";
+    Files.writeString(file, header, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+  }
+
+  private void writeActivity(ActivityLoggedEvent e) throws IOException {
+    var formattedTimestamp =
+        LocalDateTime.ofInstant(e.getTimestamp(), ZoneId.systemDefault())
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+    var formattedPeriod =
+        LocalTime.ofSecondOfDay(e.getPeriod().toSeconds())
+            .format(DateTimeFormatter.ofPattern("HH:mm"));
+    String record =
+        "\""
+            + e.getId()
+            + "\","
+            + formattedTimestamp
+            + ","
+            + formattedPeriod
+            + ",\""
+            + e.getActivity()
+            + "\",\""
+            + e.getTags()
+            + "\"\n";
+    Files.writeString(file, record, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
   }
 
   @Override

@@ -36,7 +36,9 @@ public class App extends Application {
       eventStore = new EventStoreMemory();
       eventStore.setOnRecorded(it -> System.out.println("Logged event: " + it));
     } else {
-      var file = Paths.get(System.getProperty("user.home"), "activity-log.csv");
+      var userHome = System.getProperty("user.home");
+      var file = Paths.get(userHome, "activity-log.csv");
+      System.out.println("Save activity log in: " + file.toAbsolutePath());
       eventStore = new EventStoreCsv(file);
     }
   }
