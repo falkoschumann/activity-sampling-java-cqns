@@ -9,25 +9,12 @@ import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCom
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodProgressedNotification;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodStartedNotification;
-import java.awt.AWTException;
-import java.awt.EventQueue;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.SystemTray;
-import java.awt.Toolkit;
-import java.awt.TrayIcon;
-import java.awt.TrayIcon.MessageType;
-import java.time.Duration;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,157 +22,80 @@ import lombok.Setter;
 public class ActivitySamplingView extends VBox {
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
 
-  private final BooleanProperty formEnabled = new SimpleBooleanProperty(false);
+  private final BooleanProperty activityFormDisabled = new SimpleBooleanProperty(true);
 
-  private final TextField activityText;
-  private final TextField optionalTagsText;
-  private final ProgressBar progressBar;
-  private final Label remainingTimeLabel;
-
-  private SystemTray tray;
-  private TrayIcon trayIcon;
-
-  private Duration period;
+  private final FormInput activityInput;
+  private final FormInput optionalTagsInput;
+  private final PeriodProgress periodProgress;
+  private final AppTrayIcon trayIcon;
 
   public ActivitySamplingView() {
-    var activityLabel = new Label("Activity");
+    activityInput = new FormInput("Activity*", "What are you working on?");
+    activityInput.setDisable(true);
+    activityInput.disableProperty().bind(activityFormDisabled);
 
-    activityText = new TextField();
-    activityText.setPromptText("What are you working on?");
-    activityText.setDisable(true);
-    activityText.disableProperty().bind(formEnabled.not());
-
-    var optionalTagsLabel = new Label("Optional tags");
-    VBox.setMargin(optionalTagsLabel, new Insets(Views.GAP, 0, 0, 0));
-
-    optionalTagsText = new TextField();
-    optionalTagsText.setPromptText("Customer, Project, Product");
-    optionalTagsText.setDisable(true);
-    optionalTagsText.disableProperty().bind(formEnabled.not());
+    optionalTagsInput = new FormInput("Optional tags", "Customer, Project, Product");
+    optionalTagsInput.setDisable(true);
+    optionalTagsInput.disableProperty().bind(activityFormDisabled);
 
     var logButton = new Button("Log");
     logButton.setMaxWidth(Double.MAX_VALUE);
     logButton.setDisable(true);
     logButton.setDefaultButton(true);
-    logButton.disableProperty().bind(formEnabled.not().or(activityText.textProperty().isEmpty()));
-    logButton.setOnAction(e -> handleLogActivity());
-    VBox.setMargin(logButton, new Insets(Views.GAP, 0, 0, 0));
+    logButton
+        .disableProperty()
+        .bind(activityFormDisabled.or(activityInput.valueProperty().isEmpty()));
+    logButton.setOnAction(
+        e -> {
+          var command =
+              new LogActivityCommand(activityInput.getValue(), optionalTagsInput.getValue());
+          handleLogActivity(command);
+        });
 
-    remainingTimeLabel = new Label("00:20:00");
-    remainingTimeLabel.setMaxWidth(Double.MAX_VALUE);
-    remainingTimeLabel.setAlignment(Pos.CENTER);
-    VBox.setMargin(remainingTimeLabel, new Insets(Views.GAP, 0, 0, 0));
-
-    progressBar = new ProgressBar();
-    progressBar.setMaxWidth(Double.MAX_VALUE);
-    progressBar.setProgress(0);
+    periodProgress = new PeriodProgress();
 
     setStyle("-fx-font-family: Verdana;");
     setPadding(new Insets(Views.MARGIN));
-    setSpacing(Views.GAP);
+    setSpacing(Views.UNRELATED_GAP);
     setPrefWidth(360);
-    getChildren()
-        .addAll(
-            activityLabel,
-            activityText,
-            optionalTagsLabel,
-            optionalTagsText,
-            logButton,
-            remainingTimeLabel,
-            progressBar);
+    getChildren().setAll(activityInput, optionalTagsInput, logButton, periodProgress);
 
-    if (!SystemTray.isSupported()) {
-      System.out.println("System tray is not supported on this platform");
-      return;
-    }
-
-    tray = SystemTray.getSystemTray();
+    trayIcon = new AppTrayIcon();
+    trayIcon.setOnLogActivityCommand(it -> handleLogActivity(it));
+    Platform.runLater(() -> getScene().getWindow().setOnHiding(e -> trayIcon.hide()));
   }
 
   public void display(PeriodStartedNotification notification) {
-    Platform.runLater(
-        () -> {
-          period = notification.getPeriod();
-          updateRemainingTime(notification.getPeriod());
-          progressBar.setProgress(0.0);
-        });
+    Platform.runLater(() -> periodProgress.start(notification.getPeriod()));
   }
 
   public void display(PeriodProgressedNotification notification) {
     Platform.runLater(
-        () -> {
-          updateRemainingTime(notification.getRemainingTime());
-          var progress = (double) notification.getElapsedTime().getSeconds() / period.getSeconds();
-          progressBar.setProgress(progress);
-        });
+        () ->
+            periodProgress.progress(
+                notification.getPeriod(),
+                notification.getElapsedTime(),
+                notification.getRemainingTime()));
   }
 
   public void display(PeriodEndedNotification notification) {
     Platform.runLater(
         () -> {
-          updateRemainingTime(Duration.ZERO);
-          progressBar.setProgress(1.0);
-          formEnabled.set(true);
+          activityFormDisabled.set(false);
+          periodProgress.end();
+          trayIcon.show();
         });
-
-    if (tray == null) {
-      return;
-    }
-
-    if (trayIcon == null) {
-      var url = getClass().getResource("app.png");
-      var image = Toolkit.getDefaultToolkit().getImage(url);
-      trayIcon = new TrayIcon(image);
-      if (!activityText.getText().isBlank()) {
-        String s = activityText.getText();
-        if (!optionalTagsText.getText().isBlank()) {
-          s = "[" + optionalTagsText.getText() + "] " + s;
-        }
-        MenuItem menuItem = new MenuItem(s);
-        menuItem.addActionListener(it -> handleLogActivity());
-
-        var menu = new PopupMenu();
-        menu.add(menuItem);
-        trayIcon.setPopupMenu(menu);
-      }
-
-      try {
-        tray.add(trayIcon);
-        getScene().getWindow().setOnHiding(e -> disposeTrayIcon());
-      } catch (AWTException e) {
-        System.err.println(e.toString());
-      }
-    }
-
-    trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
   }
 
-  private void updateRemainingTime(Duration remainingTime) {
-    var text = new DurationStringConverter().toString(remainingTime);
-    remainingTimeLabel.setText(text);
-  }
-
-  private void handleLogActivity() {
-    formEnabled.set(false);
-    disposeTrayIcon();
+  private void handleLogActivity(LogActivityCommand command) {
+    activityFormDisabled.set(true);
+    trayIcon.hide();
+    trayIcon.setLastCommand(command);
 
     if (onLogActivityCommand == null) {
       return;
     }
 
-    var command = new LogActivityCommand(activityText.getText(), optionalTagsText.getText());
     onLogActivityCommand.accept(command);
-  }
-
-  private void disposeTrayIcon() {
-    if (tray == null) {
-      return;
-    }
-
-    EventQueue.invokeLater(
-        () -> {
-          tray.remove(trayIcon);
-          trayIcon = null;
-        });
   }
 }
