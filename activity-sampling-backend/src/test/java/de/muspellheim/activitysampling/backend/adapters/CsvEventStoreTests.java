@@ -6,9 +6,7 @@
 package de.muspellheim.activitysampling.backend.adapters;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +16,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -26,21 +23,15 @@ public class CsvEventStoreTests {
   private static final Path OUT_FILE = Paths.get("build/tests/activity-log.csv");
   private static final Path SOLL_FILE = Paths.get("src/test/resources/activity-log.csv");
 
-  private EventStore eventStore;
-
   @BeforeAll
   static void setUpBeforeAll() throws Exception {
     Files.deleteIfExists(OUT_FILE);
     Files.createDirectories(OUT_FILE.getParent());
   }
 
-  @BeforeEach
-  void setUp() {
-    eventStore = new CsvEventStore(OUT_FILE);
-  }
-
   @Test
   void record() throws Exception {
+    var eventStore = new CsvEventStore(OUT_FILE);
     var events = createEvents();
 
     eventStore.record(events.get(0));
@@ -52,7 +43,11 @@ public class CsvEventStoreTests {
   @Test
   @Disabled("Not implemented yet")
   void replay() throws Exception {
-    fail("Not implemented yet");
+    var eventStore = new CsvEventStore(SOLL_FILE);
+
+    var events = eventStore.replay();
+
+    assertEquals(createEvents(), events);
   }
 
   private static List<ActivityLoggedEvent> createEvents() {

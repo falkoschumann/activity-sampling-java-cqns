@@ -22,6 +22,7 @@ public interface EventStore {
     }
   }
 
+  // TODO Replay List in Replay Stream ändern
   List<Event> replay() throws Exception;
 
   default List<Event> replay(Class<? extends Event> eventType) throws Exception {

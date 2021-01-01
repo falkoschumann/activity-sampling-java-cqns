@@ -13,12 +13,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -76,7 +79,18 @@ public class CsvEventStore implements EventStore {
 
   @Override
   public List<Event> replay() throws Exception {
-    // TODO Implement replay
-    throw new UnsupportedOperationException("not implemented yet");
+    return Files.readAllLines(file).stream()
+        .skip(1)
+        .map(it -> lineToEvent(it))
+        .collect(Collectors.toList());
+  }
+
+  private Event lineToEvent(String line) {
+    String id = "";
+    Instant timestamp = Instant.now();
+    Duration period = Duration.ofMinutes(20);
+    String activity = "Lorem ipsum";
+    String tags = null;
+    return new ActivityLoggedEvent(id, timestamp, period, activity, tags);
   }
 }
