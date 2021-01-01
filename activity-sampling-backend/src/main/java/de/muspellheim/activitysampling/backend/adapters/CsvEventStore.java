@@ -48,7 +48,7 @@ public class CsvEventStore implements EventStore {
 
   private void createFile() throws IOException {
     Files.createDirectories(file.getParent());
-    String header = "id,timestamp,period,activity,tags\n";
+    String header = "\"id\",\"timestamp\",\"period\",\"activity\",\"tags\"\n";
     Files.writeString(file, header, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
   }
 
@@ -68,14 +68,15 @@ public class CsvEventStore implements EventStore {
             + formattedPeriod
             + ",\""
             + e.getActivity()
-            + "\",\""
-            + e.getTags()
-            + "\"\n";
+            + "\","
+            + (e.getTags() == null ? "" : "\"" + e.getTags() + "\"")
+            + "\n";
     Files.writeString(file, record, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
   }
 
   @Override
   public List<Event> replay() throws Exception {
+    // TODO Implement replay
     throw new UnsupportedOperationException("not implemented yet");
   }
 }

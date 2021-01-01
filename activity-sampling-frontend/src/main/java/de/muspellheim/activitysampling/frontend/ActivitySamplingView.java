@@ -29,7 +29,7 @@ public class ActivitySamplingView extends VBox {
   private final FormInput activityInput;
   private final FormInput optionalTagsInput;
   private final PeriodProgress periodProgress;
-  private final TextArea log;
+  private final TextArea activityLog;
   private final AppTrayIcon trayIcon;
 
   public ActivitySamplingView() {
@@ -57,16 +57,16 @@ public class ActivitySamplingView extends VBox {
 
     periodProgress = new PeriodProgress();
 
-    log = new TextArea();
-    log.setEditable(false);
-    log.setFocusTraversable(false);
-    VBox.setVgrow(log, Priority.ALWAYS);
+    activityLog = new TextArea();
+    activityLog.setEditable(false);
+    activityLog.setFocusTraversable(false);
+    VBox.setVgrow(activityLog, Priority.ALWAYS);
 
     setStyle("-fx-font-family: Verdana;");
     setPadding(new Insets(Views.MARGIN));
     setSpacing(Views.UNRELATED_GAP);
     setPrefSize(360, 640);
-    getChildren().setAll(activityInput, optionalTagsInput, logButton, periodProgress, log);
+    getChildren().setAll(activityInput, optionalTagsInput, logButton, periodProgress, activityLog);
 
     trayIcon = new AppTrayIcon();
     trayIcon.setOnLogActivityCommand(it -> handleLogActivity(it));
@@ -99,6 +99,8 @@ public class ActivitySamplingView extends VBox {
     activityFormDisabled.set(true);
     trayIcon.hide();
     trayIcon.setLastCommand(command);
+
+    // TODO Query Activity Log
 
     if (onLogActivityCommand == null) {
       return;
