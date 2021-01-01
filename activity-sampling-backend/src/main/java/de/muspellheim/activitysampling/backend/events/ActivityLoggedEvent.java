@@ -22,6 +22,10 @@ public class ActivityLoggedEvent implements Event {
   @NonNull String activity;
   String tags;
 
+  public ActivityLoggedEvent(Instant timestamp, Duration period, String activity) {
+    this(UUID.randomUUID().toString(), timestamp, period, activity, null);
+  }
+
   public ActivityLoggedEvent(Instant timestamp, Duration period, String activity, String tags) {
     this(UUID.randomUUID().toString(), timestamp, period, activity, tags);
   }
