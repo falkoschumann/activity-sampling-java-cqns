@@ -73,7 +73,7 @@ public class CsvEventStore implements EventStore {
             + e.getActivity()
             + "\","
             + (e.getTags() == null ? "" : "\"" + e.getTags() + "\"")
-            + "\n";
+            + "\r\n";
     Files.writeString(file, record, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
   }
 
