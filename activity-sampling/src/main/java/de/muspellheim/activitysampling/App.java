@@ -77,12 +77,9 @@ public class App extends Application {
     clock.run();
   }
 
-  private boolean handleCommandStatus(CommandStatus status) {
+  private void handleCommandStatus(CommandStatus status) {
     if (status instanceof Failure) {
       System.err.println(status);
-      return false;
     }
-
-    return true;
   }
 }

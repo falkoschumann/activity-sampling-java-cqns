@@ -4,4 +4,18 @@ plugins {
 
 repositories {
     gradlePluginPortal()
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.ow2.asm:asm:8.0.1'
+}
+
+gradlePlugin {
+    plugins {
+        register("extra-java-module-info") {
+            id = "extra-java-module-info"
+            implementationClass = "org.gradle.sample.transform.javamodules.ExtraModuleInfoPlugin"
+        }
+    }
 }
