@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +42,9 @@ class LogActivityCommandHandlerTests {
   void periodEnded() throws Exception {
     handler.handle(new PeriodEndedNotification(Duration.ofMinutes(20)));
 
-    assertEquals(List.of(), eventStore.replay());
+    var events = eventStore.replay();
+
+    assertEquals(List.of(), events.collect(Collectors.toList()));
   }
 
   @Test
@@ -50,7 +53,7 @@ class LogActivityCommandHandlerTests {
 
     handler.handle(new LogActivityCommand("Lorem ipsum", "Foobar"));
 
-    List<Event> events = eventStore.replay();
+    List<Event> events = eventStore.replay().collect(Collectors.toList());
     assertAll(
         () -> assertEquals(1, events.size(), "Number of events"),
         () -> assertNotNull(events.get(0).getId(), "Event id"),

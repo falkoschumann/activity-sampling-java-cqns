@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -43,9 +44,9 @@ public class CsvEventStoreTests {
   void replay() throws Exception {
     var eventStore = new CsvEventStore(SOLL_FILE);
 
-    var events = eventStore.replay();
+    var events = eventStore.replay(ActivityLoggedEvent.class);
 
-    assertEquals(createEvents(), events);
+    assertEquals(createEvents(), events.collect(Collectors.toList()));
   }
 
   private static List<ActivityLoggedEvent> createEvents() {

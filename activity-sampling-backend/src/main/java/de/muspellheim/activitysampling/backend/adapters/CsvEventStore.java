@@ -8,6 +8,7 @@ package de.muspellheim.activitysampling.backend.adapters;
 import de.muspellheim.activitysampling.backend.Event;
 import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -18,9 +19,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.csv.CSVFormat;
@@ -91,27 +94,36 @@ public class CsvEventStore implements EventStore {
   }
 
   @Override
-  public List<Event> replay() throws Exception {
-    try (var reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-      var parser =
-          new CSVParser(reader, CSV_FORMAT.withHeader(Headers.class).withSkipHeaderRecord());
-      var iterator = parser.iterator();
-      var records = new ArrayList<Event>();
-      while (iterator.hasNext()) {
-        var record = iterator.next();
-        var id = record.get(Headers.ID);
-        var timestamp =
-            LocalDateTime.parse(record.get(Headers.Timestamp), TIMESTAMP_FORMATTER)
-                .atZone(ZoneId.systemDefault())
-                .toInstant();
-        var period =
-            Duration.ofSeconds(
-                LocalTime.parse(record.get(Headers.Period), PERIOD_FORMATTER).toSecondOfDay());
-        var activity = record.get(Headers.Activity);
-        var tags = record.get(Headers.Tags).isEmpty() ? null : record.get(Headers.Tags);
-        records.add(new ActivityLoggedEvent(id, timestamp, period, activity, tags));
-      }
-      return records;
+  public Stream<? extends Event> replay() throws Exception {
+    var reader = Files.newBufferedReader(file, StandardCharsets.UTF_8);
+    var parser = new CSVParser(reader, CSV_FORMAT.withHeader(Headers.class).withSkipHeaderRecord());
+    var iterator = parser.iterator();
+    var spliterator =
+        Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED | Spliterator.NONNULL);
+    return StreamSupport.stream(spliterator, false)
+        .map(record -> createEvent(record))
+        .onClose(() -> close(reader));
+  }
+
+  private ActivityLoggedEvent createEvent(org.apache.commons.csv.CSVRecord record) {
+    var id = record.get(Headers.ID);
+    var timestamp =
+        LocalDateTime.parse(record.get(Headers.Timestamp), TIMESTAMP_FORMATTER)
+            .atZone(ZoneId.systemDefault())
+            .toInstant();
+    var period =
+        Duration.ofSeconds(
+            LocalTime.parse(record.get(Headers.Period), PERIOD_FORMATTER).toSecondOfDay());
+    var activity = record.get(Headers.Activity);
+    var tags = record.get(Headers.Tags).isEmpty() ? null : record.get(Headers.Tags);
+    return new ActivityLoggedEvent(id, timestamp, period, activity, tags);
+  }
+
+  private void close(Closeable closeable) {
+    try {
+      closeable.close();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 }
