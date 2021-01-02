@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'jacoco'
+    //id 'jacoco' // TODO Java 15 wird derzeit nicht unterstützt
     id 'com.diffplug.spotless'
     id 'io.freefair.lombok'
 }
@@ -35,13 +35,13 @@ test {
     testLogging {
         events("passed", "skipped", "failed")
     }
-    finalizedBy jacocoTestReport
+    //finalizedBy jacocoTestReport
 }
-
+/*
 jacocoTestReport {
     dependsOn test
 }
-
+*/
 spotless {
     java {
         googleJavaFormat()
