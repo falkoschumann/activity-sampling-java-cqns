@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class CsvEventStoreTests {
@@ -41,7 +40,6 @@ public class CsvEventStoreTests {
   }
 
   @Test
-  @Disabled("Not implemented yet")
   void replay() throws Exception {
     var eventStore = new CsvEventStore(SOLL_FILE);
 
@@ -63,6 +61,6 @@ public class CsvEventStoreTests {
             LocalDateTime.of(2020, 12, 30, 21, 20).atZone(ZoneId.systemDefault()).toInstant(),
             Duration.ofMinutes(20),
             "Create a TodoMVC template",
-            "TodoMVC"));
+            "Test, TodoMVC"));
   }
 }
