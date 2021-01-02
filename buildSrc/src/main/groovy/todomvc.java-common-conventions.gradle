@@ -3,6 +3,7 @@ plugins {
     //id 'jacoco' // TODO Java 15 wird derzeit nicht unterstützt
     id 'com.diffplug.spotless'
     id 'io.freefair.lombok'
+    id 'extra-java-module-info'
 }
 
 repositories {
@@ -47,4 +48,8 @@ spotless {
         googleJavaFormat()
         licenseHeaderFile('config/LicenseHeader.txt')
     }
+}
+
+extraJavaModuleInfo {
+    automaticModule('commons-csv-1.8.jar', 'org.apache.commons.csv')
 }
