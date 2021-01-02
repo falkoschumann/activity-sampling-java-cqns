@@ -1,13 +1,8 @@
 plugins {
     id 'todomvc.java-library-conventions'
-    id 'extra-java-module-info'
 }
 
 dependencies {
     api project(':activity-sampling-contract')
     implementation 'org.apache.commons:commons-csv:1.8'
-}
-
-extraJavaModuleInfo {
-    automaticModule('commons-csv-1.8.jar', 'org.apache.commons.csv')
 }
