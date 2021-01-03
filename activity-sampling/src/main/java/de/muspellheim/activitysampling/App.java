@@ -8,16 +8,9 @@ package de.muspellheim.activitysampling;
 import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.adapters.CsvEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
-import de.muspellheim.activitysampling.backend.messagehandlers.ClockTickedNotificationHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
-import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingView;
-import de.muspellheim.activitysampling.frontend.SystemClock;
-import de.muspellheim.messages.CommandStatus;
-import de.muspellheim.messages.Failure;
 import java.nio.file.Paths;
-import java.time.Duration;
-import java.util.function.Consumer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -46,40 +39,18 @@ public class App extends Application {
   @Override
   public void start(Stage stage) {
     var logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
-    var clockTickedNotificationHandler = new ClockTickedNotificationHandler(Duration.ofMinutes(1));
 
-    var clock = new SystemClock();
-    var view = new ActivitySamplingView();
+    var frontend = new ActivitySamplingView();
 
-    clockTickedNotificationHandler.setOnPeriodStartedNotification(it -> view.display(it));
-    clockTickedNotificationHandler.setOnPeriodProgressedNotification(it -> view.display(it));
-    clockTickedNotificationHandler.setOnPeriodEndedNotification(
-        it -> {
-          view.display(it);
-          logActivityCommandHandler.handle(it);
-        });
+    frontend.setOnLogActivityCommand(it -> logActivityCommandHandler.handle(it));
 
-    clock.setOnTick(it -> clockTickedNotificationHandler.handle(it));
-    Consumer<LogActivityCommand> handleLogActivityCommandConsumer =
-        it -> {
-          var status = logActivityCommandHandler.handle(it);
-          handleCommandStatus(status);
-        };
-    view.setOnLogActivityCommand(handleLogActivityCommandConsumer);
-
-    var scene = new Scene(view);
+    var scene = new Scene(frontend);
     stage.setScene(scene);
     stage.setTitle("Activity Sampling");
     stage.setMinWidth(240);
     stage.setMinHeight(420);
     stage.show();
 
-    clock.run();
-  }
-
-  private void handleCommandStatus(CommandStatus status) {
-    if (status instanceof Failure) {
-      System.err.println(status);
-    }
+    frontend.run();
   }
 }

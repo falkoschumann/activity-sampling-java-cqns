@@ -6,9 +6,8 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
-import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
-import de.muspellheim.activitysampling.contract.messages.notifications.PeriodProgressedNotification;
-import de.muspellheim.activitysampling.contract.messages.notifications.PeriodStartedNotification;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -31,6 +30,10 @@ public class ActivitySamplingView extends VBox {
   private final PeriodProgress periodProgress;
   private final TextArea activityLog;
   private final AppTrayIcon trayIcon;
+  private final SystemClock clock;
+
+  private Duration period;
+  private LocalDateTime timestamp;
 
   public ActivitySamplingView() {
     activityInput = new FormInput("Activity*", "What are you working on?");
@@ -51,7 +54,8 @@ public class ActivitySamplingView extends VBox {
     logButton.setOnAction(
         e -> {
           var command =
-              new LogActivityCommand(activityInput.getValue(), optionalTagsInput.getValue());
+              new LogActivityCommand(
+                  timestamp, period, activityInput.getValue(), optionalTagsInput.getValue());
           handleLogActivity(command);
         });
 
@@ -68,25 +72,35 @@ public class ActivitySamplingView extends VBox {
     setPrefSize(360, 640);
     getChildren().setAll(activityInput, optionalTagsInput, logButton, periodProgress, activityLog);
 
+    var periodCheck = new PeriodCheck();
+    periodCheck.setOnPeriodStarted(it -> periodStarted(it));
+    periodCheck.setOnPeriodProgressed(it -> periodProgressed(it));
+    periodCheck.setOnPeriodEnded(it -> periodEnded(it));
+
+    clock = new SystemClock();
+    clock.setOnTick(it -> periodCheck.check(it));
+
     trayIcon = new AppTrayIcon();
     trayIcon.setOnLogActivityCommand(it -> handleLogActivity(it));
     Platform.runLater(() -> getScene().getWindow().setOnHiding(e -> trayIcon.hide()));
   }
 
-  public void display(PeriodStartedNotification notification) {
-    Platform.runLater(() -> periodProgress.start(notification.getPeriod()));
+  public void run() {
+    clock.run();
   }
 
-  public void display(PeriodProgressedNotification notification) {
-    Platform.runLater(
-        () ->
-            periodProgress.progress(
-                notification.getPeriod(),
-                notification.getElapsedTime(),
-                notification.getRemainingTime()));
+  private void periodStarted(Duration period) {
+    this.period = period;
+    Platform.runLater(() -> periodProgress.start(period));
   }
 
-  public void display(PeriodEndedNotification notification) {
+  private void periodProgressed(Duration elapsedTime) {
+    var remainingTime = period.minus(elapsedTime);
+    Platform.runLater(() -> periodProgress.progress(period, elapsedTime, remainingTime));
+  }
+
+  private void periodEnded(LocalDateTime timestamp) {
+    this.timestamp = timestamp;
     Platform.runLater(
         () -> {
           activityFormDisabled.set(false);
