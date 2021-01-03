@@ -9,13 +9,15 @@ import de.muspellheim.activitysampling.contract.messages.notifications.ClockTick
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodProgressedNotification;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodStartedNotification;
+import de.muspellheim.messages.NotificationHandling;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-public class ClockTickedNotificationHandler {
+public class ClockTickedNotificationHandler
+    implements NotificationHandling<ClockTickedNotification> {
   @Getter @Setter private Duration period;
   @Getter @Setter private Consumer<PeriodStartedNotification> onPeriodStartedNotification;
   @Getter @Setter private Consumer<PeriodProgressedNotification> onPeriodProgressedNotification;
