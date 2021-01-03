@@ -1,9 +1,9 @@
 plugins {
-    id 'todomvc.java-application-conventions'
-    id 'todomvc.java-openjfx-conventions'
-    id 'com.gluonhq.client-gradle-plugin'
+  id 'todomvc.java-application-conventions'
+  id 'todomvc.java-openjfx-conventions'
+  id 'com.gluonhq.client-gradle-plugin'
 }
 
 gluonClient {
-    graalvmHome = System.getenv('JAVA_HOME')
+  graalvmHome = System.getenv('JAVA_HOME')
 }

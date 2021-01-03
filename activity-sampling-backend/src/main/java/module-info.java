@@ -1,5 +1,6 @@
 module de.muspellheim.activitysampling.backend {
   requires transitive de.muspellheim.activitysampling.contract;
+  requires de.muspellheim.messages;
   requires org.apache.commons.csv;
   requires java.sql;
   requires static lombok;

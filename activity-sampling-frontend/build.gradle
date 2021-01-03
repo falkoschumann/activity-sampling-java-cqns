@@ -1,7 +1,7 @@
 plugins {
-    id 'todomvc.java-libraryfx-conventions'
+  id 'todomvc.java-libraryfx-conventions'
 }
 
 dependencies {
-    api project(':activity-sampling-contract')
+  api project(':activity-sampling-contract')
 }

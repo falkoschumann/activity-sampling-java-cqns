@@ -7,16 +7,17 @@ package de.muspellheim.activitysampling.backend.messagehandlers;
 
 import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
-import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
-import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
-import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
+import de.muspellheim.messages.CommandHandling;
+import de.muspellheim.messages.CommandStatus;
+import de.muspellheim.messages.Failure;
+import de.muspellheim.messages.Success;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
-public class LogActivityCommandHandler {
+public class LogActivityCommandHandler implements CommandHandling<LogActivityCommand> {
   private final EventStore eventStore;
   private final Clock clock;
 

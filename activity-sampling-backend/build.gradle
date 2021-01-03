@@ -1,8 +1,9 @@
 plugins {
-    id 'todomvc.java-library-conventions'
+  id 'todomvc.java-library-conventions'
 }
 
 dependencies {
-    api project(':activity-sampling-contract')
-    implementation 'org.apache.commons:commons-csv:1.8'
+  api project(':activity-sampling-contract')
+  api 'de.muspellheim:muspellheim-messages:1.0.0'
+  implementation 'org.apache.commons:commons-csv:1.8'
 }
