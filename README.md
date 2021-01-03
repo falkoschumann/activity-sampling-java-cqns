@@ -1,6 +1,6 @@
-# Activity Sampling
+![Java CI](https://github.com/falkoschumann/activity-sampling-java/workflows/Java%20CI/badge.svg)
 
-[![Build Status](https://travis-ci.org/falkoschumann/activity-sampling-java.svg?branch=master)](https://travis-ci.org/falkoschumann/activity-sampling-java)
+# Activity Sampling
 
 TODO: Description
 
