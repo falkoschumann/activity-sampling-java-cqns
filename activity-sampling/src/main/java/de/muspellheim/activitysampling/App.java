@@ -8,7 +8,9 @@ package de.muspellheim.activitysampling;
 import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.adapters.CsvEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
+import de.muspellheim.activitysampling.backend.messagehandlers.ActivityLogQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingView;
 import java.nio.file.Paths;
 import javafx.application.Application;
@@ -24,7 +26,7 @@ public class App extends Application {
 
   @Override
   public void init() {
-    if (getParameters().getUnnamed().contains("-demo")) {
+    if (getParameters().getUnnamed().contains("--demo")) {
       System.out.println("Run in demo mode...");
       eventStore = new MemoryEventStore();
       eventStore.setOnRecorded(it -> System.out.println("Logged event: " + it));
@@ -39,10 +41,15 @@ public class App extends Application {
   @Override
   public void start(Stage stage) {
     var logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
+    var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
 
     var frontend = new ActivitySamplingView();
-
-    frontend.setOnLogActivityCommand(it -> logActivityCommandHandler.handle(it));
+    frontend.setOnLogActivityCommand(
+        it -> {
+          logActivityCommandHandler.handle(it);
+          var result = activityLogQueryHandler.handle(new ActivityLogQuery());
+          frontend.display(result);
+        });
 
     var scene = new Scene(frontend);
     stage.setScene(scene);

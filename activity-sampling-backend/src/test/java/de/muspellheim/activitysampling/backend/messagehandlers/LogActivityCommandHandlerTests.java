@@ -13,6 +13,7 @@ import de.muspellheim.activitysampling.backend.Event;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.messages.Success;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -27,15 +28,17 @@ class LogActivityCommandHandlerTests {
     var eventStore = new MemoryEventStore();
     var handler = new LogActivityCommandHandler(eventStore);
 
-    handler.handle(
-        new LogActivityCommand(
-            LocalDateTime.of(2020, 11, 22, 17, 47, 17),
-            Duration.ofMinutes(20),
-            "Lorem ipsum",
-            "Foobar"));
+    var status =
+        handler.handle(
+            new LogActivityCommand(
+                LocalDateTime.of(2020, 11, 22, 17, 47, 17),
+                Duration.ofMinutes(20),
+                "Lorem ipsum",
+                "Foobar"));
 
     List<Event> events = eventStore.replay().collect(Collectors.toList());
     assertAll(
+        () -> assertEquals(new Success(), status, "Command status"),
         () -> assertEquals(1, events.size(), "Number of events"),
         () -> assertNotNull(events.get(0).getId(), "Event id"),
         () ->
