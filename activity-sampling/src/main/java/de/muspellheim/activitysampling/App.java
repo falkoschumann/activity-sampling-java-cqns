@@ -50,6 +50,11 @@ public class App extends Application {
           var result = activityLogQueryHandler.handle(new ActivityLogQuery());
           frontend.display(result);
         });
+    frontend.setOnActivityLogQuery(
+        it -> {
+          var result = activityLogQueryHandler.handle(it);
+          frontend.display(result);
+        });
 
     var scene = new Scene(frontend);
     stage.setScene(scene);

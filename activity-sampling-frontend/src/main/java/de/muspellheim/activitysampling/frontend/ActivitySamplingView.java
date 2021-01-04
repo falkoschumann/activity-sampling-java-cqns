@@ -5,12 +5,15 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -24,6 +27,7 @@ import lombok.Setter;
 
 public class ActivitySamplingView extends VBox {
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
 
   private final BooleanProperty activityFormDisabled = new SimpleBooleanProperty(true);
 
@@ -89,15 +93,29 @@ public class ActivitySamplingView extends VBox {
 
   public void run() {
     clock.run();
+    onActivityLogQuery.accept(new ActivityLogQuery());
   }
 
   public void display(ActivityLogQueryResult result) {
+    var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
+    var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM);
     var stringConverter = new ActivityStringConverter();
-    var activities =
-        result.getLog().stream()
-            .map(it -> stringConverter.toString(it))
-            .collect(Collectors.toList());
-    var log = String.join("\n", activities);
+
+    var logBuilder = new StringBuilder();
+    var activities = result.getLog();
+    for (int i = 0; i < activities.size(); i++) {
+      Activity activity = activities.get(i);
+      if (i == 0) {
+        logBuilder.append(dateFormatter.format(activity.getTimestamp()));
+        logBuilder.append("\n");
+      }
+
+      logBuilder.append(timeFormatter.format(activity.getTimestamp()));
+      logBuilder.append(" - ");
+      logBuilder.append(stringConverter.toString(activity));
+      logBuilder.append("\n");
+    }
+    var log = logBuilder.toString();
     Platform.runLater(() -> activityLog.setText(log));
   }
 
