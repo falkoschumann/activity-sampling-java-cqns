@@ -13,12 +13,12 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-public class SystemClock {
+class SystemClock {
   private final Timer timer = new Timer(true);
 
   @Getter @Setter private Consumer<LocalDateTime> onTick;
 
-  public void run() {
+  void run() {
     timer.schedule(new SystemClockTask(), 0, 1000);
   }
 

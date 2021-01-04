@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PeriodCheck {
+class PeriodCheck {
   @Getter @Setter private Duration period;
   @Getter @Setter private Consumer<Duration> onPeriodStarted;
   @Getter @Setter private Consumer<Duration> onPeriodProgressed;
@@ -19,15 +19,15 @@ public class PeriodCheck {
 
   private LocalDateTime start;
 
-  public PeriodCheck() {
+  PeriodCheck() {
     this(Duration.ofMinutes(20));
   }
 
-  public PeriodCheck(Duration period) {
+  PeriodCheck(Duration period) {
     setPeriod(period);
   }
 
-  public void check(LocalDateTime timestamp) {
+  void check(LocalDateTime timestamp) {
     if (start == null) {
       start = timestamp;
       onPeriodStarted.accept(period);

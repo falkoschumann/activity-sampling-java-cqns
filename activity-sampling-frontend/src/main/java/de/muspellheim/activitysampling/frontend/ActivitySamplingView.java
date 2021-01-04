@@ -81,7 +81,13 @@ public class ActivitySamplingView extends VBox {
     clock.setOnTick(it -> periodCheck.check(it));
 
     trayIcon = new AppTrayIcon();
-    trayIcon.setOnLogActivityCommand(it -> handleLogActivity(it));
+    trayIcon.setOnActivitySelected(
+        it -> {
+          var command =
+              new LogActivityCommand(
+                  timestamp, period, it.getActivity(), String.join(", ", it.getTags()));
+          handleLogActivity(command);
+        });
     Platform.runLater(() -> getScene().getWindow().setOnHiding(e -> trayIcon.hide()));
   }
 
@@ -92,6 +98,7 @@ public class ActivitySamplingView extends VBox {
 
   public void display(ActivityLogQueryResult result) {
     activityLog.display(result.getLog());
+    trayIcon.display(result.getLog());
   }
 
   private void periodStarted(Duration period) {
@@ -117,7 +124,6 @@ public class ActivitySamplingView extends VBox {
   private void handleLogActivity(LogActivityCommand command) {
     activityFormDisabled.set(true);
     trayIcon.hide();
-    trayIcon.setLastCommand(command);
 
     if (onLogActivityCommand == null) {
       return;
