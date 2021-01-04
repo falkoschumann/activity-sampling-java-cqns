@@ -14,10 +14,7 @@ import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
@@ -68,33 +65,6 @@ class AppTrayIcon {
   }
 
   void display(List<Activity> activities) {
-    // TODO Extract LastActivitiesQuery
-    var lastActivities = new ArrayList<Activity>();
-    activities.forEach(
-        it -> {
-          var exists =
-              lastActivities.stream()
-                  .filter(
-                      i ->
-                          Objects.equals(it.getActivity(), i.getActivity())
-                              && Objects.equals(it.getTags(), i.getTags()))
-                  .findFirst();
-          if (exists.isPresent()) {
-            return;
-          }
-
-          lastActivities.add(it);
-
-          if (lastActivities.size() == 11) {
-            lastActivities.remove(0);
-          }
-        });
-    Collections.reverse(lastActivities);
-    PopupMenu menu = createPopupMenu(lastActivities);
-    trayIcon.setPopupMenu(menu);
-  }
-
-  private PopupMenu createPopupMenu(List<Activity> activities) {
     var menu = new PopupMenu();
     var stringConverter = new ActivityStringConverter();
     activities.forEach(
@@ -103,7 +73,7 @@ class AppTrayIcon {
           item.addActionListener(e -> handleActivitySelected(it));
           menu.add(item);
         });
-    return menu;
+    trayIcon.setPopupMenu(menu);
   }
 
   private void handleActivitySelected(Activity it) {
