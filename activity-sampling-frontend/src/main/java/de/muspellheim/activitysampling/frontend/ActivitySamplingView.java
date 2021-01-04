@@ -98,7 +98,7 @@ public class ActivitySamplingView extends VBox {
 
   public void display(ActivityLogQueryResult result) {
     activityLog.display(result.getLog());
-    trayIcon.display(result.getLog());
+    trayIcon.display(result.getRecent());
   }
 
   private void periodStarted(Duration period) {

@@ -14,4 +14,5 @@ import lombok.Value;
 @Value
 public class ActivityLogQueryResult implements QueryResult {
   @NonNull List<Activity> log;
+  @NonNull List<Activity> recent;
 }

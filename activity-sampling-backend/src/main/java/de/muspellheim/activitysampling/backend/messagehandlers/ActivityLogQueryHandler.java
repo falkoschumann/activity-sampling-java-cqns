@@ -13,7 +13,10 @@ import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuer
 import de.muspellheim.messages.QueryHandling;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ActivityLogQueryHandler
@@ -38,11 +41,28 @@ public class ActivityLogQueryHandler
                           it.getPeriod(),
                           it.getActivity(),
                           mapTags(it.getTags())))
-              .collect(Collectors.toList());
-      return new ActivityLogQueryResult(log);
+              .collect(Collectors.toUnmodifiableList());
+
+      var recent = new LinkedList<Activity>();
+      log.forEach(
+          it -> {
+            recent.stream()
+                .filter(
+                    other ->
+                        Objects.equals(it.getActivity(), other.getActivity())
+                            && Objects.equals(it.getTags(), other.getTags()))
+                .findFirst()
+                .ifPresent(same -> recent.remove(same));
+            recent.add(it);
+            if (recent.size() > 10) {
+              recent.remove(0);
+            }
+          });
+      Collections.reverse(recent);
+      return new ActivityLogQueryResult(log, recent);
     } catch (Exception e) {
       System.err.println(e);
-      return new ActivityLogQueryResult(List.of());
+      return new ActivityLogQueryResult(List.of(), List.of());
     }
   }
 
