@@ -12,7 +12,7 @@ class ActivityStringConverter extends StringConverter<Activity> {
   @Override
   public String toString(Activity object) {
     String string = object.getActivity();
-    if (object.getTags() != null) {
+    if (!object.getTags().isEmpty()) {
       string = "[" + String.join(", ", object.getTags()) + "] " + string;
     }
     return string;
