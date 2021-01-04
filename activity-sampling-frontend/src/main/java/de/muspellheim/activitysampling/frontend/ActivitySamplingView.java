@@ -72,7 +72,7 @@ public class ActivitySamplingView extends VBox {
     setPrefSize(360, 640);
     getChildren().setAll(activityInput, optionalTagsInput, logButton, periodProgress, activityLog);
 
-    var periodCheck = new PeriodCheck(Duration.ofMinutes(1));
+    var periodCheck = new PeriodCheck();
     periodCheck.setOnPeriodStarted(it -> periodStarted(it));
     periodCheck.setOnPeriodProgressed(it -> periodProgressed(it));
     periodCheck.setOnPeriodEnded(it -> periodEnded(it));
