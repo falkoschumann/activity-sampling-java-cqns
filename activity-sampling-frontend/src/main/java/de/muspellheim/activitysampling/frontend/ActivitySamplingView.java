@@ -100,7 +100,6 @@ public class ActivitySamplingView extends VBox {
     var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
     var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM);
     var stringConverter = new ActivityStringConverter();
-
     var logBuilder = new StringBuilder();
     var activities = result.getLog();
     for (int i = 0; i < activities.size(); i++) {
@@ -108,6 +107,15 @@ public class ActivitySamplingView extends VBox {
       if (i == 0) {
         logBuilder.append(dateFormatter.format(activity.getTimestamp()));
         logBuilder.append("\n");
+      } else {
+        Activity lastActivity = activities.get(i - 1);
+        if (!lastActivity
+            .getTimestamp()
+            .toLocalDate()
+            .equals(activity.getTimestamp().toLocalDate())) {
+          logBuilder.append(dateFormatter.format(activity.getTimestamp()));
+          logBuilder.append("\n");
+        }
       }
 
       logBuilder.append(timeFormatter.format(activity.getTimestamp()));
@@ -143,8 +151,6 @@ public class ActivitySamplingView extends VBox {
     activityFormDisabled.set(true);
     trayIcon.hide();
     trayIcon.setLastCommand(command);
-
-    // TODO Query Activity Log
 
     if (onLogActivityCommand == null) {
       return;

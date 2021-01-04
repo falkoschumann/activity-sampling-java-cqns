@@ -21,7 +21,7 @@ import lombok.Setter;
 
 class AppTrayIcon {
   @Getter @Setter private LogActivityCommand lastCommand;
-  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand; // TODO Mit Todo ersetzen
 
   private TrayIcon trayIcon;
 
