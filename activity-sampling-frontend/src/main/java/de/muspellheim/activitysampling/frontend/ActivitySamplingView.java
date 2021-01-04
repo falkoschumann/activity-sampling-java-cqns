@@ -6,9 +6,11 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -72,7 +74,7 @@ public class ActivitySamplingView extends VBox {
     setPrefSize(360, 640);
     getChildren().setAll(activityInput, optionalTagsInput, logButton, periodProgress, activityLog);
 
-    var periodCheck = new PeriodCheck();
+    var periodCheck = new PeriodCheck(Duration.ofMinutes(1));
     periodCheck.setOnPeriodStarted(it -> periodStarted(it));
     periodCheck.setOnPeriodProgressed(it -> periodProgressed(it));
     periodCheck.setOnPeriodEnded(it -> periodEnded(it));
@@ -87,6 +89,16 @@ public class ActivitySamplingView extends VBox {
 
   public void run() {
     clock.run();
+  }
+
+  public void display(ActivityLogQueryResult result) {
+    var stringConverter = new ActivityStringConverter();
+    var activities =
+        result.getLog().stream()
+            .map(it -> stringConverter.toString(it))
+            .collect(Collectors.toList());
+    var log = String.join("\n", activities);
+    Platform.runLater(() -> activityLog.setText(log));
   }
 
   private void periodStarted(Duration period) {

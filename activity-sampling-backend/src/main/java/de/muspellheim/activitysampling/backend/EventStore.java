@@ -16,7 +16,7 @@ public interface EventStore {
 
   void record(Event event) throws Exception;
 
-  default void record(Iterable<Event> events) throws Exception {
+  default void record(Iterable<? extends Event> events) throws Exception {
     for (Event event : events) {
       record(event);
     }
