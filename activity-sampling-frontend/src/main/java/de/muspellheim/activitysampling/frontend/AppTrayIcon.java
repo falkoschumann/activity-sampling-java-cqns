@@ -5,7 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.activitysampling.contract.data.Activity;
 import java.awt.AWTException;
 import java.awt.EventQueue;
 import java.awt.MenuItem;
@@ -14,14 +14,16 @@ import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
 class AppTrayIcon {
-  @Getter @Setter private LogActivityCommand lastCommand;
-  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand; // TODO Mit Todo ersetzen
+  @Getter @Setter private Consumer<Activity> onActivitySelected;
 
   private TrayIcon trayIcon;
 
@@ -42,10 +44,6 @@ class AppTrayIcon {
     }
 
     var tray = SystemTray.getSystemTray();
-    if (lastCommand != null) {
-      PopupMenu menu = createPopupMenu();
-      trayIcon.setPopupMenu(menu);
-    }
     if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
       try {
         tray.add(trayIcon);
@@ -69,23 +67,50 @@ class AppTrayIcon {
         });
   }
 
-  private PopupMenu createPopupMenu() {
-    String label = lastCommand.getActivity();
-    if (lastCommand.getTags() != null) {
-      label = "[" + lastCommand.getTags() + "] " + label;
-    }
-    MenuItem item = new MenuItem(label);
-    item.addActionListener(
+  void display(List<Activity> activities) {
+    // TODO Extract LastActivitiesQuery
+    var lastActivities = new ArrayList<Activity>();
+    activities.forEach(
         it -> {
-          if (onLogActivityCommand == null) {
+          var exists =
+              lastActivities.stream()
+                  .filter(
+                      i ->
+                          Objects.equals(it.getActivity(), i.getActivity())
+                              && Objects.equals(it.getTags(), i.getTags()))
+                  .findFirst();
+          if (exists.isPresent()) {
             return;
           }
 
-          onLogActivityCommand.accept(lastCommand);
-        });
+          lastActivities.add(it);
 
+          if (lastActivities.size() == 11) {
+            lastActivities.remove(0);
+          }
+        });
+    Collections.reverse(lastActivities);
+    PopupMenu menu = createPopupMenu(lastActivities);
+    trayIcon.setPopupMenu(menu);
+  }
+
+  private PopupMenu createPopupMenu(List<Activity> activities) {
     var menu = new PopupMenu();
-    menu.add(item);
+    var stringConverter = new ActivityStringConverter();
+    activities.forEach(
+        it -> {
+          MenuItem item = new MenuItem(stringConverter.toString(it));
+          item.addActionListener(e -> handleActivitySelected(it));
+          menu.add(item);
+        });
     return menu;
+  }
+
+  private void handleActivitySelected(Activity it) {
+    if (onActivitySelected == null) {
+      return;
+    }
+
+    onActivitySelected.accept(it);
   }
 }

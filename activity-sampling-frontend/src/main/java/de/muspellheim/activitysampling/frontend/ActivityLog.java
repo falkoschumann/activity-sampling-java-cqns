@@ -1,3 +1,8 @@
+/*
+ * Activity Sampling - Frontend
+ * Copyright (c) 2021 Falko Schumann <falko.schumann@muspellheim.de>
+ */
+
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
@@ -20,7 +25,6 @@ class ActivityLog extends StackPane {
   }
 
   void display(List<Activity> activities) {
-
     var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
     var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM);
     var stringConverter = new ActivityStringConverter();
