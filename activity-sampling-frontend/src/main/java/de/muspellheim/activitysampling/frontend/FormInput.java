@@ -5,33 +5,24 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import javafx.beans.property.StringProperty;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
-class FormInput extends VBox {
-  private final TextField text;
+class FormInput<T extends Control> extends VBox {
+  private final T control;
 
-  FormInput(String labelText, String promptText) {
+  FormInput(String labelText, T control) {
+    this.control = control;
+
     var label = new Label(labelText);
-
-    text = new TextField();
-    text.setPromptText(promptText);
+    label.setLabelFor(control);
 
     setSpacing(Views.GAP);
-    getChildren().setAll(label, text);
+    getChildren().setAll(label, control);
   }
 
-  final StringProperty valueProperty() {
-    return text.textProperty();
-  }
-
-  final String getValue() {
-    return text.getText();
-  }
-
-  final void setValue(String value) {
-    text.setText(value);
+  final T getControl() {
+    return control;
   }
 }
