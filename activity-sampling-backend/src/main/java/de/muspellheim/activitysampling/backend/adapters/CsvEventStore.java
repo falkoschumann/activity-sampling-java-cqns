@@ -19,9 +19,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.Getter;
@@ -80,8 +82,9 @@ public class CsvEventStore implements EventStore {
       var formattedPeriod =
           LocalTime.ofSecondOfDay(e.getPeriod().toSeconds()).format(PERIOD_FORMATTER);
       var printer = new CSVPrinter(out, CSV_FORMAT);
+      String formattedTags = String.join(", ", e.getTags());
       printer.printRecord(
-          e.getId(), formattedTimestamp, formattedPeriod, e.getActivity(), e.getTags());
+          e.getId(), formattedTimestamp, formattedPeriod, e.getActivity(), formattedTags);
     }
   }
 
@@ -116,7 +119,15 @@ public class CsvEventStore implements EventStore {
             LocalTime.parse(record.get(Headers.Period), PERIOD_FORMATTER).toSecondOfDay());
     var activity = record.get(Headers.Activity);
     var tags = record.get(Headers.Tags).isEmpty() ? null : record.get(Headers.Tags);
-    return new ActivityLoggedEvent(id, timestamp, period, activity, tags);
+    return new ActivityLoggedEvent(id, timestamp, period, activity, mapTags(tags));
+  }
+
+  private static List<String> mapTags(String tags) {
+    if (tags == null) {
+      return List.of();
+    }
+
+    return List.of(tags.split(",")).stream().map(it -> it.strip()).collect(Collectors.toList());
   }
 
   private void close(Closeable closeable) {

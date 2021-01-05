@@ -10,6 +10,7 @@ import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuer
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -21,8 +22,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 import lombok.Setter;
-
-// TODO Command und Event mit List<String> statt String für Tags
 
 public class ActivitySamplingView extends VBox {
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
@@ -134,12 +133,9 @@ public class ActivitySamplingView extends VBox {
       return;
     }
 
-    var command =
-        new LogActivityCommand(
-            timestamp,
-            period,
-            activityInput.getControl().getText(),
-            optionalTagsInput.getControl().getText());
+    String activity = activityInput.getControl().getText();
+    List<String> tags = List.of(optionalTagsInput.getControl().getText().split(","));
+    var command = new LogActivityCommand(timestamp, period, activity, tags);
     onLogActivityCommand.accept(command);
   }
 }

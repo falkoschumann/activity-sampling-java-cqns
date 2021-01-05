@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class LogActivityCommandHandlerTests {
 
   @Test
-  void logActivity() throws Exception {
+  void logActivity() {
     var eventStore = new MemoryEventStore();
     var handler = new LogActivityCommandHandler(eventStore);
 
@@ -34,7 +34,7 @@ class LogActivityCommandHandlerTests {
                 LocalDateTime.of(2020, 11, 22, 17, 47, 17),
                 Duration.ofMinutes(20),
                 "Lorem ipsum",
-                "Foobar"));
+                List.of("Foobar")));
 
     List<Event> events = eventStore.replay().collect(Collectors.toList());
     assertAll(
@@ -59,6 +59,7 @@ class LogActivityCommandHandlerTests {
                 ((ActivityLoggedEvent) events.get(0)).getActivity(),
                 "Event activity"),
         () ->
-            assertEquals("Foobar", ((ActivityLoggedEvent) events.get(0)).getTags(), "Event tags"));
+            assertEquals(
+                List.of("Foobar"), ((ActivityLoggedEvent) events.get(0)).getTags(), "Event tags"));
   }
 }
