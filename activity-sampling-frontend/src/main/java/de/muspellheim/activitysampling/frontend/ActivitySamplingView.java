@@ -22,7 +22,6 @@ import javafx.scene.layout.VBox;
 import lombok.Getter;
 import lombok.Setter;
 
-// TODO Letzte Aktivität beim Start in Input Form schreiben
 // TODO Command und Event mit List<String> statt String für Tags
 
 public class ActivitySamplingView extends VBox {
@@ -100,6 +99,11 @@ public class ActivitySamplingView extends VBox {
   public void display(ActivityLogQueryResult result) {
     activityLog.display(result.getLog());
     trayIcon.display(result.getRecent());
+    if (!result.getRecent().isEmpty()) {
+      var lastActivity = result.getRecent().get(0);
+      activityInput.getControl().setText(lastActivity.getActivity());
+      optionalTagsInput.getControl().setText(String.join(", ", lastActivity.getTags()));
+    }
   }
 
   private void periodStarted(Duration period) {
