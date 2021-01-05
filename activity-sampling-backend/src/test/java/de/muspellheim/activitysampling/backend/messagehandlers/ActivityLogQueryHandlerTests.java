@@ -74,7 +74,7 @@ public class ActivityLogQueryHandlerTests {
             LocalDateTime.of(2020, 12, 30, 17, 52).atZone(ZoneId.systemDefault()).toInstant(),
             Duration.ofMinutes(20),
             "A",
-            "Foo, Bar"),
+            List.of("Foo", "Bar")),
         new ActivityLoggedEvent(
             "d5abc0dd-60b0-4a3b-9b2f-8b02005fb256",
             LocalDateTime.of(2020, 12, 30, 21, 20).atZone(ZoneId.systemDefault()).toInstant(),
@@ -90,6 +90,6 @@ public class ActivityLogQueryHandlerTests {
             LocalDateTime.of(2021, 1, 4, 14, 20).atZone(ZoneId.systemDefault()).toInstant(),
             Duration.ofMinutes(20),
             "A",
-            "Foo, Bar"));
+            List.of("Foo", "Bar")));
   }
 }

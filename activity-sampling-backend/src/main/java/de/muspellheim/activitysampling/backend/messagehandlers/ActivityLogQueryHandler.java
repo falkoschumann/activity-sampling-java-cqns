@@ -40,7 +40,7 @@ public class ActivityLogQueryHandler
                           LocalDateTime.ofInstant(it.getTimestamp(), ZoneId.systemDefault()),
                           it.getPeriod(),
                           it.getActivity(),
-                          mapTags(it.getTags())))
+                          it.getTags()))
               .collect(Collectors.toUnmodifiableList());
 
       var recent = new LinkedList<Activity>();
@@ -64,13 +64,5 @@ public class ActivityLogQueryHandler
       System.err.println(e);
       return new ActivityLogQueryResult(List.of(), List.of());
     }
-  }
-
-  private static List<String> mapTags(String tags) {
-    if (tags == null) {
-      return List.of();
-    }
-
-    return List.of(tags.split(",")).stream().map(it -> it.strip()).collect(Collectors.toList());
   }
 }

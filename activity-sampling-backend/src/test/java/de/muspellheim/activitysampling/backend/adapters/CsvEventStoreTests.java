@@ -55,13 +55,12 @@ public class CsvEventStoreTests {
             "a7caf1b0-886e-406f-8fbc-71da9f34714e",
             LocalDateTime.of(2020, 12, 30, 17, 52).atZone(ZoneId.systemDefault()).toInstant(),
             Duration.ofMinutes(20),
-            "Taste JavaScript",
-            null),
+            "Taste JavaScript"),
         new ActivityLoggedEvent(
             "d5abc0dd-60b0-4a3b-9b2f-8b02005fb256",
             LocalDateTime.of(2020, 12, 30, 21, 20).atZone(ZoneId.systemDefault()).toInstant(),
             Duration.ofMinutes(20),
             "Create a TodoMVC template",
-            "Test, TodoMVC"));
+            List.of("Test", "TodoMVC")));
   }
 }
