@@ -40,16 +40,19 @@ class AppTrayIcon {
       return;
     }
 
-    var tray = SystemTray.getSystemTray();
-    if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
-      try {
-        tray.add(trayIcon);
-      } catch (AWTException e) {
-        System.err.println(e.toString());
-      }
-    }
+    EventQueue.invokeLater(
+        () -> {
+          var tray = SystemTray.getSystemTray();
+          if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
+            try {
+              tray.add(trayIcon);
+            } catch (AWTException e) {
+              System.err.println(e.toString());
+            }
+          }
 
-    trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
+          trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
+        });
   }
 
   void hide() {
@@ -65,15 +68,18 @@ class AppTrayIcon {
   }
 
   void display(List<Activity> activities) {
-    var menu = new PopupMenu();
-    var stringConverter = new ActivityStringConverter();
-    activities.forEach(
-        it -> {
-          MenuItem item = new MenuItem(stringConverter.toString(it));
-          item.addActionListener(e -> handleActivitySelected(it));
-          menu.add(item);
+    EventQueue.invokeLater(
+        () -> {
+          var menu = new PopupMenu();
+          var stringConverter = new ActivityStringConverter();
+          activities.forEach(
+              it -> {
+                MenuItem item = new MenuItem(stringConverter.toString(it));
+                item.addActionListener(e -> handleActivitySelected(it));
+                menu.add(item);
+              });
+          trayIcon.setPopupMenu(menu);
         });
-    trayIcon.setPopupMenu(menu);
   }
 
   private void handleActivitySelected(Activity it) {
