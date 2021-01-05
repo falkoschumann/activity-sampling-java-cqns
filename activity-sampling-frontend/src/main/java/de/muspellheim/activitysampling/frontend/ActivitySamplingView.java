@@ -16,10 +16,14 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 import lombok.Setter;
+
+// TODO Letzte Aktivität beim Start in Input Form schreiben
+// TODO Command und Event mit List<String> statt String für Tags
 
 public class ActivitySamplingView extends VBox {
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
@@ -27,8 +31,8 @@ public class ActivitySamplingView extends VBox {
 
   private final BooleanProperty activityFormDisabled = new SimpleBooleanProperty(true);
 
-  private final FormInput activityInput;
-  private final FormInput optionalTagsInput;
+  private final FormInput<TextField> activityInput;
+  private final FormInput<TextField> optionalTagsInput;
   private final PeriodProgress periodProgress;
   private final ActivityLog activityLog;
   private final AppTrayIcon trayIcon;
@@ -38,11 +42,15 @@ public class ActivitySamplingView extends VBox {
   private LocalDateTime timestamp;
 
   public ActivitySamplingView() {
-    activityInput = new FormInput("Activity*", "What are you working on?");
+    var activityField = new TextField();
+    activityField.setPromptText("What are you working on?");
+    activityInput = new FormInput<>("Activity*", activityField);
     activityInput.setDisable(true);
     activityInput.disableProperty().bind(activityFormDisabled);
 
-    optionalTagsInput = new FormInput("Optional tags", "Customer, Project, Product");
+    var optionalTagsField = new TextField();
+    optionalTagsField.setPromptText("Customer, Project, Product");
+    optionalTagsInput = new FormInput<>("Optional tags", optionalTagsField);
     optionalTagsInput.setDisable(true);
     optionalTagsInput.disableProperty().bind(activityFormDisabled);
 
@@ -52,14 +60,8 @@ public class ActivitySamplingView extends VBox {
     logButton.setDefaultButton(true);
     logButton
         .disableProperty()
-        .bind(activityFormDisabled.or(activityInput.valueProperty().isEmpty()));
-    logButton.setOnAction(
-        e -> {
-          var command =
-              new LogActivityCommand(
-                  timestamp, period, activityInput.getValue(), optionalTagsInput.getValue());
-          handleLogActivity(command);
-        });
+        .bind(activityFormDisabled.or(activityField.textProperty().isEmpty()));
+    logButton.setOnAction(e -> handleLogActivity());
 
     periodProgress = new PeriodProgress();
 
@@ -72,7 +74,7 @@ public class ActivitySamplingView extends VBox {
     setPrefSize(360, 640);
     getChildren().setAll(activityInput, optionalTagsInput, logButton, periodProgress, activityLog);
 
-    var periodCheck = new PeriodCheck();
+    var periodCheck = new PeriodCheck(Duration.ofMinutes(1));
     periodCheck.setOnPeriodStarted(it -> periodStarted(it));
     periodCheck.setOnPeriodProgressed(it -> periodProgressed(it));
     periodCheck.setOnPeriodEnded(it -> periodEnded(it));
@@ -83,10 +85,9 @@ public class ActivitySamplingView extends VBox {
     trayIcon = new AppTrayIcon();
     trayIcon.setOnActivitySelected(
         it -> {
-          var command =
-              new LogActivityCommand(
-                  timestamp, period, it.getActivity(), String.join(", ", it.getTags()));
-          handleLogActivity(command);
+          activityInput.getControl().setText(it.getActivity());
+          optionalTagsInput.getControl().setText(String.join(", ", it.getTags()));
+          handleLogActivity();
         });
     Platform.runLater(() -> getScene().getWindow().setOnHiding(e -> trayIcon.hide()));
   }
@@ -121,7 +122,7 @@ public class ActivitySamplingView extends VBox {
         });
   }
 
-  private void handleLogActivity(LogActivityCommand command) {
+  private void handleLogActivity() {
     activityFormDisabled.set(true);
     trayIcon.hide();
 
@@ -129,6 +130,12 @@ public class ActivitySamplingView extends VBox {
       return;
     }
 
+    var command =
+        new LogActivityCommand(
+            timestamp,
+            period,
+            activityInput.getControl().getText(),
+            optionalTagsInput.getControl().getText());
     onLogActivityCommand.accept(command);
   }
 }
