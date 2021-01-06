@@ -4,6 +4,8 @@ plugins {
   id 'org.beryx.jlink'
 }
 
+version = '1.0.0'
+
 dependencies {
   implementation project(':activity-sampling-frontend')
   implementation project(':activity-sampling-backend')
