@@ -4,6 +4,5 @@ plugins {
 
 dependencies {
   api project(':activity-sampling-contract')
-  api 'de.muspellheim:muspellheim-messages:1.0.0'
   implementation 'org.apache.commons:commons-csv:1.8'
 }

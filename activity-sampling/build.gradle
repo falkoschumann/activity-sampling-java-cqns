@@ -7,7 +7,6 @@ plugins {
 dependencies {
   implementation project(':activity-sampling-frontend')
   implementation project(':activity-sampling-backend')
-  implementation 'de.muspellheim:muspellheim-messages:1.0.0'
 }
 
 application {
