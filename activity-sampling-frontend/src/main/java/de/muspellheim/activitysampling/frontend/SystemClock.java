@@ -5,7 +5,6 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.messages.notifications.ClockTickedNotification;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Timer;
@@ -14,12 +13,12 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-public class SystemClock {
+class SystemClock {
   private final Timer timer = new Timer(true);
 
-  @Getter @Setter private Consumer<ClockTickedNotification> onTick;
+  @Getter @Setter private Consumer<LocalDateTime> onTick;
 
-  public void run() {
+  void run() {
     timer.schedule(new SystemClockTask(), 0, 1000);
   }
 
@@ -31,8 +30,7 @@ public class SystemClock {
       }
 
       var timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-      var notification = new ClockTickedNotification(timestamp);
-      onTick.accept(notification);
+      onTick.accept(timestamp);
     }
   }
 }

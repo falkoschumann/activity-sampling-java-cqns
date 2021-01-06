@@ -1,4 +1,0 @@
-plugins {
-    id 'todomvc.java-library-conventions'
-    id 'todomvc.java-openjfx-conventions'
-}

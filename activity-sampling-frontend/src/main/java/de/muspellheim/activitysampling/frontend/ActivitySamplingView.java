@@ -5,97 +5,103 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
-import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
-import de.muspellheim.activitysampling.contract.messages.notifications.PeriodProgressedNotification;
-import de.muspellheim.activitysampling.contract.messages.notifications.PeriodStartedNotification;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.function.Consumer;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 import lombok.Setter;
 
 public class ActivitySamplingView extends VBox {
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
 
-  private final BooleanProperty activityFormDisabled = new SimpleBooleanProperty(true);
-
-  private final FormInput activityInput;
-  private final FormInput optionalTagsInput;
+  private final ActivityForm activityForm;
   private final PeriodProgress periodProgress;
+  private final ActivityLog activityLog;
   private final AppTrayIcon trayIcon;
+  private final SystemClock clock;
+
+  private Duration period;
+  private LocalDateTime timestamp;
 
   public ActivitySamplingView() {
-    activityInput = new FormInput("Activity*", "What are you working on?");
-    activityInput.setDisable(true);
-    activityInput.disableProperty().bind(activityFormDisabled);
-
-    optionalTagsInput = new FormInput("Optional tags", "Customer, Project, Product");
-    optionalTagsInput.setDisable(true);
-    optionalTagsInput.disableProperty().bind(activityFormDisabled);
-
-    var logButton = new Button("Log");
-    logButton.setMaxWidth(Double.MAX_VALUE);
-    logButton.setDisable(true);
-    logButton.setDefaultButton(true);
-    logButton
-        .disableProperty()
-        .bind(activityFormDisabled.or(activityInput.valueProperty().isEmpty()));
-    logButton.setOnAction(
-        e -> {
-          var command =
-              new LogActivityCommand(activityInput.getValue(), optionalTagsInput.getValue());
-          handleLogActivity(command);
-        });
+    activityForm = new ActivityForm();
+    activityForm.setDisable(true);
+    activityForm.setOnActivitySelected(it -> logActivity(it));
 
     periodProgress = new PeriodProgress();
+
+    activityLog = new ActivityLog();
+    VBox.setVgrow(activityLog, Priority.ALWAYS);
 
     setStyle("-fx-font-family: Verdana;");
     setPadding(new Insets(Views.MARGIN));
     setSpacing(Views.UNRELATED_GAP);
-    setPrefWidth(360);
-    getChildren().setAll(activityInput, optionalTagsInput, logButton, periodProgress);
+    setPrefSize(360, 640);
+    getChildren().setAll(activityForm, periodProgress, activityLog);
+
+    var periodCheck = new PeriodCheck();
+    periodCheck.setOnPeriodStarted(it -> periodStarted(it));
+    periodCheck.setOnPeriodProgressed(it -> periodProgressed(it));
+    periodCheck.setOnPeriodEnded(it -> periodEnded(it));
+
+    clock = new SystemClock();
+    clock.setOnTick(it -> periodCheck.check(it));
 
     trayIcon = new AppTrayIcon();
-    trayIcon.setOnLogActivityCommand(it -> handleLogActivity(it));
+    trayIcon.setOnActivitySelected(it -> logActivity(it));
     Platform.runLater(() -> getScene().getWindow().setOnHiding(e -> trayIcon.hide()));
   }
 
-  public void display(PeriodStartedNotification notification) {
-    Platform.runLater(() -> periodProgress.start(notification.getPeriod()));
+  public void run() {
+    clock.run();
+    onActivityLogQuery.accept(new ActivityLogQuery());
   }
 
-  public void display(PeriodProgressedNotification notification) {
-    Platform.runLater(
-        () ->
-            periodProgress.progress(
-                notification.getPeriod(),
-                notification.getElapsedTime(),
-                notification.getRemainingTime()));
+  public void display(ActivityLogQueryResult result) {
+    activityForm.display(result.getRecent());
+    activityLog.display(result.getLog());
+    trayIcon.display(result.getRecent());
   }
 
-  public void display(PeriodEndedNotification notification) {
+  private void periodStarted(Duration period) {
+    this.period = period;
+    Platform.runLater(() -> periodProgress.start(period));
+  }
+
+  private void periodProgressed(Duration elapsedTime) {
+    var remainingTime = period.minus(elapsedTime);
+    Platform.runLater(() -> periodProgress.progress(period, elapsedTime, remainingTime));
+  }
+
+  private void periodEnded(LocalDateTime timestamp) {
+    this.timestamp = timestamp;
     Platform.runLater(
         () -> {
-          activityFormDisabled.set(false);
+          activityForm.setDisable(false);
           periodProgress.end();
           trayIcon.show();
         });
   }
 
-  private void handleLogActivity(LogActivityCommand command) {
-    activityFormDisabled.set(true);
+  private void logActivity(Activity activity) {
+    activityForm.setDisable(true);
     trayIcon.hide();
-    trayIcon.setLastCommand(command);
 
     if (onLogActivityCommand == null) {
       return;
     }
 
+    var command =
+        new LogActivityCommand(timestamp, period, activity.getActivity(), activity.getTags());
     onLogActivityCommand.accept(command);
   }
 }

@@ -5,7 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.activitysampling.contract.data.Activity;
 import java.awt.AWTException;
 import java.awt.EventQueue;
 import java.awt.MenuItem;
@@ -20,8 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 class AppTrayIcon {
-  @Getter @Setter private LogActivityCommand lastCommand;
-  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Consumer<Activity> onActivitySelected;
 
   private TrayIcon trayIcon;
 
@@ -41,20 +40,19 @@ class AppTrayIcon {
       return;
     }
 
-    var tray = SystemTray.getSystemTray();
-    if (lastCommand != null) {
-      PopupMenu menu = createPopupMenu();
-      trayIcon.setPopupMenu(menu);
-    }
-    if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
-      try {
-        tray.add(trayIcon);
-      } catch (AWTException e) {
-        System.err.println(e.toString());
-      }
-    }
+    EventQueue.invokeLater(
+        () -> {
+          var tray = SystemTray.getSystemTray();
+          if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
+            try {
+              tray.add(trayIcon);
+            } catch (AWTException e) {
+              System.err.println(e.toString());
+            }
+          }
 
-    trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
+          trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
+        });
   }
 
   void hide() {
@@ -69,23 +67,26 @@ class AppTrayIcon {
         });
   }
 
-  private PopupMenu createPopupMenu() {
-    String label = lastCommand.getActivity();
-    if (lastCommand.getTags() != null) {
-      label = "[" + lastCommand.getTags() + "] " + label;
-    }
-    MenuItem item = new MenuItem(label);
-    item.addActionListener(
-        it -> {
-          if (onLogActivityCommand == null) {
-            return;
-          }
-
-          onLogActivityCommand.accept(lastCommand);
+  void display(List<Activity> recentActivities) {
+    EventQueue.invokeLater(
+        () -> {
+          var menu = new PopupMenu();
+          var stringConverter = new ActivityStringConverter();
+          recentActivities.forEach(
+              it -> {
+                MenuItem item = new MenuItem(stringConverter.toString(it));
+                item.addActionListener(e -> handleActivitySelected(it));
+                menu.add(item);
+              });
+          trayIcon.setPopupMenu(menu);
         });
+  }
 
-    var menu = new PopupMenu();
-    menu.add(item);
-    return menu;
+  private void handleActivitySelected(Activity it) {
+    if (onActivitySelected == null) {
+      return;
+    }
+
+    onActivitySelected.accept(it);
   }
 }
