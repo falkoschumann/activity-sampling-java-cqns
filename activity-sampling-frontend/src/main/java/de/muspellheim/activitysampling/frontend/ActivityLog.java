@@ -26,7 +26,7 @@ class ActivityLog extends StackPane {
 
   void display(List<Activity> activities) {
     var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
-    var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM);
+    var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
     var stringConverter = new ActivityStringConverter();
     var logBuilder = new StringBuilder();
     for (int i = 0; i < activities.size(); i++) {

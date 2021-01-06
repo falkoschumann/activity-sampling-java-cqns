@@ -17,6 +17,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+// TODO Localize App; Unter macOS ist sie immer Englisch
+
 public class App extends Application {
   private EventStore eventStore;
 
