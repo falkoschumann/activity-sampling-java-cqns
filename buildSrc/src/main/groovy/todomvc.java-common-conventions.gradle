@@ -1,53 +1,62 @@
 plugins {
-    id 'java'
-    id 'jacoco'
-    id 'com.diffplug.spotless'
-    id 'io.freefair.lombok'
+  id 'java'
+  //id 'jacoco' // TODO Java 15 wird derzeit nicht unterstützt
+  id 'com.diffplug.spotless'
+  id 'io.freefair.lombok'
+  id 'extra-java-module-info'
 }
 
 repositories {
-    jcenter()
+  jcenter()
+  maven {
+    url = uri("https://maven.pkg.github.com/falkoschumann/muspellheim-libs-java")
+    credentials {
+      username = project.findProperty("gpr.user") ?: System.getenv("USER")
+      password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+    }
+  }
 }
 
 sourceCompatibility = 11
 targetCompatibility = 11
 
 compileJava {
-    options.encoding = 'UTF-8'
-    options.compilerArgs << '-parameters'
+  options.encoding = 'UTF-8'
+  options.compilerArgs << '-parameters'
 }
 
 compileTestJava {
-    options.encoding = 'UTF-8'
+  options.encoding = 'UTF-8'
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
 java {
-    modularity.inferModulePath = true
+  modularity.inferModulePath = true
 }
 
 test {
-    useJUnitPlatform()
-    testLogging {
-        events("passed", "skipped", "failed")
-    }
+  useJUnitPlatform()
+  testLogging {
+    events("passed", "skipped", "failed")
+  }
+  //finalizedBy jacocoTestReport
 }
-
-test {
-    finalizedBy jacocoTestReport // report is always generated after tests run
-}
-
+/*
 jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
+    dependsOn test
+}
+*/
+spotless {
+  java {
+    googleJavaFormat()
+    licenseHeaderFile('config/LicenseHeader.txt')
+  }
 }
 
-spotless {
-    java {
-        googleJavaFormat()
-        licenseHeaderFile('config/LicenseHeader.txt')
-    }
+extraJavaModuleInfo {
+  automaticModule('commons-csv-1.8.jar', 'org.apache.commons.csv')
 }

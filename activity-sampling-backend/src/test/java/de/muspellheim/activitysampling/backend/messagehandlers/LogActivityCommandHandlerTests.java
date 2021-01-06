@@ -10,51 +10,44 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import de.muspellheim.activitysampling.backend.Event;
-import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
-import de.muspellheim.activitysampling.contract.messages.notifications.PeriodEndedNotification;
-import java.time.Clock;
+import de.muspellheim.messages.Success;
 import java.time.Duration;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 class LogActivityCommandHandlerTests {
-  private static final Instant TIMESTAMP = Instant.ofEpochSecond(1606063637);
-
-  private EventStore eventStore;
-  private LogActivityCommandHandler handler;
-
-  @BeforeEach
-  void setUp() {
-    eventStore = new MemoryEventStore();
-    handler =
-        new LogActivityCommandHandler(
-            eventStore, Clock.fixed(TIMESTAMP, ZoneId.of("Europe/Berlin")));
-  }
 
   @Test
-  void periodEnded() throws Exception {
-    handler.handle(new PeriodEndedNotification(Duration.ofMinutes(20)));
+  void logActivity() {
+    var eventStore = new MemoryEventStore();
+    var handler = new LogActivityCommandHandler(eventStore);
 
-    assertEquals(List.of(), eventStore.replay());
-  }
+    var status =
+        handler.handle(
+            new LogActivityCommand(
+                LocalDateTime.of(2020, 11, 22, 17, 47, 17),
+                Duration.ofMinutes(20),
+                "Lorem ipsum",
+                List.of("Foobar")));
 
-  @Test
-  void logActivity() throws Exception {
-    handler.handle(new PeriodEndedNotification(Duration.ofMinutes(20)));
-
-    handler.handle(new LogActivityCommand("Lorem ipsum", "Foobar"));
-
-    List<Event> events = eventStore.replay();
+    List<Event> events = eventStore.replay().collect(Collectors.toList());
     assertAll(
+        () -> assertEquals(new Success(), status, "Command status"),
         () -> assertEquals(1, events.size(), "Number of events"),
         () -> assertNotNull(events.get(0).getId(), "Event id"),
-        () -> assertEquals(TIMESTAMP, events.get(0).getTimestamp(), "Event timestamp"),
+        () ->
+            assertEquals(
+                LocalDateTime.of(2020, 11, 22, 17, 47, 17)
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant(),
+                events.get(0).getTimestamp(),
+                "Event timestamp"),
         () ->
             assertEquals(
                 Duration.ofMinutes(20),
@@ -66,6 +59,7 @@ class LogActivityCommandHandlerTests {
                 ((ActivityLoggedEvent) events.get(0)).getActivity(),
                 "Event activity"),
         () ->
-            assertEquals("Foobar", ((ActivityLoggedEvent) events.get(0)).getTags(), "Event tags"));
+            assertEquals(
+                List.of("Foobar"), ((ActivityLoggedEvent) events.get(0)).getTags(), "Event tags"));
   }
 }

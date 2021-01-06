@@ -7,7 +7,7 @@ package de.muspellheim.activitysampling.backend;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public interface EventStore {
   Consumer<Event> getOnRecorded();
@@ -16,23 +16,20 @@ public interface EventStore {
 
   void record(Event event) throws Exception;
 
-  default void record(List<Event> events) throws Exception {
+  default void record(Iterable<? extends Event> events) throws Exception {
     for (Event event : events) {
       record(event);
     }
   }
 
-  List<Event> replay() throws Exception;
+  Stream<? extends Event> replay() throws Exception;
 
-  default List<Event> replay(Class<? extends Event> eventType) throws Exception {
-    return replay().stream()
-        .filter(it -> it.getClass().equals(eventType))
-        .collect(Collectors.toList());
+  @SuppressWarnings("unchecked")
+  default <E extends Event> Stream<E> replay(Class<E> eventType) throws Exception {
+    return (Stream<E>) replay().filter(it -> it.getClass().equals(eventType));
   }
 
-  default List<Event> replay(List<Class<? extends Event>> eventTypes) throws Exception {
-    return replay().stream()
-        .filter(it -> eventTypes.contains(it.getClass()))
-        .collect(Collectors.toList());
+  default Stream<? extends Event> replay(List<Class<? extends Event>> eventTypes) throws Exception {
+    return replay().filter(it -> eventTypes.contains(it.getClass()));
   }
 }
