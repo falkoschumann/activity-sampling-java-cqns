@@ -23,27 +23,26 @@ import lombok.Setter;
 class ActivityForm extends VBox {
   @Getter @Setter private Consumer<Activity> onActivitySelected;
 
-  private final FormInput<TextField> activityInput;
-  private final FormInput<TextField> optionalTagsInput;
+  private final VFormInput<TextField> activityInput;
+  private final VFormInput<TextField> optionalTagsInput;
   private final SplitMenuButton logButton;
 
   ActivityForm() {
     var activityField = new TextField();
     activityField.setPromptText("What are you working on?");
     activityField.setOnAction(e -> handleActivitySelected());
-    activityInput = new FormInput<>("Activity*", activityField);
+    activityInput = new VFormInput<>("Activity*", activityField);
 
     var optionalTagsField = new TextField();
     optionalTagsField.setPromptText("Customer, Project, Product");
     optionalTagsField.setOnAction(e -> handleActivitySelected());
-    optionalTagsInput = new FormInput<>("Optional tags", optionalTagsField);
+    optionalTagsInput = new VFormInput<>("Optional tags", optionalTagsField);
 
     logButton = new SplitMenuButton();
     logButton.setText("Log");
     logButton.setAlignment(Pos.CENTER);
     logButton.setMaxWidth(Double.MAX_VALUE);
     logButton.setDisable(true);
-    // TODO logButton.setDefaultButton(true);
     logButton.disableProperty().bind(activityField.textProperty().isEmpty());
     logButton.setOnAction(e -> handleActivitySelected());
 

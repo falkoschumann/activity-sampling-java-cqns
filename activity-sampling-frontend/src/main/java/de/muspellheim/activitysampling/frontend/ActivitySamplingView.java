@@ -14,8 +14,14 @@ import java.time.LocalDateTime;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,7 +38,34 @@ public class ActivitySamplingView extends VBox {
   private Duration period;
   private LocalDateTime timestamp;
 
-  public ActivitySamplingView() {
+  public ActivitySamplingView(boolean useSystemMenuBar) {
+    var preferencesMenuItem = new MenuItem("Preferences");
+    preferencesMenuItem.setOnAction(
+        e -> {
+          // TODO Stage in App öffnen
+
+          var view = new PreferencesView();
+
+          var scene = new Scene(view, 569, 320);
+
+          var stage = new Stage();
+          stage.initOwner(getScene().getWindow());
+          stage.setScene(scene);
+          stage.setTitle("Preferences");
+          stage.setMinWidth(400);
+          stage.setMinHeight(120);
+          stage.show();
+        });
+
+    var exitMenuItem = new MenuItem("Exit");
+    exitMenuItem.setOnAction(e -> Platform.exit());
+
+    var fileMenu = new Menu("File");
+    fileMenu.getItems().setAll(preferencesMenuItem, new SeparatorMenuItem(), exitMenuItem);
+
+    var menuBar = new MenuBar(fileMenu);
+    menuBar.setUseSystemMenuBar(useSystemMenuBar);
+
     activityForm = new ActivityForm();
     activityForm.setDisable(true);
     activityForm.setOnActivitySelected(it -> logActivity(it));
@@ -42,17 +75,22 @@ public class ActivitySamplingView extends VBox {
     activityLog = new ActivityLog();
     VBox.setVgrow(activityLog, Priority.ALWAYS);
 
+    var main = new VBox();
+    main.setPadding(new Insets(Views.MARGIN));
+    main.setSpacing(Views.UNRELATED_GAP);
+    main.getChildren().setAll(activityForm, periodProgress, activityLog);
+    VBox.setVgrow(main, Priority.ALWAYS);
+
     setStyle("-fx-font-family: Verdana;");
-    setPadding(new Insets(Views.MARGIN));
-    setSpacing(Views.UNRELATED_GAP);
     setPrefSize(360, 640);
-    getChildren().setAll(activityForm, periodProgress, activityLog);
+    getChildren().setAll(menuBar, main);
 
     var periodCheck = new PeriodCheck();
     periodCheck.setOnPeriodStarted(it -> periodStarted(it));
     periodCheck.setOnPeriodProgressed(it -> periodProgressed(it));
     periodCheck.setOnPeriodEnded(it -> periodEnded(it));
 
+    // TODO Clock nach außenlegen und in App auch deaktivieren
     clock = new SystemClock();
     clock.setOnTick(it -> periodCheck.check(it));
 
