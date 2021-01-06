@@ -67,12 +67,12 @@ class AppTrayIcon {
         });
   }
 
-  void display(List<Activity> activities) {
+  void display(List<Activity> recentActivities) {
     EventQueue.invokeLater(
         () -> {
           var menu = new PopupMenu();
           var stringConverter = new ActivityStringConverter();
-          activities.forEach(
+          recentActivities.forEach(
               it -> {
                 MenuItem item = new MenuItem(stringConverter.toString(it));
                 item.addActionListener(e -> handleActivitySelected(it));
