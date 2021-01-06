@@ -5,6 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
@@ -102,6 +103,12 @@ public class ActivitySamplingView extends VBox {
       var lastActivity = result.getRecent().get(0);
       activityInput.getControl().setText(lastActivity.getActivity());
       optionalTagsInput.getControl().setText(String.join(", ", lastActivity.getTags()));
+    }
+
+    var converter = new ActivityStringConverter();
+    for (Activity it : result.getRecent()) {
+      var s = converter.toString(it);
+      converter.fromString(s);
     }
   }
 
