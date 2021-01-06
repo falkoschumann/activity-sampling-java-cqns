@@ -1,5 +1,6 @@
 plugins {
-  id 'todomvc.java-libraryfx-conventions'
+  id 'todomvc.java-library-conventions'
+  id 'todomvc.java-openjfx-conventions'
 }
 
 dependencies {
