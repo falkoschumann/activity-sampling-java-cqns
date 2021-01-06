@@ -1,5 +1,6 @@
 plugins {
-  id 'todomvc.java-applicationfx-conventions'
+  id 'todomvc.java-application-conventions'
+  id 'com.gluonhq.client-gradle-plugin'
   id 'org.beryx.jlink'
 }
 
