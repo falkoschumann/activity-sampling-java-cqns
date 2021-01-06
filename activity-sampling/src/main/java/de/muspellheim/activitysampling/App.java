@@ -17,10 +17,9 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-// TODO Localize App; Unter macOS ist sie immer Englisch
-
 public class App extends Application {
   private EventStore eventStore;
+  private boolean useSystemMenuBar = true;
 
   public static void main(String[] args) {
     Application.launch(args);
@@ -38,6 +37,9 @@ public class App extends Application {
       System.out.println("Save activity log in: " + file.toAbsolutePath());
       eventStore = new CsvEventStore(file);
     }
+    if (getParameters().getUnnamed().contains("--noSystemMenuBar")) {
+      useSystemMenuBar = false;
+    }
   }
 
   @Override
@@ -45,7 +47,7 @@ public class App extends Application {
     var logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
 
-    var frontend = new ActivitySamplingView();
+    var frontend = new ActivitySamplingView(useSystemMenuBar);
     frontend.setOnLogActivityCommand(
         it -> {
           logActivityCommandHandler.handle(it);

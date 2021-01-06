@@ -5,19 +5,22 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import javafx.scene.control.Control;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 
-class FormInput<T extends Control> extends VBox {
+class HFormInput<T extends Node> extends HBox {
   private final T control;
 
-  FormInput(String labelText, T control) {
+  HFormInput(String labelText, T control) {
     this.control = control;
 
     var label = new Label(labelText);
+    label.setPrefWidth(120);
     label.setLabelFor(control);
 
+    setAlignment(Pos.CENTER_LEFT);
     setSpacing(Views.GAP);
     getChildren().setAll(label, control);
   }
