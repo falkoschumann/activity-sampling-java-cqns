@@ -13,11 +13,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
+import javafx.geometry.Pos;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -32,6 +35,7 @@ public class ActivitySamplingView extends VBox {
 
   private final FormInput<TextField> activityInput;
   private final FormInput<TextField> optionalTagsInput;
+  private final SplitMenuButton logButton;
   private final PeriodProgress periodProgress;
   private final ActivityLog activityLog;
   private final AppTrayIcon trayIcon;
@@ -53,10 +57,12 @@ public class ActivitySamplingView extends VBox {
     optionalTagsInput.setDisable(true);
     optionalTagsInput.disableProperty().bind(activityFormDisabled);
 
-    var logButton = new Button("Log");
+    logButton = new SplitMenuButton();
+    logButton.setText("Log");
+    logButton.setAlignment(Pos.CENTER);
     logButton.setMaxWidth(Double.MAX_VALUE);
     logButton.setDisable(true);
-    logButton.setDefaultButton(true);
+    // TODO logButton.setDefaultButton(true);
     logButton
         .disableProperty()
         .bind(activityFormDisabled.or(activityField.textProperty().isEmpty()));
@@ -99,6 +105,24 @@ public class ActivitySamplingView extends VBox {
   public void display(ActivityLogQueryResult result) {
     activityLog.display(result.getLog());
     trayIcon.display(result.getRecent());
+
+    var activityStringConverter = new ActivityStringConverter();
+    var menuItems =
+        result.getRecent().stream()
+            .map(
+                it -> {
+                  var menuItem = new MenuItem(activityStringConverter.toString(it));
+                  menuItem.setOnAction(
+                      e -> {
+                        activityInput.getControl().setText(it.getActivity());
+                        optionalTagsInput.getControl().setText(String.join(", ", it.getTags()));
+                        handleLogActivity();
+                      });
+                  return menuItem;
+                })
+            .collect(Collectors.toList());
+    logButton.getItems().setAll(menuItems);
+
     if (!result.getRecent().isEmpty()) {
       var lastActivity = result.getRecent().get(0);
       activityInput.getControl().setText(lastActivity.getActivity());
