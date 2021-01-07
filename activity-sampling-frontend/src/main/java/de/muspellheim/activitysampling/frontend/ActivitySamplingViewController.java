@@ -5,37 +5,214 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.data.Activity;
+import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SplitMenuButton;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.Setter;
 
-public class ActivitySamplingViewController extends StageController<ActivitySamplingView> {
-  private final SystemClock clock;
+public class ActivitySamplingViewController {
+  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
 
-  public ActivitySamplingViewController(Stage stage, ActivitySamplingView view) {
-    super(stage, view);
+  @FXML private MenuBar menuBar;
+  @FXML private TextField activity;
+  @FXML private TextField optionalTags;
+  @FXML private SplitMenuButton log;
+  @FXML private Label progressText;
+  @FXML private ProgressBar progressBar;
+  @FXML private TextArea activityLog;
 
+  private final ReadOnlyBooleanWrapper formDisabled = new ReadOnlyBooleanWrapper(true);
+
+  private final SystemClock clock = new SystemClock();
+  private final PeriodCheck periodCheck = new PeriodCheck(Duration.ofMinutes(1));
+  private final AppTrayIcon trayIcon = new AppTrayIcon();
+
+  private Duration period;
+  private LocalDateTime timestamp;
+
+  public static ActivitySamplingViewController create(Stage stage, boolean useSystemMenuBar) {
+    var factory = new ViewControllerFactory(ActivitySamplingViewController.class);
+
+    var scene = new Scene(factory.getView());
+    stage.setScene(scene);
     stage.setTitle("Activity Sampling");
     stage.setMinWidth(240);
     stage.setMinHeight(420);
 
-    view.setOnOpenPreferences(() -> handleOpenPreferences());
+    ActivitySamplingViewController controller = factory.getController();
+    controller.menuBar.setUseSystemMenuBar(useSystemMenuBar);
+    return controller;
+  }
 
-    var periodCheck = new PeriodCheck();
-    periodCheck.setOnPeriodStarted(it -> view.periodStarted(it));
-    periodCheck.setOnPeriodProgressed(it -> view.periodProgressed(it));
-    periodCheck.setOnPeriodEnded(it -> view.periodEnded(it));
+  @FXML
+  private void initialize() {
+    periodCheck.setOnPeriodStarted(
+        it -> {
+          Platform.runLater(
+              () -> {
+                period = it;
+                updateRemainingTime(period);
+                progressBar.setProgress(0.0);
+              });
+        });
+    periodCheck.setOnPeriodProgressed(
+        it -> {
+          Platform.runLater(
+              () -> {
+                var remainingTime = period.minus(it);
+                updateRemainingTime(remainingTime);
+                var progress = (double) it.getSeconds() / period.getSeconds();
+                progressBar.setProgress(progress);
+              });
+        });
+    periodCheck.setOnPeriodEnded(
+        it -> {
+          Platform.runLater(
+              () -> {
+                timestamp = it;
+                formDisabled.set(false);
+                updateRemainingTime(Duration.ZERO);
+                progressBar.setProgress(1.0);
+              });
+          trayIcon.show();
+        });
 
-    clock = new SystemClock();
     clock.setOnTick(it -> periodCheck.check(it));
+
+    trayIcon.setOnActivitySelected(it -> logActivity(it));
+    Platform.runLater(() -> activity.getScene().getWindow().setOnHiding(e -> trayIcon.hide()));
+  }
+
+  public final ReadOnlyBooleanProperty formDisabledProperty() {
+    return formDisabled.getReadOnlyProperty();
+  }
+
+  public final boolean isFormDisabled() {
+    return formDisabled.get();
   }
 
   public void run() {
-    getView().run();
+    onActivityLogQuery.accept(new ActivityLogQuery());
     clock.run();
   }
 
-  private void handleOpenPreferences() {
-    var preferencesViewController = new PreferencesViewController(new PreferencesView());
-    preferencesViewController.getStage().initOwner(getStage());
-    preferencesViewController.show();
+  public void display(ActivityLogQueryResult result) {
+    updateForm(result.getRecent());
+    updateActivityLog(result.getLog());
+    trayIcon.display(result.getRecent());
+  }
+
+  private void updateForm(List<Activity> recentActivities) {
+    var activityStringConverter = new ActivityStringConverter();
+    var menuItems =
+        recentActivities.stream()
+            .map(
+                it -> {
+                  var menuItem = new MenuItem(activityStringConverter.toString(it));
+                  menuItem.setOnAction(e -> logActivity(it));
+                  return menuItem;
+                })
+            .collect(Collectors.toList());
+    Platform.runLater(
+        () -> {
+          log.getItems().setAll(menuItems);
+
+          if (!recentActivities.isEmpty()) {
+            var lastActivity = recentActivities.get(0);
+            activity.setText(lastActivity.getActivity());
+            optionalTags.setText(String.join(", ", lastActivity.getTags()));
+          }
+        });
+  }
+
+  private void updateRemainingTime(Duration remainingTime) {
+    var text = new DurationStringConverter().toString(remainingTime);
+    progressText.setText(text);
+  }
+
+  private void updateActivityLog(List<Activity> log) {
+    var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
+    var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
+    var stringConverter = new ActivityStringConverter();
+    var logBuilder = new StringBuilder();
+    for (int i = 0; i < log.size(); i++) {
+      Activity activity = log.get(i);
+      if (i == 0) {
+        logBuilder.append(dateFormatter.format(activity.getTimestamp()));
+        logBuilder.append("\n");
+      } else {
+        Activity lastActivity = log.get(i - 1);
+        if (!lastActivity
+            .getTimestamp()
+            .toLocalDate()
+            .equals(activity.getTimestamp().toLocalDate())) {
+          logBuilder.append(dateFormatter.format(activity.getTimestamp()));
+          logBuilder.append("\n");
+        }
+      }
+
+      logBuilder.append(timeFormatter.format(activity.getTimestamp()));
+      logBuilder.append(" - ");
+      logBuilder.append(stringConverter.toString(activity));
+      logBuilder.append("\n");
+    }
+    activityLog.setText(logBuilder.toString());
+  }
+
+  @FXML
+  private void handlePreferences() {
+    var preferencesStage = new Stage();
+    preferencesStage.initOwner(activity.getScene().getWindow());
+    var preferencesViewController = PreferencesViewController.create(preferencesStage);
+    preferencesStage.show();
+  }
+
+  @FXML
+  private void handleExit() {
+    Platform.exit();
+  }
+
+  @FXML
+  private void handleLogActivity() {
+    var a =
+        new Activity(
+            "",
+            LocalDateTime.now(),
+            Duration.ZERO,
+            activity.getText(),
+            List.of(optionalTags.getText().split(",")));
+    logActivity(a);
+  }
+
+  private void logActivity(Activity activity) {
+    formDisabled.set(true);
+    trayIcon.hide();
+
+    var command =
+        new LogActivityCommand(timestamp, period, activity.getActivity(), activity.getTags());
+    onLogActivityCommand.accept(command);
   }
 }

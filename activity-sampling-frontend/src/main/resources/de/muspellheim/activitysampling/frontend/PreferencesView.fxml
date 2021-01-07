@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="360.0" prefWidth="640.0" spacing="4.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.PreferencesViewController">
+   <children>
+      <Label text="Period duration" />
+      <HBox alignment="CENTER_LEFT" spacing="8.0">
+         <children>
+            <Spinner fx:id="periodDuration" editable="true" min="1" max="1440" initialValue="20" />
+            <Label text="minutes" />
+         </children>
+      </HBox>
+      <Label text="Activity log file">
+         <VBox.margin>
+            <Insets top="16.0" />
+         </VBox.margin>
+      </Label>
+      <TextField fx:id="activityLogFile" editable="false" promptText="activity-log.csv" />
+      <Button mnemonicParsing="false" onAction="#handleChange" text="Change" />
+   </children>
+   <padding>
+      <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+   </padding>
+</VBox>
