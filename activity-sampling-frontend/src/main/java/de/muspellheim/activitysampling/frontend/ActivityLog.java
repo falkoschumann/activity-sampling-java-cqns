@@ -8,12 +8,15 @@ package de.muspellheim.activitysampling.frontend;
 import de.muspellheim.activitysampling.contract.data.Activity;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.List;
-import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.StackPane;
 
 class ActivityLog extends StackPane {
+  private final ObservableList<Activity> activities = FXCollections.observableArrayList();
+
   private final TextArea text;
 
   ActivityLog() {
@@ -22,9 +25,15 @@ class ActivityLog extends StackPane {
     text.setFocusTraversable(false);
 
     getChildren().setAll(text);
+
+    activities.addListener((InvalidationListener) l -> update());
   }
 
-  void display(List<Activity> activities) {
+  public ObservableList<Activity> getActivities() {
+    return activities;
+  }
+
+  private void update() {
     var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
     var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
     var stringConverter = new ActivityStringConverter();
@@ -51,6 +60,6 @@ class ActivityLog extends StackPane {
       logBuilder.append("\n");
     }
     var log = logBuilder.toString();
-    Platform.runLater(() -> text.setText(log));
+    text.setText(log);
   }
 }
