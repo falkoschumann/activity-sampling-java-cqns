@@ -63,6 +63,6 @@ public class App extends Application {
     var frontendController = new ActivitySamplingViewController(stage, frontend);
     frontendController.show();
 
-    frontend.run();
+    frontendController.run();
   }
 }
