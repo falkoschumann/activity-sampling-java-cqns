@@ -15,6 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+// TODO Nur VInputForm verwenden, HInputForm wieder entsorgen
+
 public class PreferencesView extends VBox {
   public PreferencesView() {
     var periodDurationSpinner = new Spinner<>(1, 1440, 20);

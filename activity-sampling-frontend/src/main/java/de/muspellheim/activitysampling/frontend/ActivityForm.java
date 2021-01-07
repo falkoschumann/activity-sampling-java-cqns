@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitMenuButton;
@@ -22,6 +25,8 @@ import lombok.Setter;
 
 class ActivityForm extends VBox {
   @Getter @Setter private Consumer<Activity> onActivitySelected;
+
+  private final ObservableList<Activity> recentActivities = FXCollections.observableArrayList();
 
   private final VFormInput<TextField> activityInput;
   private final VFormInput<TextField> optionalTagsInput;
@@ -48,29 +53,12 @@ class ActivityForm extends VBox {
 
     setSpacing(Views.UNRELATED_GAP);
     getChildren().setAll(activityInput, optionalTagsInput, logButton);
+
+    recentActivities.addListener((InvalidationListener) l -> update());
   }
 
-  void display(List<Activity> recentActivity) {
-    var activityStringConverter = new ActivityStringConverter();
-    var menuItems =
-        recentActivity.stream()
-            .map(
-                it -> {
-                  var menuItem = new MenuItem(activityStringConverter.toString(it));
-                  menuItem.setOnAction(e -> handleActivitySelected(it));
-                  return menuItem;
-                })
-            .collect(Collectors.toList());
-    Platform.runLater(
-        () -> {
-          logButton.getItems().setAll(menuItems);
-
-          if (!recentActivity.isEmpty()) {
-            var lastActivity = recentActivity.get(0);
-            activityInput.getControl().setText(lastActivity.getActivity());
-            optionalTagsInput.getControl().setText(String.join(", ", lastActivity.getTags()));
-          }
-        });
+  ObservableList<Activity> getRecentActivities() {
+    return recentActivities;
   }
 
   private void handleActivitySelected() {
@@ -90,5 +78,28 @@ class ActivityForm extends VBox {
     }
 
     onActivitySelected.accept(activity);
+  }
+
+  private void update() {
+    var activityStringConverter = new ActivityStringConverter();
+    var menuItems =
+        recentActivities.stream()
+            .map(
+                it -> {
+                  var menuItem = new MenuItem(activityStringConverter.toString(it));
+                  menuItem.setOnAction(e -> handleActivitySelected(it));
+                  return menuItem;
+                })
+            .collect(Collectors.toList());
+    Platform.runLater(
+        () -> {
+          logButton.getItems().setAll(menuItems);
+
+          if (!recentActivities.isEmpty()) {
+            var lastActivity = recentActivities.get(0);
+            activityInput.getControl().setText(lastActivity.getActivity());
+            optionalTagsInput.getControl().setText(String.join(", ", lastActivity.getTags()));
+          }
+        });
   }
 }

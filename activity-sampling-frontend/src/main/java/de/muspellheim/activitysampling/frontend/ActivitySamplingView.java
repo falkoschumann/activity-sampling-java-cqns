@@ -105,8 +105,11 @@ public class ActivitySamplingView extends VBox {
   }
 
   public void display(ActivityLogQueryResult result) {
-    activityForm.display(result.getRecent());
-    activityLog.display(result.getLog());
+    Platform.runLater(
+        () -> {
+          activityForm.getRecentActivities().setAll(result.getRecent());
+          activityLog.getActivities().setAll(result.getLog());
+        });
     trayIcon.display(result.getRecent());
   }
 
