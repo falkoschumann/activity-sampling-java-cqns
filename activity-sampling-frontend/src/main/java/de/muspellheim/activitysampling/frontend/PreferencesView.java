@@ -15,14 +15,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-// TODO Nur VInputForm verwenden, HInputForm wieder entsorgen
-
 public class PreferencesView extends VBox {
   public PreferencesView() {
     var periodDurationSpinner = new Spinner<>(1, 1440, 20);
     var periodDurationContainer = new HBox(Views.GAP, periodDurationSpinner, new Label("minutes"));
     periodDurationContainer.setAlignment(Pos.CENTER_LEFT);
-    var periodDurationInput = new HFormInput<>("Period duration:", periodDurationContainer);
+    var periodDurationInput = new FormInput<>("Period duration", periodDurationContainer);
 
     var activityLogField = new TextField();
     activityLogField.setEditable(false);
@@ -31,7 +29,7 @@ public class PreferencesView extends VBox {
     var activityLogContainer = new HBox(Views.GAP, activityLogField, changeButton);
     activityLogContainer.setAlignment(Pos.CENTER_LEFT);
     HBox.setHgrow(activityLogContainer, Priority.ALWAYS);
-    var activityLogInput = new HFormInput<>("Activity log:", activityLogContainer);
+    var activityLogInput = new FormInput<>("Activity log", activityLogContainer);
 
     setStyle("-fx-font-family: Verdana;");
     setPrefSize(640, 360);

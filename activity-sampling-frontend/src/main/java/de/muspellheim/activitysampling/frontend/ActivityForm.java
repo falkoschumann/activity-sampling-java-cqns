@@ -28,20 +28,20 @@ class ActivityForm extends VBox {
 
   private final ObservableList<Activity> recentActivities = FXCollections.observableArrayList();
 
-  private final VFormInput<TextField> activityInput;
-  private final VFormInput<TextField> optionalTagsInput;
+  private final FormInput<TextField> activityInput;
+  private final FormInput<TextField> optionalTagsInput;
   private final SplitMenuButton logButton;
 
   ActivityForm() {
     var activityField = new TextField();
     activityField.setPromptText("What are you working on?");
     activityField.setOnAction(e -> handleActivitySelected());
-    activityInput = new VFormInput<>("Activity*", activityField);
+    activityInput = new FormInput<>("Activity*", activityField);
 
     var optionalTagsField = new TextField();
     optionalTagsField.setPromptText("Customer, Project, Product");
     optionalTagsField.setOnAction(e -> handleActivitySelected());
-    optionalTagsInput = new VFormInput<>("Optional tags", optionalTagsField);
+    optionalTagsInput = new FormInput<>("Optional tags", optionalTagsField);
 
     logButton = new SplitMenuButton();
     logButton.setText("Log");
@@ -69,14 +69,6 @@ class ActivityForm extends VBox {
             Duration.ZERO,
             activityInput.getControl().getText(),
             List.of(optionalTagsInput.getControl().getText().split(",")));
-    handleActivitySelected(activity);
-  }
-
-  private void handleActivitySelected(Activity activity) {
-    if (onActivitySelected == null) {
-      return;
-    }
-
     onActivitySelected.accept(activity);
   }
 
@@ -87,7 +79,7 @@ class ActivityForm extends VBox {
             .map(
                 it -> {
                   var menuItem = new MenuItem(activityStringConverter.toString(it));
-                  menuItem.setOnAction(e -> handleActivitySelected(it));
+                  menuItem.setOnAction(e -> onActivitySelected.accept(it));
                   return menuItem;
                 })
             .collect(Collectors.toList());

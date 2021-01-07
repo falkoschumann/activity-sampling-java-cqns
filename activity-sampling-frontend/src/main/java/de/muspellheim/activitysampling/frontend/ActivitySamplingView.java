@@ -32,14 +32,13 @@ public class ActivitySamplingView extends VBox {
   private final PeriodProgress periodProgress;
   private final ActivityLog activityLog;
   private final AppTrayIcon trayIcon;
-  private final SystemClock clock;
 
   private Duration period;
   private LocalDateTime timestamp;
 
   public ActivitySamplingView(boolean useSystemMenuBar) {
     var preferencesMenuItem = new MenuItem("Preferences");
-    preferencesMenuItem.setOnAction(e -> handleOpenPreferences());
+    preferencesMenuItem.setOnAction(e -> onOpenPreferences.run());
 
     var exitMenuItem = new MenuItem("Exit");
     exitMenuItem.setOnAction(e -> Platform.exit());
@@ -52,7 +51,7 @@ public class ActivitySamplingView extends VBox {
 
     activityForm = new ActivityForm();
     activityForm.setDisable(true);
-    activityForm.setOnActivitySelected(it -> handleLogActivity(it));
+    activityForm.setOnActivitySelected(it -> logActivity(it));
 
     periodProgress = new PeriodProgress();
 
@@ -69,22 +68,12 @@ public class ActivitySamplingView extends VBox {
     setPrefSize(360, 640);
     getChildren().setAll(menuBar, main);
 
-    var periodCheck = new PeriodCheck();
-    periodCheck.setOnPeriodStarted(it -> periodStarted(it));
-    periodCheck.setOnPeriodProgressed(it -> periodProgressed(it));
-    periodCheck.setOnPeriodEnded(it -> periodEnded(it));
-
-    // TODO Clock nach außenlegen und in App auch deaktivieren
-    clock = new SystemClock();
-    clock.setOnTick(it -> periodCheck.check(it));
-
     trayIcon = new AppTrayIcon();
-    trayIcon.setOnActivitySelected(it -> handleLogActivity(it));
+    trayIcon.setOnActivitySelected(it -> logActivity(it));
     Platform.runLater(() -> getScene().getWindow().setOnHiding(e -> trayIcon.hide()));
   }
 
-  public void run() {
-    clock.run();
+  void run() {
     onActivityLogQuery.accept(new ActivityLogQuery());
   }
 
@@ -97,17 +86,17 @@ public class ActivitySamplingView extends VBox {
     trayIcon.display(result.getRecent());
   }
 
-  private void periodStarted(Duration period) {
+  void periodStarted(Duration period) {
     this.period = period;
     Platform.runLater(() -> periodProgress.start(period));
   }
 
-  private void periodProgressed(Duration elapsedTime) {
+  void periodProgressed(Duration elapsedTime) {
     var remainingTime = period.minus(elapsedTime);
     Platform.runLater(() -> periodProgress.progress(period, elapsedTime, remainingTime));
   }
 
-  private void periodEnded(LocalDateTime timestamp) {
+  void periodEnded(LocalDateTime timestamp) {
     this.timestamp = timestamp;
     Platform.runLater(
         () -> {
@@ -117,24 +106,12 @@ public class ActivitySamplingView extends VBox {
         });
   }
 
-  private void handleLogActivity(Activity activity) {
+  private void logActivity(Activity activity) {
     activityForm.setDisable(true);
     trayIcon.hide();
-
-    if (onLogActivityCommand == null) {
-      return;
-    }
 
     var command =
         new LogActivityCommand(timestamp, period, activity.getActivity(), activity.getTags());
     onLogActivityCommand.accept(command);
-  }
-
-  private void handleOpenPreferences() {
-    if (onOpenPreferences == null) {
-      return;
-    }
-
-    onOpenPreferences.run();
   }
 }
