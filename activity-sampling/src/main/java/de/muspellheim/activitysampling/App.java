@@ -12,9 +12,9 @@ import de.muspellheim.activitysampling.backend.messagehandlers.ActivityLogQueryH
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingView;
+import de.muspellheim.activitysampling.frontend.ActivitySamplingViewController;
 import java.nio.file.Paths;
 import javafx.application.Application;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -47,7 +47,7 @@ public class App extends Application {
     var logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
 
-    var frontend = new ActivitySamplingView(useSystemMenuBar);
+    ActivitySamplingView frontend = new ActivitySamplingView(useSystemMenuBar);
     frontend.setOnLogActivityCommand(
         it -> {
           logActivityCommandHandler.handle(it);
@@ -60,12 +60,8 @@ public class App extends Application {
           frontend.display(result);
         });
 
-    var scene = new Scene(frontend);
-    stage.setScene(scene);
-    stage.setTitle("Activity Sampling");
-    stage.setMinWidth(240);
-    stage.setMinHeight(420);
-    stage.show();
+    var frontendController = new ActivitySamplingViewController(stage, frontend);
+    frontendController.show();
 
     frontend.run();
   }

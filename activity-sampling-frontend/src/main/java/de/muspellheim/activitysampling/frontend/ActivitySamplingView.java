@@ -14,20 +14,19 @@ import java.time.LocalDateTime;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 
 public class ActivitySamplingView extends VBox {
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
+  @Getter @Setter private Runnable onOpenPreferences;
 
   private final ActivityForm activityForm;
   private final PeriodProgress periodProgress;
@@ -40,22 +39,7 @@ public class ActivitySamplingView extends VBox {
 
   public ActivitySamplingView(boolean useSystemMenuBar) {
     var preferencesMenuItem = new MenuItem("Preferences");
-    preferencesMenuItem.setOnAction(
-        e -> {
-          // TODO Stage in App öffnen
-
-          var view = new PreferencesView();
-
-          var scene = new Scene(view, 569, 320);
-
-          var stage = new Stage();
-          stage.initOwner(getScene().getWindow());
-          stage.setScene(scene);
-          stage.setTitle("Preferences");
-          stage.setMinWidth(400);
-          stage.setMinHeight(120);
-          stage.show();
-        });
+    preferencesMenuItem.setOnAction(e -> handleOpenPreferences());
 
     var exitMenuItem = new MenuItem("Exit");
     exitMenuItem.setOnAction(e -> Platform.exit());
@@ -68,7 +52,7 @@ public class ActivitySamplingView extends VBox {
 
     activityForm = new ActivityForm();
     activityForm.setDisable(true);
-    activityForm.setOnActivitySelected(it -> logActivity(it));
+    activityForm.setOnActivitySelected(it -> handleLogActivity(it));
 
     periodProgress = new PeriodProgress();
 
@@ -95,7 +79,7 @@ public class ActivitySamplingView extends VBox {
     clock.setOnTick(it -> periodCheck.check(it));
 
     trayIcon = new AppTrayIcon();
-    trayIcon.setOnActivitySelected(it -> logActivity(it));
+    trayIcon.setOnActivitySelected(it -> handleLogActivity(it));
     Platform.runLater(() -> getScene().getWindow().setOnHiding(e -> trayIcon.hide()));
   }
 
@@ -133,7 +117,7 @@ public class ActivitySamplingView extends VBox {
         });
   }
 
-  private void logActivity(Activity activity) {
+  private void handleLogActivity(Activity activity) {
     activityForm.setDisable(true);
     trayIcon.hide();
 
@@ -144,5 +128,13 @@ public class ActivitySamplingView extends VBox {
     var command =
         new LogActivityCommand(timestamp, period, activity.getActivity(), activity.getTags());
     onLogActivityCommand.accept(command);
+  }
+
+  private void handleOpenPreferences() {
+    if (onOpenPreferences == null) {
+      return;
+    }
+
+    onOpenPreferences.run();
   }
 }
