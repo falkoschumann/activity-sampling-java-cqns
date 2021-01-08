@@ -12,6 +12,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.ActivityLogQueryH
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingViewController;
+import de.muspellheim.activitysampling.frontend.PreferencesViewController;
 import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -42,25 +43,30 @@ public class App extends Application {
   }
 
   @Override
-  public void start(Stage stage) {
+  public void start(Stage primaryStage) {
     var logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
 
-    var frontend = ActivitySamplingViewController.create(stage, useSystemMenuBar);
-    frontend.setOnLogActivityCommand(
+    var preferencesStage = new Stage();
+    preferencesStage.initOwner(primaryStage);
+    var preferencesViewController = PreferencesViewController.create(preferencesStage);
+
+    var activitySamplingViewController =
+        ActivitySamplingViewController.create(primaryStage, useSystemMenuBar);
+    activitySamplingViewController.setOnOpenPreferences(() -> preferencesStage.show());
+    activitySamplingViewController.setOnLogActivityCommand(
         it -> {
           logActivityCommandHandler.handle(it);
           var result = activityLogQueryHandler.handle(new ActivityLogQuery());
-          frontend.display(result);
+          activitySamplingViewController.display(result);
         });
-    frontend.setOnActivityLogQuery(
+    activitySamplingViewController.setOnActivityLogQuery(
         it -> {
           var result = activityLogQueryHandler.handle(it);
-          frontend.display(result);
+          activitySamplingViewController.display(result);
         });
 
-    stage.show();
-
-    frontend.run();
+    primaryStage.show();
+    activitySamplingViewController.run();
   }
 }

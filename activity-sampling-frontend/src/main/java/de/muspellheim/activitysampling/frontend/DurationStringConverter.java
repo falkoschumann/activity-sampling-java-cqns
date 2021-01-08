@@ -8,7 +8,7 @@ package de.muspellheim.activitysampling.frontend;
 import java.time.Duration;
 import javafx.util.StringConverter;
 
-class DurationStringConverter extends StringConverter<Duration> {
+public class DurationStringConverter extends StringConverter<Duration> {
   @Override
   public String toString(Duration object) {
     return String.format(

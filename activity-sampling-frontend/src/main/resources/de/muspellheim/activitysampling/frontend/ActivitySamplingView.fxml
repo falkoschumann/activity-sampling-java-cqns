@@ -25,7 +25,7 @@
           </Menu>
         </menus>
       </MenuBar>
-      <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="640.0" prefWidth="360.0" spacing="8.0" styleClass="small-window">
+      <VBox prefHeight="640.0" prefWidth="360.0" spacing="8.0" styleClass="small-window">
          <children>
             <VBox styleClass="base">
                <children>
