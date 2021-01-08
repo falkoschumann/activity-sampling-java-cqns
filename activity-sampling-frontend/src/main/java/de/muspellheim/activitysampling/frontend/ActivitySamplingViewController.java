@@ -9,6 +9,8 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,13 +31,13 @@ import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import lombok.Getter;
 import lombok.Setter;
 
 public class ActivitySamplingViewController {
   @Getter @Setter private Runnable onOpenPreferences;
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
 
   @FXML private MenuBar menuBar;
@@ -77,13 +79,19 @@ public class ActivitySamplingViewController {
     return formDisabled.get();
   }
 
-  private Window getWindow() {
-    return activity.getScene().getWindow();
+  private Stage getWindow() {
+    return (Stage) activity.getScene().getWindow();
   }
 
   public void run() {
+    getWindow().show();
+    onPreferencesQuery.accept(new PreferencesQuery());
     onActivityLogQuery.accept(new ActivityLogQuery());
     clock.run();
+  }
+
+  public void display(PreferencesQueryResult result) {
+    periodCheck.setPeriod(result.getPeriodDuration());
   }
 
   public void display(ActivityLogQueryResult result) {

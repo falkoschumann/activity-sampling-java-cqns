@@ -39,13 +39,15 @@ public class App extends Application {
       System.out.println("Run in demo mode...");
       eventStore = new MemoryEventStore();
       eventStore.setOnRecorded(it -> System.out.println("Logged event: " + it));
-      preferencesStore = new PreferencesPreferencesStore();
+
+      preferencesStore = new MemoryPreferencesStore();
     } else {
       var userHome = System.getProperty("user.home");
       var file = Paths.get(userHome, "activity-log.csv");
       System.out.println("Save activity log in: " + file.toAbsolutePath());
       eventStore = new CsvEventStore(file);
-      preferencesStore = new MemoryPreferencesStore();
+
+      preferencesStore = new PreferencesPreferencesStore();
     }
 
     if (getParameters().getUnnamed().contains("--noSystemMenuBar")) {
@@ -55,6 +57,7 @@ public class App extends Application {
 
   @Override
   public void start(Stage primaryStage) {
+    // Build
     var logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
     var changePeriodDurationCommandHandler =
         new ChangePeriodDurationCommandHandler(preferencesStore);
@@ -62,16 +65,40 @@ public class App extends Application {
         new ChangeActivityLogFileCommandHandler(preferencesStore);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
-
+    var activitySamplingViewController =
+        ActivitySamplingViewController.create(primaryStage, useSystemMenuBar);
     var preferencesStage = new Stage();
     preferencesStage.initOwner(primaryStage);
     var preferencesViewController = PreferencesViewController.create(preferencesStage);
+
+    // Bind
+    activitySamplingViewController.setOnOpenPreferences(
+        () -> {
+          preferencesStage.show();
+          preferencesViewController.run();
+        });
+    activitySamplingViewController.setOnLogActivityCommand(
+        cmd -> {
+          logActivityCommandHandler.handle(cmd);
+          var result = activityLogQueryHandler.handle(new ActivityLogQuery());
+          activitySamplingViewController.display(result);
+        });
+    activitySamplingViewController.setOnPreferencesQuery(
+        qry -> {
+          var result = preferencesQueryHandler.handle(new PreferencesQuery());
+          activitySamplingViewController.display(result);
+        });
+    activitySamplingViewController.setOnActivityLogQuery(
+        qry -> {
+          var result = activityLogQueryHandler.handle(qry);
+          activitySamplingViewController.display(result);
+        });
     preferencesViewController.setOnChangePeriodDurationCommand(
         cmd -> {
           changePeriodDurationCommandHandler.handle(cmd);
           var result = preferencesQueryHandler.handle(new PreferencesQuery());
+          activitySamplingViewController.display(result);
           preferencesViewController.display(result);
-          // TODO Handle change period duration
         });
     preferencesViewController.setOnChangeActivityLogFileCommand(
         cmd -> {
@@ -86,23 +113,7 @@ public class App extends Application {
           preferencesViewController.display(result);
         });
 
-    var activitySamplingViewController =
-        ActivitySamplingViewController.create(primaryStage, useSystemMenuBar);
-    activitySamplingViewController.setOnOpenPreferences(() -> preferencesStage.show());
-    activitySamplingViewController.setOnLogActivityCommand(
-        cmd -> {
-          logActivityCommandHandler.handle(cmd);
-          var result = activityLogQueryHandler.handle(new ActivityLogQuery());
-          activitySamplingViewController.display(result);
-        });
-    activitySamplingViewController.setOnActivityLogQuery(
-        qry -> {
-          var result = activityLogQueryHandler.handle(qry);
-          activitySamplingViewController.display(result);
-        });
-
-    primaryStage.show();
+    // Run
     activitySamplingViewController.run();
-    preferencesViewController.run();
   }
 }
