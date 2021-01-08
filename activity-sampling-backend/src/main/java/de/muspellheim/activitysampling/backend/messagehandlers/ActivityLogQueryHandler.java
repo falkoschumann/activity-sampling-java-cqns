@@ -28,7 +28,7 @@ public class ActivityLogQueryHandler
   }
 
   @Override
-  public ActivityLogQueryResult handle(ActivityLogQuery activityLogQuery) {
+  public ActivityLogQueryResult handle(ActivityLogQuery query) {
     try {
       var log =
           eventStore
