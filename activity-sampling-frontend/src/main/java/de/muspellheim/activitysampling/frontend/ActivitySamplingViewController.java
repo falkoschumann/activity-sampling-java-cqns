@@ -141,6 +141,7 @@ public class ActivitySamplingViewController {
       logBuilder.append("\n");
     }
     activityLog.setText(logBuilder.toString());
+    Platform.runLater(() -> activityLog.setScrollTop(Double.MAX_VALUE));
   }
 
   private void updateTrayIcon(List<Activity> recent) {
