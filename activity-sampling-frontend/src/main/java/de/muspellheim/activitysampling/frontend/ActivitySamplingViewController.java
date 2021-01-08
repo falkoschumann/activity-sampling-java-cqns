@@ -29,6 +29,7 @@ import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -67,51 +68,16 @@ public class ActivitySamplingViewController {
     return controller;
   }
 
-  @FXML
-  private void initialize() {
-    periodCheck.setOnPeriodStarted(
-        it -> {
-          Platform.runLater(
-              () -> {
-                period = it;
-                updateRemainingTime(period);
-                progressBar.setProgress(0.0);
-              });
-        });
-    periodCheck.setOnPeriodProgressed(
-        it -> {
-          Platform.runLater(
-              () -> {
-                var remainingTime = period.minus(it);
-                updateRemainingTime(remainingTime);
-                var progress = (double) it.getSeconds() / period.getSeconds();
-                progressBar.setProgress(progress);
-              });
-        });
-    periodCheck.setOnPeriodEnded(
-        it -> {
-          Platform.runLater(
-              () -> {
-                timestamp = it;
-                formDisabled.set(false);
-                updateRemainingTime(Duration.ZERO);
-                progressBar.setProgress(1.0);
-              });
-          trayIcon.show();
-        });
-
-    clock.setOnTick(it -> periodCheck.check(it));
-
-    trayIcon.setOnActivitySelected(it -> logActivity(it));
-    Platform.runLater(() -> activity.getScene().getWindow().setOnHiding(e -> trayIcon.hide()));
-  }
-
   public final ReadOnlyBooleanProperty formDisabledProperty() {
     return formDisabled.getReadOnlyProperty();
   }
 
   public final boolean isFormDisabled() {
     return formDisabled.get();
+  }
+
+  private Window getWindow() {
+    return activity.getScene().getWindow();
   }
 
   public void run() {
@@ -122,7 +88,7 @@ public class ActivitySamplingViewController {
   public void display(ActivityLogQueryResult result) {
     updateForm(result.getRecent());
     updateActivityLog(result.getLog());
-    trayIcon.display(result.getRecent());
+    updateTrayIcon(result.getRecent());
   }
 
   private void updateForm(List<Activity> recentActivities) {
@@ -146,11 +112,6 @@ public class ActivitySamplingViewController {
             optionalTags.setText(String.join(", ", lastActivity.getTags()));
           }
         });
-  }
-
-  private void updateRemainingTime(Duration remainingTime) {
-    var text = new DurationStringConverter().toString(remainingTime);
-    progressText.setText(text);
   }
 
   private void updateActivityLog(List<Activity> log) {
@@ -182,10 +143,60 @@ public class ActivitySamplingViewController {
     activityLog.setText(logBuilder.toString());
   }
 
+  private void updateTrayIcon(List<Activity> recent) {
+    trayIcon.display(recent);
+  }
+
+  @FXML
+  private void initialize() {
+    initializePeriodProgress();
+    initializeTrayIcon();
+  }
+
+  private void initializePeriodProgress() {
+    var durationStringConverter = new DurationStringConverter();
+    periodCheck.setOnPeriodStarted(
+        it -> {
+          period = it;
+          Platform.runLater(
+              () -> {
+                progressText.setText(durationStringConverter.toString(period));
+                progressBar.setProgress(0.0);
+              });
+        });
+    periodCheck.setOnPeriodProgressed(
+        it ->
+            Platform.runLater(
+                () -> {
+                  var remainingTime = period.minus(it);
+                  progressText.setText(durationStringConverter.toString(remainingTime));
+                  var progress = (double) it.getSeconds() / period.getSeconds();
+                  progressBar.setProgress(progress);
+                }));
+    periodCheck.setOnPeriodEnded(
+        it -> {
+          timestamp = it;
+          Platform.runLater(
+              () -> {
+                formDisabled.set(false);
+                progressText.setText(durationStringConverter.toString(Duration.ZERO));
+                progressBar.setProgress(1.0);
+              });
+          trayIcon.show();
+        });
+
+    clock.setOnTick(it -> periodCheck.check(it));
+  }
+
+  private void initializeTrayIcon() {
+    trayIcon.setOnActivitySelected(it -> logActivity(it));
+    Platform.runLater(() -> getWindow().setOnHiding(e -> trayIcon.hide()));
+  }
+
   @FXML
   private void handlePreferences() {
     var preferencesStage = new Stage();
-    preferencesStage.initOwner(activity.getScene().getWindow());
+    preferencesStage.initOwner(getWindow());
     var preferencesViewController = PreferencesViewController.create(preferencesStage);
     preferencesStage.show();
   }
