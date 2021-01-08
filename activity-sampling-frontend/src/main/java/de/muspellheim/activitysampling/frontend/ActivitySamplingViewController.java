@@ -34,6 +34,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class ActivitySamplingViewController {
+  @Getter @Setter private Runnable onOpenPreferences;
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
 
@@ -196,10 +197,7 @@ public class ActivitySamplingViewController {
 
   @FXML
   private void handlePreferences() {
-    var preferencesStage = new Stage();
-    preferencesStage.initOwner(getWindow());
-    var preferencesViewController = PreferencesViewController.create(preferencesStage);
-    preferencesStage.show();
+    onOpenPreferences.run();
   }
 
   @FXML
