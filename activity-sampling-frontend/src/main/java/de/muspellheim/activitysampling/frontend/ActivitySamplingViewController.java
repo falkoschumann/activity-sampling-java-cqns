@@ -48,7 +48,7 @@ public class ActivitySamplingViewController {
   private final ReadOnlyBooleanWrapper formDisabled = new ReadOnlyBooleanWrapper(true);
 
   private final SystemClock clock = new SystemClock();
-  private final PeriodCheck periodCheck = new PeriodCheck(Duration.ofMinutes(1));
+  private final PeriodCheck periodCheck = new PeriodCheck();
   private final AppTrayIcon trayIcon = new AppTrayIcon();
 
   private Duration period;
