@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javafx.util.StringConverter;
 
-class ActivityStringConverter extends StringConverter<Activity> {
+public class ActivityStringConverter extends StringConverter<Activity> {
   @Override
   public String toString(Activity object) {
     String string = object.getActivity();

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox styleClass="small-window" stylesheets="@uwp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.PreferencesViewController">
+   <children>
+      <VBox prefWidth="640.0" styleClass="input-control-group" stylesheets="@uwp.css">
+         <children>
+            <Label styleClass="title" text="Activity Sampling" />
+            <VBox styleClass="input-control">
+               <children>
+                  <Label styleClass="base" text="Period duration" />
+                  <ChoiceBox fx:id="periodDuration" />
+               </children>
+            </VBox>
+            <VBox styleClass="input-control">
+               <children>
+                  <Label styleClass="base" text="Save activity log to file" />
+                  <TextField fx:id="activityLogFile" editable="false" promptText="activity-log.csv" />
+                  <Button mnemonicParsing="false" onAction="#handleChangeActivityLogFile" text="Change" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+</VBox>

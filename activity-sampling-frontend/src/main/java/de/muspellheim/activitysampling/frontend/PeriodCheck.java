@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 class PeriodCheck {
-  @Getter @Setter private Duration period;
+  @Getter private Duration period;
   @Getter @Setter private Consumer<Duration> onPeriodStarted;
   @Getter @Setter private Consumer<Duration> onPeriodProgressed;
   @Getter @Setter private Consumer<LocalDateTime> onPeriodEnded;
@@ -25,6 +25,11 @@ class PeriodCheck {
 
   PeriodCheck(Duration period) {
     setPeriod(period);
+  }
+
+  public void setPeriod(Duration period) {
+    this.period = period;
+    start = null;
   }
 
   void check(LocalDateTime timestamp) {
