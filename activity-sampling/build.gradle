@@ -25,10 +25,14 @@ jlink {
 if (Os.isFamily(Os.FAMILY_MAC)) {
   jlink {
     jpackage {
-      imageName = 'Activity Sampling'
       icon = 'src/main/macos/AppIcon.icns'
-      imageOptions = ["--license-file", "../LICENSE.txt" ,"--mac-sign", "--mac-signing-key-user-name", project.findProperty("macSigning.keyUserName")]
+      imageName = 'Activity Sampling'
       installerType = 'dmg'
+      imageOptions = [
+        '--copyright', 'Copyright (c) 2021 Falko Schumann',
+        '--mac-sign',
+        '--mac-signing-key-user-name', project.findProperty('macSigning.keyUserName')
+      ]
     }
   }
 }
@@ -36,10 +40,20 @@ if (Os.isFamily(Os.FAMILY_MAC)) {
 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
   jlink {
     jpackage {
-      imageName = 'Activity Sampling'
       icon = 'src/main/win/app.ico'
-      imageOptions = ["--license-file", "../LICENSE.txt" , "--win-dir-chooser", "--win-menu", "--win-upgrade-uuid", "cce3747c-06dc-466c-8c49-4aebe528da61"]
+      imageName = 'Activity Sampling'
+      imageOptions = [
+        '--copyright', 'Copyright (c) 2021 Falko Schumann'
+      ]
+      installerName = 'Activity Sampling'
       installerType = 'msi'
+      installerOptions = [
+        '--copyright', 'Copyright (c) 2021 Falko Schumann',
+        '--license-file', '../LICENSE.txt',
+        '--win-dir-chooser',
+        '--win-menu',
+        '--win-upgrade-uuid', 'cce3747c-06dc-466c-8c49-4aebe528da61'
+      ]
     }
   }
 }
