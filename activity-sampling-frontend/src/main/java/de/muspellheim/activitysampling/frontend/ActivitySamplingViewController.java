@@ -42,7 +42,7 @@ public class ActivitySamplingViewController {
 
   @FXML private MenuBar menuBar;
   @FXML private TextField activity;
-  @FXML private TextField optionalTags;
+  @FXML private TextField tags;
   @FXML private SplitMenuButton log;
   @FXML private Label progressText;
   @FXML private ProgressBar progressBar;
@@ -118,7 +118,7 @@ public class ActivitySamplingViewController {
           if (!recentActivities.isEmpty()) {
             var lastActivity = recentActivities.get(0);
             activity.setText(lastActivity.getActivity());
-            optionalTags.setText(String.join(", ", lastActivity.getTags()));
+            tags.setText(String.join(", ", lastActivity.getTags()));
           }
         });
   }
@@ -221,7 +221,7 @@ public class ActivitySamplingViewController {
             LocalDateTime.now(),
             Duration.ZERO,
             activity.getText(),
-            List.of(optionalTags.getText().split(",")));
+            List.of(tags.getText().split(",")));
     logActivity(a);
   }
 

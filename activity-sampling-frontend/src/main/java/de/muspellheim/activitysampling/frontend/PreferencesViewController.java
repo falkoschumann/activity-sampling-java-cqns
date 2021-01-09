@@ -101,6 +101,10 @@ public class PreferencesViewController {
     chooser.setSelectedExtensionFilter(
         new ExtensionFilter("Comma-Separated Values (CSV) File", "*.csv"));
     var file = chooser.showSaveDialog(getWindow());
+    if (file == null) {
+      return;
+    }
+
     var command = new ChangeActivityLogFileCommand(file.toPath());
     onChangeActivityLogFileCommand.accept(command);
   }

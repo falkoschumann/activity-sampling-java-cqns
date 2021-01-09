@@ -35,8 +35,8 @@
             </VBox>
             <VBox styleClass="base">
                <children>
-                  <Label styleClass="base" text="Optional tags" />
-                  <TextField fx:id="optionalTags" disable="${controller.formDisabled}" onAction="#handleLogActivity" promptText="Customer, Project, Product" />
+                  <Label styleClass="base" text="Tags" />
+                  <TextField fx:id="tags" disable="${controller.formDisabled}" onAction="#handleLogActivity" promptText="Customer, Project, Product" />
                </children>
             </VBox>
             <SplitMenuButton fx:id="log" alignment="CENTER" disable="${controller.formDisabled}" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogActivity" text="Log">

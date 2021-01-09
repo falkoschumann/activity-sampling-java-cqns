@@ -99,8 +99,10 @@ public class App extends Application {
     preferencesViewController.setOnChangeActivityLogFileCommand(
         cmd -> {
           changeActivityLogFileCommandHandler.handle(cmd);
-          var result = preferencesQueryHandler.handle(new PreferencesQuery());
-          preferencesViewController.display(result);
+          var preferencesQueryResult = preferencesQueryHandler.handle(new PreferencesQuery());
+          preferencesViewController.display(preferencesQueryResult);
+          var activityLogQueryResult = activityLogQueryHandler.handle(new ActivityLogQuery());
+          activitySamplingViewController.display(activityLogQueryResult);
         });
     preferencesViewController.setOnPreferencesQuery(
         qry -> {

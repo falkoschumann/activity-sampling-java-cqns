@@ -12,6 +12,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -111,14 +112,19 @@ public class CsvEventStore implements EventStore {
 
   @Override
   public Stream<? extends Event> replay() throws Exception {
-    var reader = Files.newBufferedReader(getFile(), StandardCharsets.UTF_8);
-    var parser = new CSVParser(reader, CSV_FORMAT.withHeader(Headers.class).withSkipHeaderRecord());
-    var iterator = parser.iterator();
-    var spliterator =
-        Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED | Spliterator.NONNULL);
-    return StreamSupport.stream(spliterator, false)
-        .map(record -> createEvent(record))
-        .onClose(() -> close(reader));
+    try {
+      var reader = Files.newBufferedReader(getFile(), StandardCharsets.UTF_8);
+      var parser =
+          new CSVParser(reader, CSV_FORMAT.withHeader(Headers.class).withSkipHeaderRecord());
+      var iterator = parser.iterator();
+      var spliterator =
+          Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED | Spliterator.NONNULL);
+      return StreamSupport.stream(spliterator, false)
+          .map(record -> createEvent(record))
+          .onClose(() -> close(reader));
+    } catch (NoSuchFileException e) {
+      return Stream.empty();
+    }
   }
 
   private ActivityLoggedEvent createEvent(org.apache.commons.csv.CSVRecord record) {
