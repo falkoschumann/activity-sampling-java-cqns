@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
   id 'todomvc.java-application-conventions'
   id 'com.gluonhq.client-gradle-plugin'
@@ -20,7 +22,22 @@ jlink {
   options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
   jpackage {
     imageName = 'Activity Sampling'
-    icon = 'src/main/macos/AppIcon.icns'
-    imageOptions = ["--mac-sign", "--mac-signing-key-user-name", project.findProperty("macSigning.keyUserName")]
+  }
+}
+
+if (Os.isFamily(Os.FAMILY_MAC)) {
+  jlink {
+    jpackage {
+      icon = 'src/main/macos/AppIcon.icns'
+      imageOptions = ["--mac-sign", "--mac-signing-key-user-name", project.findProperty("macSigning.keyUserName")]
+    }
+  }
+}
+
+if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+  jlink {
+    jpackage {
+      icon = 'src/main/win/app.png'
+    }
   }
 }
