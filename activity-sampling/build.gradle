@@ -35,8 +35,9 @@ if (Os.isFamily(Os.FAMILY_MAC)) {
 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
   jlink {
     jpackage {
-      imageName = 'activity-sampling'
+      imageName = '"Activity Sampling"'
       icon = 'src/main/win/app.ico'
+      imageOptions = ["--win-dir-chooser", "--win-menu", "--win-upgrade-uuid", "cce3747c-06dc-466c-8c49-4aebe528da61"]
     }
   }
 }
