@@ -31,7 +31,9 @@ public class PreferencesPreferencesStore implements PreferencesStore {
 
   @Override
   public Path loadActivityLogFile() {
-    var value = preferences.get(KEY_ACTIVITY_LOG_FILE, "~/activity-log.csv");
+    var userHome = System.getProperty("user.home");
+    var file = Paths.get(userHome, "activity-log.csv");
+    var value = preferences.get(KEY_ACTIVITY_LOG_FILE, file.toString());
     return Paths.get(value);
   }
 

@@ -20,7 +20,6 @@ import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuer
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingViewController;
 import de.muspellheim.activitysampling.frontend.PreferencesViewController;
-import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -39,15 +38,12 @@ public class App extends Application {
       System.out.println("Run in demo mode...");
       eventStore = new MemoryEventStore();
       eventStore.setOnRecorded(it -> System.out.println("Logged event: " + it));
-
       preferencesStore = new MemoryPreferencesStore();
     } else {
-      var userHome = System.getProperty("user.home");
-      var file = Paths.get(userHome, "activity-log.csv");
-      System.out.println("Save activity log in: " + file.toAbsolutePath());
-      eventStore = new CsvEventStore(file);
-
       preferencesStore = new PreferencesPreferencesStore();
+      var activityLogFile = preferencesStore.loadActivityLogFile();
+      System.out.println("Save activity log in: " + activityLogFile.toAbsolutePath());
+      eventStore = new CsvEventStore(activityLogFile.toString());
     }
 
     if (getParameters().getUnnamed().contains("--noSystemMenuBar")) {
@@ -62,7 +58,7 @@ public class App extends Application {
     var changePeriodDurationCommandHandler =
         new ChangePeriodDurationCommandHandler(preferencesStore);
     var changeActivityLogFileCommandHandler =
-        new ChangeActivityLogFileCommandHandler(preferencesStore);
+        new ChangeActivityLogFileCommandHandler(preferencesStore, eventStore);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
     var activitySamplingViewController =
@@ -105,7 +101,6 @@ public class App extends Application {
           changeActivityLogFileCommandHandler.handle(cmd);
           var result = preferencesQueryHandler.handle(new PreferencesQuery());
           preferencesViewController.display(result);
-          // TODO Handle change activity log file
         });
     preferencesViewController.setOnPreferencesQuery(
         qry -> {
