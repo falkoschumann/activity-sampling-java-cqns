@@ -27,7 +27,7 @@ if (Os.isFamily(Os.FAMILY_MAC)) {
     jpackage {
       imageName = 'Activity Sampling'
       icon = 'src/main/macos/AppIcon.icns'
-      imageOptions = ["--mac-sign", "--mac-signing-key-user-name", project.findProperty("macSigning.keyUserName")]
+      imageOptions = ["--license-file", "../LICENSE.txt" ,"--mac-sign", "--mac-signing-key-user-name", project.findProperty("macSigning.keyUserName")]
       installerType = 'dmg'
     }
   }
@@ -36,9 +36,9 @@ if (Os.isFamily(Os.FAMILY_MAC)) {
 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
   jlink {
     jpackage {
-      imageName = '"Activity Sampling"'
+      imageName = 'Activity Sampling'
       icon = 'src/main/win/app.ico'
-      imageOptions = ["--win-dir-chooser", "--win-menu", "--win-upgrade-uuid", "cce3747c-06dc-466c-8c49-4aebe528da61"]
+      imageOptions = ["--license-file", "../LICENSE.txt" , "--win-dir-chooser", "--win-menu", "--win-upgrade-uuid", "cce3747c-06dc-466c-8c49-4aebe528da61"]
       installerType = 'msi'
     }
   }

@@ -7,11 +7,13 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
-## [1.0.0] - 2020-10-06
+## [1.0.0] - 2021-01-09
 
 ### Added
 
--   TODO Changelog
+- Fragt in einstellbaren Abstand nach der aktuellen Tätigkeit.
+- Sichert Antworten als CSV-Datei zur leichten Auswertung mit weiteren Werkzeugen.
+
 
 [1]: https://keepachangelog.com/en/1.0.0/
 [2]: https://semver.org/spec/v2.0.0.html
