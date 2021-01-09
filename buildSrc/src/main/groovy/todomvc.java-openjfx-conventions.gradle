@@ -1,7 +1,12 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+plugins {
+  id 'todomvc.java-common-conventions'
+}
+
 def openjfxGroup = 'org.openjfx'
 def openjfxVersion = '15.0.1'
-def osName = System.properties['os.name'].toLowerCase()
-def openjfxPlatform = osName.contains('mac') ? 'mac' : osName.contains('win') ? 'win' : osName.contains('linux') ? 'linux' : null
+def openjfxPlatform = Os.isFamily(Os.FAMILY_MAC) ? 'mac' : Os.isFamily(Os.FAMILY_WINDOWS) ? 'win' : Os.isFamily(Os.FAMILY_UNIX) ? 'linux' : null
 
 dependencies {
   api(group: openjfxGroup, name: 'javafx-base', version: openjfxVersion, classifier: openjfxPlatform)
