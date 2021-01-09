@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class MemoryEventStore implements EventStore {
+  @Getter @Setter String uri;
   @Getter @Setter Consumer<Event> onRecorded;
 
   private final List<Event> events = new ArrayList<>();

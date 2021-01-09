@@ -17,8 +17,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
+import lombok.extern.java.Log;
 
+@Log
 public class ActivityLogQueryHandler
     implements QueryHandling<ActivityLogQuery, ActivityLogQueryResult> {
   private final EventStore eventStore;
@@ -61,7 +64,7 @@ public class ActivityLogQueryHandler
       Collections.reverse(recent);
       return new ActivityLogQueryResult(log, recent);
     } catch (Exception e) {
-      System.err.println(e);
+      log.log(Level.WARNING, "Can not handle query: " + query, e);
       return new ActivityLogQueryResult(List.of(), List.of());
     }
   }

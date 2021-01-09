@@ -97,7 +97,7 @@ public class PreferencesViewController {
   private void handleChangeActivityLogFile() {
     var chooser = new FileChooser();
     chooser.setTitle("Choose Activity Log File");
-    chooser.setInitialFileName("activity-file.csv");
+    chooser.setInitialFileName("activity-log.csv");
     chooser.setSelectedExtensionFilter(
         new ExtensionFilter("Comma-Separated Values (CSV) File", "*.csv"));
     var file = chooser.showSaveDialog(getWindow());

@@ -47,7 +47,7 @@ class AppTrayIcon {
             try {
               tray.add(trayIcon);
             } catch (AWTException e) {
-              System.err.println(e.toString());
+              System.err.println("Can not add icon to system tray: " + e.toString());
             }
           }
 
