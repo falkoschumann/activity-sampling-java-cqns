@@ -10,6 +10,8 @@ plugins {
 
 version = '1.0.0'
 
+def year = LocalDate.now().year
+
 dependencies {
   implementation project(':activity-sampling-frontend')
   implementation project(':activity-sampling-backend')
@@ -18,13 +20,18 @@ dependencies {
 application {
   mainModule = 'de.muspellheim.activitysampling'
   mainClassName = 'de.muspellheim.activitysampling.App'
+  applicationDefaultJvmArgs = [
+    "-Dapp.version=${project.version}",
+    "-Dapp.copyrightYear=${year}"
+  ]
 }
 
 jlink {
   options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+  launcher{
+    jvmArgs = application.applicationDefaultJvmArgs
+  }
 }
-
-def year = LocalDate.now().year
 
 if (Os.isFamily(Os.FAMILY_MAC)) {
   jlink {
@@ -56,6 +63,7 @@ if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         '--license-file', '../LICENSE.txt',
         '--win-dir-chooser',
         '--win-menu',
+        '--win-menu-group', 'Muspellheim',
         '--win-upgrade-uuid', 'cce3747c-06dc-466c-8c49-4aebe528da61'
       ]
     }

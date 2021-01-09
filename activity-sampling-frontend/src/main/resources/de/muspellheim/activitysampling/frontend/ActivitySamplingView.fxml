@@ -23,6 +23,11 @@
               <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
             </items>
           </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="About" />
+            </items>
+          </Menu>
         </menus>
       </MenuBar>
       <VBox prefHeight="640.0" prefWidth="360.0" spacing="8.0" styleClass="small-window">

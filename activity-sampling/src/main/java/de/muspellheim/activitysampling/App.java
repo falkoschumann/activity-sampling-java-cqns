@@ -18,6 +18,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityComman
 import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
+import de.muspellheim.activitysampling.frontend.AboutViewController;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingViewController;
 import de.muspellheim.activitysampling.frontend.PreferencesViewController;
 import javafx.application.Application;
@@ -53,7 +54,10 @@ public class App extends Application {
 
   @Override
   public void start(Stage primaryStage) {
+    //
     // Build
+    //
+
     var logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
     var changePeriodDurationCommandHandler =
         new ChangePeriodDurationCommandHandler(preferencesStore);
@@ -61,18 +65,28 @@ public class App extends Application {
         new ChangeActivityLogFileCommandHandler(preferencesStore, eventStore);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
+
     var activitySamplingViewController =
         ActivitySamplingViewController.create(primaryStage, useSystemMenuBar);
+
     var preferencesStage = new Stage();
     preferencesStage.initOwner(primaryStage);
     var preferencesViewController = PreferencesViewController.create(preferencesStage);
 
+    var aboutStage = new Stage();
+    aboutStage.initOwner(primaryStage);
+    AboutViewController.create(aboutStage);
+
+    //
     // Bind
+    //
+
     activitySamplingViewController.setOnOpenPreferences(
         () -> {
           preferencesStage.show();
           preferencesViewController.run();
         });
+    activitySamplingViewController.setOnOpenAbout(() -> aboutStage.show());
     activitySamplingViewController.setOnLogActivityCommand(
         cmd -> {
           logActivityCommandHandler.handle(cmd);
@@ -89,6 +103,7 @@ public class App extends Application {
           var result = activityLogQueryHandler.handle(qry);
           activitySamplingViewController.display(result);
         });
+
     preferencesViewController.setOnChangePeriodDurationCommand(
         cmd -> {
           changePeriodDurationCommandHandler.handle(cmd);
@@ -110,7 +125,10 @@ public class App extends Application {
           preferencesViewController.display(result);
         });
 
+    //
     // Run
+    //
+
     activitySamplingViewController.run();
   }
 }

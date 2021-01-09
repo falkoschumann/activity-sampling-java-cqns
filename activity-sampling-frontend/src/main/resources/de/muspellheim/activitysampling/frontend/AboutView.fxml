@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="8.0" stylesheets="@uwp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.AboutViewController">
+   <children>
+      <ImageView fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@app.png" />
+         </image>
+      </ImageView>
+      <Label styleClass="base" text="Activity Sampling" />
+      <Label fx:id="version" styleClass="caption" text="Version 1.0.0" />
+      <VBox alignment="CENTER">
+         <children>
+            <Label fx:id="copyright" styleClass="caption" text="Copyright © 2021 Falko Schumann" />
+            <Label styleClass="caption" text="All rights reserved." />
+         </children>
+      </VBox>
+   </children>
+   <padding>
+      <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+   </padding>
+</VBox>
