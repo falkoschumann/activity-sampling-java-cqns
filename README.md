@@ -4,14 +4,15 @@
 
 Um die aufgewandte Zeit Deiner Aufgaben zu erfassen, fragt Dich die App
 _Activity Sampling_ in einstellbaren Abstand nach Deiner aktuellen Tätigkeit.
-Deine Antworten werden als CSV-Datei zur leichten Auswertung mit weiteren
-Werkzeugen gesichert.
+Deine Antworten werden zur leichten Auswertung mit weiteren Werkzeugen als
+CSV-Datei gesichert.
 
 ## Installation
 
 ### macOS
 
-Die DMG-Datei öffnen und die App in den Ordner _Programme_ ziehen.
+Die DMG-Datei öffnen und die App in den Ordner _Programme_ ziehen. Die App kann
+anschließend aus dem _Programme_-Ordern gestartet werden.
 
 ### Windows
 
@@ -20,13 +21,18 @@ werden.
 
 ## Usage
 
-Jedes Mal, wenn die Zeit abgelaufen ist, wird nach Deiner aktuellen Tätigkeit
-gefragt. Optional können Tags wie zum Beispiel Kunde, Projekt und/oder Produkt
-zu der Tätigkeit angegeben werden.
+Jedes Mal, wenn die Zeit abgelaufen ist, wirst Du nach Deiner aktuellen
+Tätigkeit gefragt. Optional können Tags wie zum Beispiel Kunde, Projekt und/oder
+Produkt zu der Tätigkeit angegeben werden. Mehrere Tags werden mit Komma (,)
+getrennt notiert.
 
 Voreingestellt ist die Nachfrage in einem Intervall von 20 Minuten und der
-Speicherort der Datei `activity-log.csv` im Benutzerverzeichnis. Beides kann in
-den Einstellungen geändert werden.
+Speicherort der Datei `activity-log.csv` im Benutzerverzeichnis. Beides kannst
+Du in den Einstellungen ändern.
+
+Deine letzten 10 Aktivitäten kannst Du am rechten Bereich der Schaltfläche _Log_
+auswählen. Diese stehen ebenso im Kontextmenü des Symbols in der Menüleiste
+unter macOS und der Taskleiste unter Windows zur Auswahl. 
 
 ## Contributing
 
