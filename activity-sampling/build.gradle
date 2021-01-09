@@ -21,5 +21,6 @@ jlink {
   jpackage {
     imageName = 'Activity Sampling'
     icon = 'src/main/macos/AppIcon.icns'
+    imageOptions = ["--mac-sign", "--mac-signing-key-user-name", project.findProperty("macSigning.keyUserName")]
   }
 }
