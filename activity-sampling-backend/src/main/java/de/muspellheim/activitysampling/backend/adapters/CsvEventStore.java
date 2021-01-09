@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -23,15 +24,18 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.java.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 
+@Log
 public class CsvEventStore implements EventStore {
   private static final CSVFormat CSV_FORMAT = CSVFormat.RFC4180;
   private static final DateTimeFormatter TIMESTAMP_FORMATTER =
@@ -46,17 +50,20 @@ public class CsvEventStore implements EventStore {
     Tags
   }
 
+  @Getter @Setter private String uri;
   @Getter @Setter Consumer<Event> onRecorded;
 
-  private final Path file;
+  public CsvEventStore(String uri) {
+    setUri(uri);
+  }
 
-  public CsvEventStore(Path file) {
-    this.file = file;
+  private Path getFile() {
+    return Paths.get(uri);
   }
 
   @Override
   public void record(Event event) throws Exception {
-    if (Files.notExists(file)) {
+    if (Files.notExists(getFile())) {
       createFile();
     }
     writeActivity((ActivityLoggedEvent) event);
@@ -64,10 +71,13 @@ public class CsvEventStore implements EventStore {
   }
 
   private void createFile() throws IOException {
-    Files.createDirectories(file.getParent());
+    Files.createDirectories(getFile().getParent());
     try (var out =
         Files.newBufferedWriter(
-            file, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+            getFile(),
+            StandardCharsets.UTF_8,
+            StandardOpenOption.CREATE,
+            StandardOpenOption.WRITE)) {
       CSV_FORMAT.withHeader(Headers.class).print(out);
     }
   }
@@ -75,7 +85,10 @@ public class CsvEventStore implements EventStore {
   private void writeActivity(ActivityLoggedEvent e) throws IOException {
     try (var out =
         Files.newBufferedWriter(
-            file, StandardCharsets.UTF_8, StandardOpenOption.APPEND, StandardOpenOption.WRITE)) {
+            getFile(),
+            StandardCharsets.UTF_8,
+            StandardOpenOption.APPEND,
+            StandardOpenOption.WRITE)) {
       var formattedTimestamp =
           LocalDateTime.ofInstant(e.getTimestamp(), ZoneId.systemDefault())
               .format(TIMESTAMP_FORMATTER);
@@ -98,7 +111,7 @@ public class CsvEventStore implements EventStore {
 
   @Override
   public Stream<? extends Event> replay() throws Exception {
-    var reader = Files.newBufferedReader(file, StandardCharsets.UTF_8);
+    var reader = Files.newBufferedReader(getFile(), StandardCharsets.UTF_8);
     var parser = new CSVParser(reader, CSV_FORMAT.withHeader(Headers.class).withSkipHeaderRecord());
     var iterator = parser.iterator();
     var spliterator =
@@ -134,7 +147,7 @@ public class CsvEventStore implements EventStore {
     try {
       closeable.close();
     } catch (IOException e) {
-      e.printStackTrace();
+      log.log(Level.WARNING, "Exception ignored", e);
     }
   }
 }

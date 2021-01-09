@@ -10,6 +10,10 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public interface EventStore {
+  String getUri();
+
+  void setUri(String uri);
+
   Consumer<Event> getOnRecorded();
 
   void setOnRecorded(Consumer<Event> consumer);

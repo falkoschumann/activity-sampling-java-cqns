@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 public class ActivityLogQueryHandlerTests {
   @Test
   void activityLog() throws Exception {
-    var eventStore = new MemoryEventStore();
-    eventStore.record(createEvents());
-    var handler = new ActivityLogQueryHandler(eventStore);
+    var store = new MemoryEventStore();
+    store.record(createEvents());
+    var handler = new ActivityLogQueryHandler(store);
 
     var result = handler.handle(new ActivityLogQuery());
 

@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -20,13 +19,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class CsvEventStoreTests {
-  private static final Path OUT_FILE = Paths.get("build/tests/activity-log.csv");
-  private static final Path SOLL_FILE = Paths.get("src/test/resources/activity-log.csv");
+  private static final String OUT_FILE = "build/tests/activity-log.csv";
+  private static final String SOLL_FILE = "src/test/resources/activity-log.csv";
 
   @BeforeAll
   static void setUpBeforeAll() throws Exception {
-    Files.deleteIfExists(OUT_FILE);
-    Files.createDirectories(OUT_FILE.getParent());
+    Files.deleteIfExists(Paths.get(OUT_FILE));
+    Files.createDirectories(Paths.get(OUT_FILE).getParent());
   }
 
   @Test
@@ -37,7 +36,7 @@ public class CsvEventStoreTests {
     eventStore.record(events.get(0));
     eventStore.record(events.get(1));
 
-    assertEquals(Files.readAllLines(SOLL_FILE), Files.readAllLines(OUT_FILE));
+    assertEquals(Files.readAllLines(Paths.get(SOLL_FILE)), Files.readAllLines(Paths.get(OUT_FILE)));
   }
 
   @Test

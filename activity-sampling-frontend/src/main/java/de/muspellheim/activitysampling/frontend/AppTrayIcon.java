@@ -47,7 +47,7 @@ class AppTrayIcon {
             try {
               tray.add(trayIcon);
             } catch (AWTException e) {
-              System.err.println(e.toString());
+              System.err.println("Can not add icon to system tray: " + e.toString());
             }
           }
 
@@ -75,18 +75,10 @@ class AppTrayIcon {
           recentActivities.forEach(
               it -> {
                 MenuItem item = new MenuItem(stringConverter.toString(it));
-                item.addActionListener(e -> handleActivitySelected(it));
+                item.addActionListener(e -> onActivitySelected.accept(it));
                 menu.add(item);
               });
           trayIcon.setPopupMenu(menu);
         });
-  }
-
-  private void handleActivitySelected(Activity it) {
-    if (onActivitySelected == null) {
-      return;
-    }
-
-    onActivitySelected.accept(it);
   }
 }
