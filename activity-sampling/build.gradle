@@ -22,7 +22,7 @@ application {
   mainClassName = 'de.muspellheim.activitysampling.App'
   applicationDefaultJvmArgs = [
     "-Dapp.version=${project.version}",
-    "-Dapp.copyrightYear=${year}"
+    "-Dapp.copyright=${year} Falko Schumann"
   ]
 }
 
