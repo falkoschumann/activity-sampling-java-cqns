@@ -75,7 +75,9 @@ public class App extends Application {
 
     var aboutStage = new Stage();
     aboutStage.initOwner(primaryStage);
-    AboutViewController.create(aboutStage);
+    var aboutViewController = AboutViewController.create(aboutStage);
+    aboutViewController.initVersion(System.getProperty("app.version"));
+    aboutViewController.initCopyright(System.getProperty("app.copyright"));
 
     //
     // Bind

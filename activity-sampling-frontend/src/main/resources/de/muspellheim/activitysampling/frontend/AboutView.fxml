@@ -8,12 +8,12 @@
 
 <VBox alignment="CENTER" spacing="8.0" stylesheets="@uwp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.AboutViewController">
    <children>
-      <ImageView fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="icon" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@app.png" />
          </image>
       </ImageView>
-      <Label styleClass="base" text="Activity Sampling" />
+      <Label fx:id="appName" styleClass="base" text="Activity Sampling" />
       <Label fx:id="version" styleClass="caption" text="Version 1.0.0" />
       <VBox alignment="CENTER">
          <children>
