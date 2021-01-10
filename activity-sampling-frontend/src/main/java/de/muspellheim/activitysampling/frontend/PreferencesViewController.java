@@ -98,8 +98,11 @@ public class PreferencesViewController {
     var chooser = new FileChooser();
     chooser.setTitle("Choose Activity Log File");
     chooser.setInitialFileName("activity-log.csv");
-    chooser.setSelectedExtensionFilter(
-        new ExtensionFilter("Comma-Separated Values (CSV) File", "*.csv"));
+    chooser
+        .getExtensionFilters()
+        .addAll(
+            new ExtensionFilter("Comma-Separated Values (CSV) File", "*.csv"),
+            new ExtensionFilter("All Files", "*.*"));
     var file = chooser.showSaveDialog(getWindow());
     if (file == null) {
       return;
