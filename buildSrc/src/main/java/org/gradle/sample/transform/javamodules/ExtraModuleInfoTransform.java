@@ -154,6 +154,9 @@ abstract public class ExtraModuleInfoTransform implements TransformAction<ExtraM
         for (String requireName : moduleInfo.getRequires()) {
             moduleVisitor.visitRequire(requireName, 0, null);
         }
+        for (String requireName : moduleInfo.getRequiresStatic()) {
+            moduleVisitor.visitRequire(requireName, Opcodes.ACC_STATIC_PHASE, null);
+        }
         for (String requireName : moduleInfo.getRequiresTransitive()) {
             moduleVisitor.visitRequire(requireName, Opcodes.ACC_TRANSITIVE, null);
         }
