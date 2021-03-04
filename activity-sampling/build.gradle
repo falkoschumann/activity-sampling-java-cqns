@@ -3,34 +3,32 @@ import org.apache.tools.ant.taskdefs.condition.Os
 import java.time.LocalDate
 
 plugins {
-  id 'todomvc.java-application-conventions'
+  id 'activity-sampling.java-application-conventions'
   id 'com.gluonhq.client-gradle-plugin'
   id 'org.beryx.jlink'
 }
-
-version = '1.0.0'
-
-def year = LocalDate.now().year
 
 dependencies {
   implementation project(':activity-sampling-frontend')
   implementation project(':activity-sampling-backend')
 }
 
+def year = LocalDate.now().year
+def copyright = "Copyright (c) ${year} Falko Schumann"
+
+processResources {
+  filesMatching('**/*.properties') {
+    expand(title: 'Todos', version: rootProject.version, copyright: copyright)
+  }
+}
+
 application {
   mainModule = 'de.muspellheim.activitysampling'
   mainClassName = 'de.muspellheim.activitysampling.App'
-  applicationDefaultJvmArgs = [
-    "-Dapp.version=${project.version}",
-    "-Dapp.copyright=${year} Falko Schumann"
-  ]
 }
 
 jlink {
   options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-  launcher{
-    jvmArgs = application.applicationDefaultJvmArgs
-  }
 }
 
 if (Os.isFamily(Os.FAMILY_MAC)) {
@@ -40,7 +38,7 @@ if (Os.isFamily(Os.FAMILY_MAC)) {
       imageName = 'Activity Sampling'
       installerType = 'dmg'
       imageOptions = [
-        '--copyright', "Copyright (c) ${year} Falko Schumann",
+        '--copyright', copyright,
         '--mac-sign',
         '--mac-signing-key-user-name', project.findProperty('macSigning.keyUserName')
       ]
@@ -54,7 +52,7 @@ if (Os.isFamily(Os.FAMILY_WINDOWS)) {
       icon = 'src/main/win/app.ico'
       imageName = 'Activity Sampling'
       imageOptions = [
-        '--copyright', "Copyright (c) ${year} Falko Schumann",
+        '--copyright', copyright,
       ]
       installerName = 'Activity Sampling'
       installerType = 'msi'
@@ -68,4 +66,33 @@ if (Os.isFamily(Os.FAMILY_WINDOWS)) {
       ]
     }
   }
+}
+
+gluonClient {
+  resourcesList = ['app.properties']
+  // TODO Reflection List aktualisieren
+  reflectionList = [
+    'javafx.geometry.Insets',
+    'javafx.scene.control.Button',
+    'javafx.scene.control.ChoiceBox',
+    'javafx.scene.control.Label',
+    'javafx.scene.control.ListView',
+    'javafx.scene.control.MenuButton',
+    'javafx.scene.control.MenuItem',
+    'javafx.scene.control.Separator',
+    'javafx.scene.control.TextField',
+    'javafx.scene.control.ToggleButton',
+    'javafx.scene.control.Tooltip',
+    'javafx.scene.image.Image',
+    'javafx.scene.image.ImageView',
+    'javafx.scene.layout.HBox',
+    'javafx.scene.layout.VBox',
+    'javafx.scene.text.Text',
+    'javafx.scene.text.TextFlow',
+    'javafx.geometry.Insets',
+    'javafx.scene.control.Label',
+    'javafx.scene.image.Image',
+    'javafx.scene.image.ImageView',
+    'javafx.scene.layout.VBox',
+  ]
 }

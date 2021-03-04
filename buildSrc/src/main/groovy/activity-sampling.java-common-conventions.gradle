@@ -1,24 +1,27 @@
 plugins {
   id 'java'
-  //id 'jacoco' // TODO Java 15 wird derzeit nicht unterstützt
+  id 'jacoco'
   id 'com.diffplug.spotless'
   id 'io.freefair.lombok'
   id 'extra-java-module-info'
 }
 
+version = rootProject.version
+
 repositories {
-  jcenter()
-  maven {
-    url = uri("https://maven.pkg.github.com/falkoschumann/muspellheim-libs-java")
-    credentials {
-      username = project.findProperty("gpr.user") ?: System.getenv("USER")
-      password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
-    }
-  }
+  mavenCentral()
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+dependencies {
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+  modularity.inferModulePath = true
+}
 
 compileJava {
   options.encoding = 'UTF-8'
@@ -29,27 +32,18 @@ compileTestJava {
   options.encoding = 'UTF-8'
 }
 
-dependencies {
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-}
-
-java {
-  modularity.inferModulePath = true
-}
-
 test {
   useJUnitPlatform()
   testLogging {
     events("passed", "skipped", "failed")
   }
-  //finalizedBy jacocoTestReport
+  finalizedBy jacocoTestReport
 }
-/*
+
 jacocoTestReport {
     dependsOn test
 }
-*/
+
 spotless {
   java {
     googleJavaFormat()

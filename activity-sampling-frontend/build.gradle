@@ -1,6 +1,6 @@
 plugins {
-  id 'todomvc.java-library-conventions'
-  id 'todomvc.java-openjfx-conventions'
+  id 'activity-sampling.java-library-conventions'
+  id 'activity-sampling.java-openjfx-conventions'
 }
 
 dependencies {
