@@ -18,9 +18,11 @@ import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityComman
 import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.frontend.AboutViewController;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingViewController;
 import de.muspellheim.activitysampling.frontend.PreferencesViewController;
+import de.muspellheim.activitysampling.frontend.InfoView;
+import java.io.InputStream;
+import java.util.Properties;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -54,6 +56,7 @@ public class App extends Application {
 
   @Override
   public void start(Stage primaryStage) {
+  public void start(Stage primaryStage) throws Exception {
     //
     // Build
     //
@@ -73,11 +76,12 @@ public class App extends Application {
     preferencesStage.initOwner(primaryStage);
     var preferencesViewController = PreferencesViewController.create(preferencesStage);
 
-    var aboutStage = new Stage();
-    aboutStage.initOwner(primaryStage);
-    var aboutViewController = AboutViewController.create(aboutStage);
-    aboutViewController.initVersion(System.getProperty("app.version"));
-    aboutViewController.initCopyright(System.getProperty("app.copyright"));
+    var url = getClass().getResource("/app.png");
+    var properties = new Properties();
+    try (InputStream in = getClass().getResourceAsStream("/app.properties")) {
+      properties.load(in);
+    }
+    var infoView = InfoView.create(primaryStage, url, properties);
 
     //
     // Bind
@@ -88,7 +92,7 @@ public class App extends Application {
           preferencesStage.show();
           preferencesViewController.run();
         });
-    activitySamplingViewController.setOnOpenAbout(() -> aboutStage.show());
+    activitySamplingViewController.setOnOpenAbout(() -> infoView.run());
     activitySamplingViewController.setOnLogActivityCommand(
         cmd -> {
           logActivityCommandHandler.handle(cmd);
