@@ -6,13 +6,12 @@
 package de.muspellheim.activitysampling.contract.messages.queries;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
-import de.muspellheim.messages.QueryResult;
 import java.util.List;
 import lombok.NonNull;
 import lombok.Value;
 
 @Value
-public class ActivityLogQueryResult implements QueryResult {
+public class ActivityLogQueryResult {
   @NonNull List<Activity> log;
   @NonNull List<Activity> recent;
 }

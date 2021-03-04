@@ -3,9 +3,9 @@
  * Copyright (c) 2021 Falko Schumann <falko.schumann@muspellheim.de>
  */
 
-package de.muspellheim.activitysampling.contract.messages.queries;
+package de.muspellheim.activitysampling.contract.messages.commands;
 
 import lombok.Value;
 
 @Value
-public class PreferencesQuery {}
+public class Success implements CommandStatus {}

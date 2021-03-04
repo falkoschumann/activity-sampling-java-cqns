@@ -5,7 +5,6 @@
 
 package de.muspellheim.activitysampling.contract.messages.commands;
 
-import de.muspellheim.messages.Command;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +12,7 @@ import lombok.NonNull;
 import lombok.Value;
 
 @Value
-public class LogActivityCommand implements Command {
+public class LogActivityCommand {
   @NonNull LocalDateTime timestamp;
   @NonNull Duration period;
   @NonNull String activity;

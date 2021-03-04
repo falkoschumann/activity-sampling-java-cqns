@@ -13,7 +13,7 @@ import de.muspellheim.activitysampling.backend.Event;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
-import de.muspellheim.messages.Success;
+import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
