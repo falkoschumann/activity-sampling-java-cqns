@@ -14,8 +14,8 @@ import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesReposit
 import de.muspellheim.activitysampling.backend.adapters.PreferencesPreferencesRepository;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.frontend.ActivitySamplingViewController;
 import de.muspellheim.activitysampling.frontend.InfoView;
+import de.muspellheim.activitysampling.frontend.MainViewController;
 import de.muspellheim.activitysampling.frontend.PreferencesView;
 import de.muspellheim.activitysampling.frontend.ViewModelFactory;
 import java.io.InputStream;
@@ -26,7 +26,6 @@ import javafx.stage.Stage;
 public class App extends Application {
   private EventStore eventStore;
   private PreferencesRepository preferencesRepository;
-  private boolean useSystemMenuBar = true;
 
   public static void main(String[] args) {
     Application.launch(args);
@@ -44,10 +43,6 @@ public class App extends Application {
       var activityLogFile = preferencesRepository.loadActivityLogFile();
       System.out.println("Save activity log in: " + activityLogFile.toAbsolutePath());
       eventStore = new CsvEventStore(activityLogFile.toString());
-    }
-
-    if (getParameters().getUnnamed().contains("--noSystemMenuBar")) {
-      useSystemMenuBar = false;
     }
   }
 
@@ -68,8 +63,7 @@ public class App extends Application {
     ViewModelFactory.initAppProperties(properties);
     ViewModelFactory.initIconUrl(url);
 
-    var activitySamplingViewController =
-        ActivitySamplingViewController.create(primaryStage, useSystemMenuBar);
+    var activitySamplingViewController = MainViewController.create(primaryStage);
     var preferencesView = PreferencesView.create(primaryStage);
     var infoView = InfoView.create(primaryStage);
 

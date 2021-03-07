@@ -24,7 +24,6 @@ import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitMenuButton;
@@ -34,14 +33,13 @@ import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 
-public class ActivitySamplingViewController {
+public class MainViewController {
   @Getter @Setter private Runnable onOpenPreferences;
   @Getter @Setter private Runnable onOpenAbout;
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
 
-  @FXML private MenuBar menuBar;
   @FXML private TextField activity;
   @FXML private TextField tags;
   @FXML private SplitMenuButton log;
@@ -55,11 +53,14 @@ public class ActivitySamplingViewController {
   private final PeriodCheck periodCheck = new PeriodCheck();
   private final AppTrayIcon trayIcon = new AppTrayIcon();
 
+  private final ActivitySamplingViewModel activitySamplingViewModel =
+      ViewModelFactory.getActivitySamplingViewModel();
+
   private Duration period;
   private LocalDateTime timestamp;
 
-  public static ActivitySamplingViewController create(Stage stage, boolean useSystemMenuBar) {
-    var factory = new ViewControllerFactory(ActivitySamplingViewController.class);
+  public static MainViewController create(Stage stage) {
+    var factory = new ViewControllerFactory(MainViewController.class);
 
     var scene = new Scene(factory.getView());
     stage.setScene(scene);
@@ -67,9 +68,7 @@ public class ActivitySamplingViewController {
     stage.setMinWidth(240);
     stage.setMinHeight(420);
 
-    ActivitySamplingViewController controller = factory.getController();
-    controller.menuBar.setUseSystemMenuBar(useSystemMenuBar);
-    return controller;
+    return factory.getController();
   }
 
   public final ReadOnlyBooleanProperty formDisabledProperty() {

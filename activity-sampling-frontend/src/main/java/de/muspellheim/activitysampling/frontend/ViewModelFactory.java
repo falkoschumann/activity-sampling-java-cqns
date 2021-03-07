@@ -14,7 +14,7 @@ public class ViewModelFactory {
   private static URL iconUrl;
   private static Properties appProperties;
 
-  private static PreferencesViewModel preferencesViewModel;
+  private static ActivitySamplingViewModel activitySamplingViewModel;
   private static InfoViewModel infoViewModel;
 
   public static void initMessageHandling(MessageHandling messageHandling) {
@@ -29,11 +29,11 @@ public class ViewModelFactory {
     ViewModelFactory.appProperties = appProperties;
   }
 
-  public static PreferencesViewModel getPreferencesViewModel() {
-    if (preferencesViewModel == null) {
-      preferencesViewModel = new PreferencesViewModel(messageHandling);
+  public static ActivitySamplingViewModel getActivitySamplingViewModel() {
+    if (activitySamplingViewModel == null) {
+      activitySamplingViewModel = new ActivitySamplingViewModel(messageHandling);
     }
-    return preferencesViewModel;
+    return activitySamplingViewModel;
   }
 
   public static InfoViewModel getInfoViewModel() {

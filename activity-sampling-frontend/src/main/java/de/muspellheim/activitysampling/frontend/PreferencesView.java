@@ -19,7 +19,8 @@ public class PreferencesView {
   @FXML private ChoiceBox<Duration> periodDuration;
   @FXML private TextField activityLogFile;
 
-  private final PreferencesViewModel viewModel = ViewModelFactory.getPreferencesViewModel();
+  private final ActivitySamplingViewModel viewModel =
+      ViewModelFactory.getActivitySamplingViewModel();
 
   public static PreferencesView create(Stage owner) {
     var factory = new ViewControllerFactory(PreferencesView.class);
@@ -55,7 +56,7 @@ public class PreferencesView {
             Duration.ofHours(1));
     periodDuration.valueProperty().bindBidirectional(viewModel.periodDuration());
 
-    activityLogFile.textProperty().bind(viewModel.activityLogFile().asString());
+    activityLogFile.textProperty().bindBidirectional(viewModel.activityLogFile());
   }
 
   @FXML
@@ -70,7 +71,7 @@ public class PreferencesView {
             new ExtensionFilter("All Files", "*.*"));
     var file = chooser.showSaveDialog(getWindow());
     if (file != null) {
-      viewModel.changeActivityLogFile(file.toPath());
+      viewModel.activityLogFile().setValue(file.toString());
     }
   }
 

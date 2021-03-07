@@ -12,9 +12,9 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox stylesheets="@uwp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.ActivitySamplingViewController">
+<VBox stylesheets="@uwp.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainViewController">
    <children>
-      <MenuBar fx:id="menuBar">
+      <MenuBar>
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
