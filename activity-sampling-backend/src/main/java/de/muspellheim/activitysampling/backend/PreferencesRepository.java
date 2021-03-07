@@ -8,7 +8,7 @@ package de.muspellheim.activitysampling.backend;
 import java.nio.file.Path;
 import java.time.Duration;
 
-public interface PreferencesStore {
+public interface PreferencesRepository {
   Duration loadPeriodDuration();
 
   void savePeriodDuration(Duration periodDuration);

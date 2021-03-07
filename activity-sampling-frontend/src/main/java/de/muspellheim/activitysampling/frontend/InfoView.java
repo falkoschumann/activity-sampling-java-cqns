@@ -5,8 +5,6 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import java.net.URL;
-import java.util.Properties;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -22,9 +20,9 @@ public class InfoView {
   @FXML private Label version;
   @FXML private Label copyright;
 
-  private final InfoViewModel viewModel = new InfoViewModel();
+  private final InfoViewModel viewModel = ViewModelFactory.getInfoViewModel();
 
-  public static InfoView create(Stage owner, URL appIconUrl, Properties appProperties) {
+  public static InfoView create(Stage owner) {
     var factory = new ViewControllerFactory(InfoView.class);
 
     var stage = new Stage();
@@ -34,10 +32,7 @@ public class InfoView {
     stage.setScene(new Scene(factory.getView()));
     stage.setResizable(false);
 
-    InfoView controller = factory.getController();
-    controller.viewModel.initIconUrl(appIconUrl);
-    controller.viewModel.initProperties(appProperties);
-    return controller;
+    return factory.getController();
   }
 
   @FXML

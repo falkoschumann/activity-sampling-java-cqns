@@ -5,14 +5,14 @@
 
 package de.muspellheim.activitysampling.backend.adapters;
 
-import de.muspellheim.activitysampling.backend.PreferencesStore;
+import de.muspellheim.activitysampling.backend.PreferencesRepository;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 
-public class MemoryPreferencesStore implements PreferencesStore {
+public class MemoryPreferencesRepository implements PreferencesRepository {
   private Duration periodDuration = Duration.ofMinutes(20);
-  private Path activityLogFile = Paths.get("~/activity-log.csv");
+  private Path activityLogFile = Paths.get(System.getProperty("user.home"), "/activity-log.csv");
 
   @Override
   public Duration loadPeriodDuration() {

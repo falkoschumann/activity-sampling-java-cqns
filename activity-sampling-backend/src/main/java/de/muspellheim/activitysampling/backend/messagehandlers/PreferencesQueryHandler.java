@@ -5,14 +5,14 @@
 
 package de.muspellheim.activitysampling.backend.messagehandlers;
 
-import de.muspellheim.activitysampling.backend.PreferencesStore;
+import de.muspellheim.activitysampling.backend.PreferencesRepository;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 
 public class PreferencesQueryHandler {
-  private final PreferencesStore preferencesStore;
+  private final PreferencesRepository preferencesStore;
 
-  public PreferencesQueryHandler(PreferencesStore preferencesStore) {
+  public PreferencesQueryHandler(PreferencesRepository preferencesStore) {
     this.preferencesStore = preferencesStore;
   }
 

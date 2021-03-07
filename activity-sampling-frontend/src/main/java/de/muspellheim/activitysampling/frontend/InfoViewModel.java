@@ -16,14 +16,11 @@ public class InfoViewModel {
   private final StringProperty version = new SimpleStringProperty("");
   private final StringProperty copyright = new SimpleStringProperty("");
 
-  public void initIconUrl(URL url) {
-    iconUrl.set(url.toString());
-  }
-
-  public void initProperties(Properties properties) {
-    title.set(properties.getProperty("title"));
-    version.set(properties.getProperty("version"));
-    copyright.set(properties.getProperty("copyright"));
+  public InfoViewModel(URL iconUrl, Properties appProperties) {
+    this.iconUrl.set(iconUrl.toString());
+    title.set(appProperties.getProperty("title"));
+    version.set(appProperties.getProperty("version"));
+    copyright.set(appProperties.getProperty("copyright"));
   }
 
   public StringProperty iconUrlProperty() {

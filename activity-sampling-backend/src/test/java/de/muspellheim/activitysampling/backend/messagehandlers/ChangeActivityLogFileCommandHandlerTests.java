@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
-import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesStore;
+import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesRepository;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import java.nio.file.Paths;
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 public class ChangeActivityLogFileCommandHandlerTests {
   @Test
   void changeActivityLogFile() {
-    var preferencesStore = new MemoryPreferencesStore();
+    var preferencesStore = new MemoryPreferencesRepository();
     var eventStore = new MemoryEventStore();
     var handler = new ChangeActivityLogFileCommandHandler(preferencesStore, eventStore);
 

@@ -8,19 +8,18 @@ package de.muspellheim.activitysampling.frontend;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.net.URL;
 import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
 class InfoViewModelTests {
   @Test
-  void initProperties() {
-    var viewModel = new InfoViewModel();
+  void initProperties() throws Exception {
     var props = new Properties();
     props.setProperty("title", "abc");
     props.setProperty("version", "def");
     props.setProperty("copyright", "ghj");
-
-    viewModel.initProperties(props);
+    var viewModel = new InfoViewModel(new URL("file:/app.png"), props);
 
     assertAll(
         () -> assertEquals("abc", viewModel.titleProperty().get()),
