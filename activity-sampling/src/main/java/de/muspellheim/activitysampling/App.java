@@ -12,11 +12,7 @@ import de.muspellheim.activitysampling.backend.adapters.CsvEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesRepository;
 import de.muspellheim.activitysampling.backend.adapters.PreferencesPreferencesRepository;
-import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.frontend.InfoView;
-import de.muspellheim.activitysampling.frontend.MainViewController;
-import de.muspellheim.activitysampling.frontend.PreferencesView;
+import de.muspellheim.activitysampling.frontend.MainView;
 import de.muspellheim.activitysampling.frontend.ViewModelFactory;
 import java.io.InputStream;
 import java.util.Properties;
@@ -48,52 +44,19 @@ public class App extends Application {
 
   @Override
   public void start(Stage primaryStage) throws Exception {
-    //
-    // Build
-    //
-
     var backend = new MessageHandler(eventStore, preferencesRepository);
     ViewModelFactory.initMessageHandling(backend);
 
     var url = getClass().getResource("/app.png");
+    ViewModelFactory.initIconUrl(url);
+
     var properties = new Properties();
     try (InputStream in = getClass().getResourceAsStream("/app.properties")) {
       properties.load(in);
     }
     ViewModelFactory.initAppProperties(properties);
-    ViewModelFactory.initIconUrl(url);
 
-    var activitySamplingViewController = MainViewController.create(primaryStage);
-    var preferencesView = PreferencesView.create(primaryStage);
-    var infoView = InfoView.create(primaryStage);
-
-    //
-    // Bind
-    //
-
-    activitySamplingViewController.setOnOpenPreferences(() -> preferencesView.run());
-    activitySamplingViewController.setOnOpenAbout(() -> infoView.run());
-    activitySamplingViewController.setOnLogActivityCommand(
-        cmd -> {
-          backend.handle(cmd);
-          var result = backend.handle(new ActivityLogQuery());
-          activitySamplingViewController.display(result);
-        });
-    activitySamplingViewController.setOnPreferencesQuery(
-        qry -> {
-          var result = backend.handle(new PreferencesQuery());
-          activitySamplingViewController.display(result);
-        });
-    activitySamplingViewController.setOnActivityLogQuery(
-        qry -> {
-          var result = backend.handle(qry);
-          activitySamplingViewController.display(result);
-        });
-
-    //
-    // Run
-    //
-
+    var activitySamplingViewController = MainView.create(primaryStage);
     activitySamplingViewController.run();
   }
 }
