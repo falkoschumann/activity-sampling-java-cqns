@@ -44,7 +44,6 @@ public class MainView {
     getWindow().show();
     viewModel.loadPreferences();
     viewModel.loadActivityLog();
-    viewModel.run();
   }
 
   private Stage getWindow() {

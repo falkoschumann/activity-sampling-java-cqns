@@ -6,25 +6,14 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.MessageHandling;
-import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
-import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.stream.Collectors;
-import javafx.application.Platform;
+import java.util.function.Function;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
@@ -32,7 +21,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.control.MenuItem;
 
 public class ActivitySamplingViewModel {
   private final ReadOnlyBooleanWrapper formDisabled = new ReadOnlyBooleanWrapper(true);
@@ -59,7 +47,6 @@ public class ActivitySamplingViewModel {
         }
       };
 
-  private final Timer timer = new Timer(true);
   private final MessageHandling messageHandling;
 
   private LocalDateTime start;
@@ -111,11 +98,34 @@ public class ActivitySamplingViewModel {
     var result = messageHandling.handle(new ActivityLogQuery());
   }
 
-  public void run() {
-    timer.schedule(new SystemClockTask(), 0, 1000);
+  public void clockTicked(LocalDateTime timestamp) {
+    Function<Duration, String> stringConverter =
+        (duration) ->
+            String.format("%1$02d:%2$02d", duration.toMinutesPart(), duration.toSecondsPart());
+
+    if (start == null) {
+      start = timestamp;
+      formDisabled.set(true);
+      remainingTime.set(stringConverter.apply(periodDuration.get()));
+      progress.set(0.0);
+      return;
+    }
+
+    var elapsedTime = Duration.between(start, timestamp);
+    var remainingTime = periodDuration.get().minus(elapsedTime);
+    if (remainingTime.toSeconds() <= 0) {
+      formDisabled.set(false);
+      this.remainingTime.set(stringConverter.apply(Duration.ZERO));
+      progress.set(1.0);
+      start = null;
+    } else {
+      this.remainingTime.set(stringConverter.apply(remainingTime));
+      progress.set((double) remainingTime.toSeconds() / periodDuration.get().toSeconds());
+    }
   }
 
   public void logActivity() {
+    /*
     var a =
       new Activity(
         "",
@@ -124,7 +134,10 @@ public class ActivitySamplingViewModel {
         activity.getValue(),
         List.of(tags.getValue().split(",")));
     logActivity(a);
+    */
   }
+
+  /*
 
   private class SystemClockTask extends TimerTask {
     @Override
@@ -268,4 +281,5 @@ public class ActivitySamplingViewModel {
       new LogActivityCommand(timestamp, period, activity.getActivity(), activity.getTags());
     onLogActivityCommand.accept(command);
   }
+  */
 }
