@@ -60,6 +60,8 @@ class ActivitySamplingViewModelTests {
 
   @BeforeEach
   void setUp() {
+    System.setProperty("user.language", "DE");
+
     messageHandling = mock(MessageHandling.class);
     when(messageHandling.handle(new PreferencesQuery()))
         .thenReturn(
