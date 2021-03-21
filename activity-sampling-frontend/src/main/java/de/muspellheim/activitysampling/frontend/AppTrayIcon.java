@@ -5,7 +5,6 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.data.Activity;
 import java.awt.AWTException;
 import java.awt.EventQueue;
 import java.awt.MenuItem;
@@ -15,12 +14,11 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.util.List;
-import java.util.function.Consumer;
-import lombok.Getter;
-import lombok.Setter;
+import javafx.beans.InvalidationListener;
 
 class AppTrayIcon {
-  @Getter @Setter private Consumer<Activity> onActivitySelected;
+  private final ActivitySamplingViewModel viewModel =
+      ViewModelFactory.getActivitySamplingViewModel();
 
   private TrayIcon trayIcon;
 
@@ -33,25 +31,48 @@ class AppTrayIcon {
     var url = getClass().getResource("app.png");
     var image = Toolkit.getDefaultToolkit().getImage(url);
     trayIcon = new TrayIcon(image);
+
+    viewModel
+        .formDisabledProperty()
+        .addListener(((observable, oldValue, newValue) -> showOrHide(newValue)));
+    viewModel
+        .getRecentActivities()
+        .addListener((InvalidationListener) observable -> updateMenuItems());
   }
 
-  void show() {
-    if (!SystemTray.isSupported()) {
-      return;
-    }
+  private void updateMenuItems() {
+    EventQueue.invokeLater(
+        () -> {
+          var menu = new PopupMenu();
+          viewModel
+              .getRecentActivities()
+              .forEach(
+                  it -> {
+                    MenuItem item = new MenuItem(it);
+                    item.addActionListener(e -> viewModel.logActivity(it));
+                    menu.add(item);
+                  });
+          trayIcon.setPopupMenu(menu);
+        });
+  }
 
+  private void showOrHide(Boolean newValue) {
     EventQueue.invokeLater(
         () -> {
           var tray = SystemTray.getSystemTray();
-          if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
-            try {
-              tray.add(trayIcon);
-            } catch (AWTException e) {
-              System.err.println("Can not add icon to system tray: " + e.toString());
+          if (newValue) {
+            tray.remove(trayIcon);
+          } else {
+            if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
+              try {
+                tray.add(trayIcon);
+              } catch (AWTException e) {
+                System.err.println("Can not add icon to system tray: " + e.toString());
+              }
             }
-          }
 
-          trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
+            trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
+          }
         });
   }
 
@@ -60,25 +81,7 @@ class AppTrayIcon {
       return;
     }
 
-    EventQueue.invokeLater(
-        () -> {
-          var tray = SystemTray.getSystemTray();
-          tray.remove(trayIcon);
-        });
-  }
-
-  void display(List<Activity> recentActivities) {
-    EventQueue.invokeLater(
-        () -> {
-          var menu = new PopupMenu();
-          var stringConverter = new ActivityStringConverter();
-          recentActivities.forEach(
-              it -> {
-                MenuItem item = new MenuItem(stringConverter.toString(it));
-                item.addActionListener(e -> onActivitySelected.accept(it));
-                menu.add(item);
-              });
-          trayIcon.setPopupMenu(menu);
-        });
+    var tray = SystemTray.getSystemTray();
+    tray.remove(trayIcon);
   }
 }

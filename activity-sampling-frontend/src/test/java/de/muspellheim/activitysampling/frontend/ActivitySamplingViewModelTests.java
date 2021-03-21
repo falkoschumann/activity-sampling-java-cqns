@@ -8,17 +8,111 @@ package de.muspellheim.activitysampling.frontend;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import de.muspellheim.activitysampling.contract.MessageHandling;
+import de.muspellheim.activitysampling.contract.data.Activity;
+import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
+import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import org.junit.jupiter.api.Disabled;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class ActivitySamplingViewModelTests {
+  private static final Activity ACTIVITY_1 =
+      new Activity(
+          "a7caf1b0-886e-406f-8fbc-71da9f34714e",
+          LocalDateTime.of(2020, 12, 30, 17, 52),
+          Duration.ofMinutes(20),
+          "A",
+          List.of("Foo", "Bar"));
+  private static final Activity ACTIVITY_2 =
+      new Activity(
+          "d5abc0dd-60b0-4a3b-9b2f-8b02005fb256",
+          LocalDateTime.of(2020, 12, 30, 21, 20),
+          Duration.ofMinutes(20),
+          "B");
+  private static final Activity ACTIVITY_3 =
+      new Activity(
+          "e9ed7915-8109-402d-b9e6-2d5764ef688d",
+          LocalDateTime.of(2021, 1, 4, 13, 52),
+          Duration.ofMinutes(20),
+          "B");
+  private static final Activity ACTIVITY_4 =
+      new Activity(
+          "d36a20db-56ae-48af-9221-0630911cdb8d",
+          LocalDateTime.of(2021, 1, 4, 14, 20),
+          Duration.ofMinutes(20),
+          "A",
+          List.of("Foo", "Bar"));
+
+  private MessageHandling messageHandling;
+
+  @BeforeEach
+  void setUp() {
+    messageHandling = mock(MessageHandling.class);
+    when(messageHandling.handle(new PreferencesQuery()))
+        .thenReturn(
+            new PreferencesQueryResult(Duration.ofMinutes(20), Paths.get("~/activity-log.csv")));
+
+    when(messageHandling.handle(new ActivityLogQuery()))
+        .thenReturn(
+            new ActivityLogQueryResult(
+                List.of(ACTIVITY_1, ACTIVITY_2, ACTIVITY_3, ACTIVITY_4),
+                List.of(ACTIVITY_4, ACTIVITY_3)));
+  }
+
+  @Test
+  void initialState() {
+    var viewModel = new ActivitySamplingViewModel(messageHandling);
+
+    assertAll(
+        () -> assertTrue(viewModel.formDisabledProperty().get(), "form disabled"),
+        () -> assertEquals("", viewModel.activityProperty().get(), "activity"),
+        () -> assertEquals("", viewModel.tagsProperty().get(), "tags"),
+        () -> assertEquals(List.of(), viewModel.getRecentActivities(), "recent activities"),
+        () -> assertEquals("20:00", viewModel.remainingTimeProperty().get(), "remaining time"),
+        () -> assertEquals(0.0, viewModel.progressProperty().get(), "progress"),
+        () -> assertNull(viewModel.periodDurationProperty().get(), "period duration"),
+        () -> assertEquals("", viewModel.activityLogProperty().get(), "activity log"),
+        () -> assertNull(viewModel.activityLogFileProperty().get(), "activity log file"));
+  }
+
+  @Test
+  void reloadActivityLog() {
+    var viewModel = new ActivitySamplingViewModel(messageHandling);
+    viewModel.reloadActivityLog();
+
+    assertAll(
+        () -> assertEquals("A", viewModel.activityProperty().get(), "activity"),
+        () -> assertEquals("Foo, Bar", viewModel.tagsProperty().get(), "tags"),
+        () ->
+            assertEquals(
+                List.of("[Foo, Bar] A", "B"), viewModel.getRecentActivities(), "recent activities"),
+        () ->
+            assertEquals(
+                "Mittwoch, 30. Dezember 2020\n"
+                    + "17:52 - [Foo, Bar] A\n"
+                    + "21:20 - B\n"
+                    + "Montag, 4. Januar 2021\n"
+                    + "13:52 - B\n"
+                    + "14:20 - [Foo, Bar] A\n",
+                viewModel.activityLogProperty().get(),
+                "activity log"));
+  }
+
   @Test
   void periodStarted() {
-    var messageHandling = new TestingMessageHandling();
     var viewModel = new ActivitySamplingViewModel(messageHandling);
     viewModel.loadPreferences();
 
@@ -33,7 +127,6 @@ class ActivitySamplingViewModelTests {
 
   @Test
   void periodProgressed() {
-    var messageHandling = new TestingMessageHandling();
     var viewModel = new ActivitySamplingViewModel(messageHandling);
     viewModel.loadPreferences();
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
@@ -50,7 +143,6 @@ class ActivitySamplingViewModelTests {
 
   @Test
   void periodEnded() {
-    var messageHandling = new TestingMessageHandling();
     var viewModel = new ActivitySamplingViewModel(messageHandling);
     viewModel.loadPreferences();
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
@@ -66,8 +158,21 @@ class ActivitySamplingViewModelTests {
   }
 
   @Test
-  @Disabled("Not implemented yet")
   void activityLogged() {
-    fail("Not implemented yet");
+    var viewModel = new ActivitySamplingViewModel(messageHandling);
+    viewModel.loadPreferences();
+    var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
+    viewModel.clockTicked(startTime);
+    var endTime = LocalDateTime.of(2020, 11, 8, 17, 40);
+    viewModel.clockTicked(endTime);
+
+    viewModel.activityProperty().set("Rule the world");
+    viewModel.tagsProperty().set("Foo, Bar");
+    viewModel.logActivity();
+
+    verify(messageHandling)
+        .handle(
+            new LogActivityCommand(
+                endTime, Duration.ofMinutes(20), "Rule the world", List.of("Foo", "Bar")));
   }
 }

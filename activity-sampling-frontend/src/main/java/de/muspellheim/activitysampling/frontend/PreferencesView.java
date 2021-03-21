@@ -54,9 +54,9 @@ public class PreferencesView {
             Duration.ofMinutes(20),
             Duration.ofMinutes(30),
             Duration.ofHours(1));
-    periodDuration.valueProperty().bindBidirectional(viewModel.periodDuration());
+    periodDuration.valueProperty().bindBidirectional(viewModel.periodDurationProperty());
 
-    activityLogFile.textProperty().bindBidirectional(viewModel.activityLogFile());
+    activityLogFile.textProperty().bindBidirectional(viewModel.activityLogFileProperty());
   }
 
   @FXML
@@ -71,7 +71,7 @@ public class PreferencesView {
             new ExtensionFilter("All Files", "*.*"));
     var file = chooser.showSaveDialog(getWindow());
     if (file != null) {
-      viewModel.activityLogFile().setValue(file.toString());
+      viewModel.activityLogFileProperty().setValue(file.toString());
     }
   }
 

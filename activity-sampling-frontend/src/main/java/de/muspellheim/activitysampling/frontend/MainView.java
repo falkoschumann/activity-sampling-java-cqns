@@ -5,17 +5,22 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import java.util.stream.Collectors;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class MainView {
+  @FXML private VBox activityForm;
   @FXML private TextField activityText;
   @FXML private TextField tagsText;
   @FXML private SplitMenuButton logButton;
@@ -43,7 +48,7 @@ public class MainView {
   public void run() {
     getWindow().show();
     viewModel.loadPreferences();
-    viewModel.loadActivityLog();
+    viewModel.reloadActivityLog();
   }
 
   private Stage getWindow() {
@@ -52,37 +57,48 @@ public class MainView {
 
   @FXML
   private void initialize() {
-    activityText.disableProperty().bind(viewModel.formDisabledProperty());
+    activityForm.disableProperty().bind(viewModel.formDisabledProperty());
     activityText.textProperty().bindBidirectional(viewModel.activityProperty());
-    tagsText.disableProperty().bind(viewModel.formDisabledProperty());
     tagsText.textProperty().bindBidirectional(viewModel.tagsProperty());
-    logButton.disableProperty().bind(viewModel.formDisabledProperty());
+    viewModel
+        .getRecentActivities()
+        .addListener((InvalidationListener) observable -> updateLogButton());
 
     progressText.textProperty().bind(viewModel.remainingTimeProperty());
     progressBar.progressProperty().bind(viewModel.progressProperty());
 
-    activityLog.textProperty().bind(viewModel.activityLogFile());
+    activityLog.textProperty().bind(viewModel.activityLogProperty());
+
+    Platform.runLater(() -> getWindow().setOnHiding(e -> trayIcon.hide()));
+  }
+
+  private void updateLogButton() {
+    var menuItems =
+        viewModel.getRecentActivities().stream()
+            .map(
+                it -> {
+                  var menuItem = new MenuItem(it);
+                  menuItem.setOnAction(e -> viewModel.logActivity(it));
+                  return menuItem;
+                })
+            .collect(Collectors.toList());
+    Platform.runLater(() -> logButton.getItems().setAll(menuItems));
   }
 
   @FXML
-  private void handlePreferences() {
+  private void openPreferences() {
     var preferencesView = PreferencesView.create(getWindow());
     preferencesView.run();
   }
 
   @FXML
-  private void handleExit() {
-    Platform.exit();
-  }
-
-  @FXML
-  private void handleAbout() {
+  private void openInfo() {
     var infoView = InfoView.create(getWindow());
     infoView.run();
   }
 
   @FXML
-  private void handleLogActivity() {
+  private void logActivity() {
     viewModel.logActivity();
   }
 }
