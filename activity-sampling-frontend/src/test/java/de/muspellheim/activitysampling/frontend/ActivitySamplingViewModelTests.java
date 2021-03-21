@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -60,7 +61,7 @@ class ActivitySamplingViewModelTests {
 
   @BeforeEach
   void setUp() {
-    System.setProperty("user.language", "DE");
+    Locale.setDefault(Locale.GERMANY);
 
     messageHandling = mock(MessageHandling.class);
     when(messageHandling.handle(new PreferencesQuery()))
