@@ -51,6 +51,8 @@ public class PreferencesView {
         .getItems()
         .setAll(
             Duration.ofMinutes(1),
+            Duration.ofMinutes(5),
+            Duration.ofMinutes(10),
             Duration.ofMinutes(15),
             Duration.ofMinutes(20),
             Duration.ofMinutes(30),
