@@ -31,7 +31,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class ActivitySamplingViewModel {
-  private final ReadOnlyBooleanWrapper formDisabled = new ReadOnlyBooleanWrapper(true);
+  private final ReadOnlyBooleanWrapper formDisabled =
+      new ReadOnlyBooleanWrapper(true) {
+        @Override
+        protected void invalidated() {
+          System.out.println("formDisabled=" + getValue());
+        }
+      };
   private final StringProperty activity = new SimpleStringProperty("");
   private final StringProperty tags = new SimpleStringProperty("");
   private final ObservableList<String> recentActivities = FXCollections.observableArrayList();
@@ -162,7 +168,6 @@ public class ActivitySamplingViewModel {
 
     if (startTime == null) {
       startTime = timestamp;
-      formDisabled.set(true);
       remainingTime.set(stringConverter.apply(periodDuration.get()));
       progress.set(0.0);
       return;
@@ -178,15 +183,12 @@ public class ActivitySamplingViewModel {
       startTime = null;
     } else {
       this.remainingTime.set(stringConverter.apply(remainingTime));
-      progress.set((double) remainingTime.toSeconds() / periodDuration.get().toSeconds());
+      progress.set(1.0 - (double) remainingTime.toSeconds() / periodDuration.get().toSeconds());
     }
   }
 
   public void logActivity() {
-    var tagList =
-        List.of(tags.get().split(",")).stream().map(String::strip).collect(Collectors.toList());
-    messageHandling.handle(
-        new LogActivityCommand(endTime, periodDuration.get(), activity.get(), tagList));
+    logActivity("[" + tags.get() + "] " + activity.get());
   }
 
   public void logActivity(String activity) {
@@ -194,5 +196,7 @@ public class ActivitySamplingViewModel {
     var a = stringConverter.fromString(activity);
     messageHandling.handle(
         new LogActivityCommand(endTime, periodDuration.get(), a.getActivity(), a.getTags()));
+    formDisabled.set(true);
+    reloadActivityLog();
   }
 }

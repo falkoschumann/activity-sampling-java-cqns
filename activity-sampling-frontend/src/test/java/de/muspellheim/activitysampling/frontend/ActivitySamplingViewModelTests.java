@@ -141,7 +141,7 @@ class ActivitySamplingViewModelTests {
     assertAll(
         () -> assertTrue(viewModel.formDisabledProperty().get(), "form disabled"),
         () -> assertEquals("08:15", viewModel.remainingTimeProperty().get(), "remaining time"),
-        () -> assertEquals(0.4125, viewModel.progressProperty().get(), "progress"));
+        () -> assertEquals(0.5875, viewModel.progressProperty().get(), "progress"));
   }
 
   @Test
@@ -163,19 +163,51 @@ class ActivitySamplingViewModelTests {
   @Test
   void activityLogged() {
     var viewModel = new ActivitySamplingViewModel(messageHandling);
+    var newActivity =
+        new Activity(
+            "xxx",
+            LocalDateTime.of(2021, 2, 8, 17, 40),
+            Duration.ofMinutes(20),
+            "Rule the world",
+            List.of("Foo"));
+    when(messageHandling.handle(new ActivityLogQuery()))
+        .thenReturn(
+            new ActivityLogQueryResult(
+                List.of(ACTIVITY_1, ACTIVITY_2, ACTIVITY_3, ACTIVITY_4, newActivity),
+                List.of(newActivity, ACTIVITY_4, ACTIVITY_3)));
     viewModel.loadPreferences();
-    var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
+    var startTime = LocalDateTime.of(2021, 2, 8, 17, 20);
     viewModel.clockTicked(startTime);
-    var endTime = LocalDateTime.of(2020, 11, 8, 17, 40);
+    var endTime = LocalDateTime.of(2021, 2, 8, 17, 40);
     viewModel.clockTicked(endTime);
 
     viewModel.activityProperty().set("Rule the world");
-    viewModel.tagsProperty().set("Foo, Bar");
+    viewModel.tagsProperty().set("Foo");
     viewModel.logActivity();
 
-    verify(messageHandling)
-        .handle(
-            new LogActivityCommand(
-                endTime, Duration.ofMinutes(20), "Rule the world", List.of("Foo", "Bar")));
+    assertAll(
+        () -> assertTrue(viewModel.formDisabledProperty().get(), "form disabled"),
+        () ->
+            verify(messageHandling)
+                .handle(
+                    new LogActivityCommand(
+                        endTime, Duration.ofMinutes(20), "Rule the world", List.of("Foo"))),
+        () ->
+            assertEquals(
+                List.of("[Foo] Rule the world", "[Foo, Bar] A", "B"),
+                viewModel.getRecentActivities(),
+                "recent activities"),
+        () ->
+            assertEquals(
+                "Mittwoch, 30. Dezember 2020\n"
+                    + "17:52 - [Foo, Bar] A\n"
+                    + "21:20 - B\n"
+                    + "Montag, 4. Januar 2021\n"
+                    + "13:52 - B\n"
+                    + "14:20 - [Foo, Bar] A\n"
+                    + "Montag, 8. Februar 2021\n"
+                    + "17:40 - [Foo] Rule the world\n",
+                viewModel.activityLogProperty().get(),
+                "activity log"));
   }
 }

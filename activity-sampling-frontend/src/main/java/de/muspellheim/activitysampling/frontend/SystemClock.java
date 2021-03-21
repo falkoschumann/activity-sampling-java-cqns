@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-public class SystemClock {
+class SystemClock {
   @Getter @Setter private Consumer<LocalDateTime> onTick;
 
   private final Timer timer = new Timer(true);

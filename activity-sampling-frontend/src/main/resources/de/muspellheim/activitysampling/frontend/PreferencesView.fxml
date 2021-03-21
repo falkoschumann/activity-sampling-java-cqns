@@ -6,9 +6,9 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox styleClass="small-window" stylesheets="@uwp.css" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.PreferencesView">
+<VBox styleClass="small-window" stylesheets="@app.css" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.PreferencesView">
    <children>
-      <VBox prefWidth="640.0" styleClass="input-control-group" stylesheets="@uwp.css">
+      <VBox prefWidth="640.0" styleClass="input-control-group">
          <children>
             <Label styleClass="title" text="Activity Sampling" />
             <VBox styleClass="input-control">

@@ -29,6 +29,7 @@ public class MainView {
   @FXML private TextArea activityLog;
 
   private final AppTrayIcon trayIcon = new AppTrayIcon();
+  private final SystemClock clock = new SystemClock();
 
   private final ActivitySamplingViewModel viewModel =
       ViewModelFactory.getActivitySamplingViewModel();
@@ -49,6 +50,8 @@ public class MainView {
     getWindow().show();
     viewModel.loadPreferences();
     viewModel.reloadActivityLog();
+
+    clock.run();
   }
 
   private Stage getWindow() {
@@ -70,6 +73,8 @@ public class MainView {
     activityLog.textProperty().bind(viewModel.activityLogProperty());
 
     Platform.runLater(() -> getWindow().setOnHiding(e -> trayIcon.hide()));
+
+    clock.setOnTick(it -> Platform.runLater(() -> viewModel.clockTicked(it)));
   }
 
   private void updateLogButton() {
