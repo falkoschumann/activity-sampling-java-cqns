@@ -61,6 +61,7 @@ public class MainView {
   @FXML
   private void initialize() {
     activityForm.disableProperty().bind(viewModel.formDisabledProperty());
+    activityForm.disableProperty().addListener(observable -> activityText.requestFocus());
     activityText.textProperty().bindBidirectional(viewModel.activityProperty());
     tagsText.textProperty().bindBidirectional(viewModel.tagsProperty());
     viewModel
@@ -71,6 +72,10 @@ public class MainView {
     progressBar.progressProperty().bind(viewModel.progressProperty());
 
     activityLog.textProperty().bind(viewModel.activityLogProperty());
+    activityLog
+        .textProperty()
+        .addListener(
+            observable -> Platform.runLater(() -> activityLog.setScrollTop(Double.MAX_VALUE)));
 
     Platform.runLater(() -> getWindow().setOnHiding(e -> trayIcon.hide()));
 
