@@ -49,6 +49,7 @@ public class MainView {
   public void run() {
     getWindow().show();
     viewModel.loadPreferences();
+    // new Alert(AlertType.INFORMATION, Locale.getDefault().toString()).show();
     viewModel.reloadActivityLog();
 
     clock.run();
@@ -97,7 +98,7 @@ public class MainView {
 
   @FXML
   private void openPreferences() {
-    var preferencesView = PreferencesView.create(getWindow());
+    var preferencesView = SettingsView.create(getWindow());
     preferencesView.run();
   }
 

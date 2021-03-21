@@ -15,15 +15,15 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
-public class PreferencesView {
+public class SettingsView {
   @FXML private ChoiceBox<Duration> periodDuration;
   @FXML private TextField activityLogFile;
 
   private final ActivitySamplingViewModel viewModel =
       ViewModelFactory.getActivitySamplingViewModel();
 
-  public static PreferencesView create(Stage owner) {
-    var factory = new ViewControllerFactory(PreferencesView.class);
+  public static SettingsView create(Stage owner) {
+    var factory = new ViewControllerFactory(SettingsView.class);
 
     Stage stage = new Stage();
     stage.initOwner(owner);

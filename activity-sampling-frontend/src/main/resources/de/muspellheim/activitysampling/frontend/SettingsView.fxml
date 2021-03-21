@@ -6,22 +6,22 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox styleClass="small-window" stylesheets="@app.css" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.PreferencesView">
+<VBox styleClass="small-window" stylesheets="@app.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.SettingsView">
    <children>
       <VBox prefWidth="640.0" styleClass="input-control-group">
          <children>
-            <Label styleClass="title" text="Activity Sampling" />
+            <Label styleClass="title" text="%app.title" />
             <VBox styleClass="input-control">
                <children>
-                  <Label styleClass="base" text="Period duration" />
+                  <Label styleClass="base" text="%settings.label.periodDuration" />
                   <ChoiceBox fx:id="periodDuration" />
                </children>
             </VBox>
             <VBox styleClass="input-control">
                <children>
-                  <Label styleClass="base" text="Save activity log to file" />
+                  <Label styleClass="base" text="%settings.label.saveActivityLogToFile" />
                   <TextField fx:id="activityLogFile" editable="false" promptText="activity-log.csv" />
-                  <Button mnemonicParsing="false" onAction="#handleChangeActivityLogFile" text="Change" />
+                  <Button mnemonicParsing="false" onAction="#handleChangeActivityLogFile" text="%settings.button.change" />
                </children>
             </VBox>
          </children>

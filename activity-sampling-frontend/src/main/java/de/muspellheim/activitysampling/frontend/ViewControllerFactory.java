@@ -5,17 +5,18 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import java.net.URL;
+import java.util.ResourceBundle;
 import javafx.fxml.FXMLLoader;
 
 class ViewControllerFactory {
   private final FXMLLoader loader;
 
   ViewControllerFactory(Class<?> controllerType) {
-    var filename = getViewFilename(controllerType);
-    URL location = controllerType.getResource(filename);
+    var viewFile = getViewFilename(controllerType);
+    var location = controllerType.getResource(viewFile);
     try {
-      loader = new FXMLLoader(location);
+      var resources = ResourceBundle.getBundle("ActivitySampling");
+      loader = new FXMLLoader(location, resources);
       loader.load();
     } catch (Exception e) {
       throw new IllegalArgumentException("Can not load view from " + location, e);

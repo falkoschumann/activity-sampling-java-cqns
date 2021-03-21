@@ -9,6 +9,7 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.VBox?>
@@ -25,6 +26,9 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="%main.button.tooltip.openSettings" />
+               </tooltip>
             </Button>
             <Button mnemonicParsing="false" onAction="#openInfo">
                <graphic>
@@ -34,6 +38,9 @@
                      </image>
                   </ImageView>
                </graphic>
+               <tooltip>
+                  <Tooltip text="%main.button.tooltip.openInfo" />
+               </tooltip>
             </Button>
         </items>
       </ToolBar>
@@ -43,17 +50,17 @@
                <children>
                   <VBox styleClass="base">
                      <children>
-                        <Label styleClass="base" text="Activity*" />
-                        <TextField fx:id="activityText" onAction="#logActivity" promptText="What are you working on?" />
+                        <Label styleClass="base" text="%main.label.activity" />
+                        <TextField fx:id="activityText" onAction="#logActivity" promptText="%main.text.activity" />
                      </children>
                   </VBox>
                   <VBox styleClass="base">
                      <children>
-                        <Label styleClass="base" text="Tags" />
-                        <TextField fx:id="tagsText" onAction="#logActivity" promptText="Customer, Project, Product" />
+                        <Label styleClass="base" text="%main.label.tags" />
+                        <TextField fx:id="tagsText" onAction="#logActivity" promptText="%main.text.tags" />
                      </children>
                   </VBox>
-                  <SplitMenuButton fx:id="logButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#logActivity" text="Log">
+                  <SplitMenuButton fx:id="logButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#logActivity" text="%main.button.log">
                     <items>
                       <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />
                       <MenuItem mnemonicParsing="false" text="[Foo, Bar] Lorem ipsum" />
