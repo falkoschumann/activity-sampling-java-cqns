@@ -31,13 +31,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class ActivitySamplingViewModel {
-  private final ReadOnlyBooleanWrapper formDisabled =
-      new ReadOnlyBooleanWrapper(true) {
-        @Override
-        protected void invalidated() {
-          System.out.println("formDisabled=" + getValue());
-        }
-      };
+  private final ReadOnlyBooleanWrapper formDisabled = new ReadOnlyBooleanWrapper(true);
   private final StringProperty activity = new SimpleStringProperty("");
   private final StringProperty tags = new SimpleStringProperty("");
   private final ObservableList<String> recentActivities = FXCollections.observableArrayList();
