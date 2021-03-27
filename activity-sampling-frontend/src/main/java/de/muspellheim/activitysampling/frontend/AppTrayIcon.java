@@ -81,7 +81,10 @@ class AppTrayIcon {
       return;
     }
 
-    var tray = SystemTray.getSystemTray();
-    tray.remove(trayIcon);
+    EventQueue.invokeLater(
+        () -> {
+          var tray = SystemTray.getSystemTray();
+          tray.remove(trayIcon);
+        });
   }
 }
