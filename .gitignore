@@ -12,3 +12,5 @@ lombok.config
 .settings/
 .project
 .classpath
+
+tmp/

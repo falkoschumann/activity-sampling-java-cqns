@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="640.0" styleClass="container-md" stylesheets="@uwp.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox styleClass="input-control">
+         <children>
+            <Label styleClass="body" text="Email address" />
+            <TextField promptText="name@example.com" />
+            <Label styleClass="caption" text="We'll never share your email with anyone else.We'll never share your email with anyone else." />
+         </children>
+      </VBox>
+      <VBox styleClass="input-control">
+         <children>
+            <Label styleClass="body" text="Password" />
+            <PasswordField />
+         </children>
+      </VBox>
+      <VBox styleClass="input-control">
+         <children>
+            <CheckBox text="Check me out" />
+         </children>
+      </VBox>
+      <Button text="Submit" />
+   </children>
+</VBox>

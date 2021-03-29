@@ -12,11 +12,13 @@ import de.muspellheim.activitysampling.backend.adapters.CsvEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesRepository;
 import de.muspellheim.activitysampling.backend.adapters.PreferencesPreferencesRepository;
+import de.muspellheim.activitysampling.frontend.FormsView;
 import de.muspellheim.activitysampling.frontend.MainView;
 import de.muspellheim.activitysampling.frontend.ViewModelFactory;
 import java.io.InputStream;
 import java.util.Properties;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -56,7 +58,7 @@ public class App extends Application {
     }
     ViewModelFactory.initAppProperties(properties);
 
-    var activitySamplingViewController = MainView.create(primaryStage);
-    activitySamplingViewController.run();
+    var frontend = MainView.create(primaryStage);
+    frontend.run();
   }
 }

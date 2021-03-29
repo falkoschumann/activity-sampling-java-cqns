@@ -101,3 +101,10 @@
 .label.caption {
   -fx-label-padding: 1px 0 1px 0;
 }
+
+
+
+
+.tool-bar {
+  -fx-alignment: CENTER_RIGHT;
+}

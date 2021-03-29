@@ -1,0 +1,278 @@
+/* Style based on Universal Windows Platform
+ * See https://docs.microsoft.com/en-us/windows/uwp/design/
+ */
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 100;
+  src: url('fonts/Roboto-Thin.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 100;
+  src: url('fonts/Roboto-ThinItalic.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: url('fonts/Roboto-Light.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 300;
+  src: url('fonts/Roboto-LightItalic.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url('fonts/Roboto-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 400;
+  src: url('fonts/Roboto-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  src: url('fonts/Roboto-Medium.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 500;
+  src: url('fonts/Roboto-MediumItalic.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: url('fonts/Roboto-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 700;
+  src: url('fonts/Roboto-BoldItalic.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 900;
+  src: url('fonts/Roboto-Black.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 900;
+  src: url('fonts/Roboto-BlackItalic.ttf');
+}
+
+.root {
+  -fx-font-family: Roboto;
+
+  -fx-base: white;
+  -fx-control-inner-background: white;
+  -fx-dark-text-color: black;
+  -fx-mid-text-color: #666;
+  -fx-light-text-color: white;
+  -fx-accent: #0078d4;
+  -fx-default-button: #f00;
+  -fx-focus-color: #0090ff;
+  -fx-faint-focus-color: #0090ff22;
+  -fx-text-background-color: -fx-dark-text-color;
+  -fx-text-box-border: #999;
+  -fx-text-base-color: -fx-dark-text-color;
+  -fx-text-inner-color: -fx-dark-text-color;
+
+  /*
+  -fx-background: -fx-base;
+  -fx-control-inner-background: -fx-background;
+  -fx-control-inner-background-alt: derive(-fx-control-inner-background,-2%);
+  -fx-dark-text-color: black;
+  -fx-mid-text-color: #666;
+  -fx-light-text-color: white;
+  -fx-accent: #0078d4;
+  -fx-default-button: #f00;
+  -fx-focus-color: #0090ff;
+  -fx-faint-focus-color: #0090ff22;
+  -fx-text-background-color: -fx-dark-text-color;
+  -fx-box-border: #f00;
+  -fx-text-box-border: -fx-mid-text-color;
+  -fx-outer-border: -fx-mid-text-color;
+  -fx-inner-border: -fx-mid-text-color;
+  -fx-body-color: #ccc;
+  -fx-text-base-color: -fx-dark-text-color;
+  -fx-text-inner-color: -fx-background;
+  -fx-mark-color: #f00;
+  -fx-mark-highlight-color: #0f0;
+  */
+}
+
+/* Screen sizes and breakpoints
+ * See https://docs.microsoft.com/en-us/windows/uwp/design/layout/screen-sizes-and-breakpoints-for-responsive-design
+ */
+
+.container-sm {
+  -fx-padding: 0 12;
+  -fx-background-color: white;
+}
+
+.container-md {
+  -fx-padding: 0 24;
+  -fx-background-color: white;
+}
+
+.container-lg {
+  -fx-padding: 0 24;
+  -fx-background-color: white;
+}
+
+/* Type Ramp
+ * See https://docs.microsoft.com/en-us/windows/uwp/design/style/typography
+ */
+
+.header {
+  -fx-padding-padding: 5 0;
+  -fx-font-size: 46;
+  -fx-font-weight: 300;
+}
+
+.subheader {
+  -fx-padding-padding: 3 0;
+  -fx-font-size: 34;
+  -fx-font-weight: 300;
+}
+
+.title {
+  -fx-padding-padding: 2 0;
+  -fx-font-size: 24;
+  -fx-font-weight: 300; /* TODO should be semi light */
+}
+
+.subtitle {
+  -fx-padding-padding: 2 0;
+  -fx-font-size: 20;
+  -fx-font-weight: 400;
+}
+
+.base {
+  -fx-padding-padding: 3 0;
+  -fx-font-size: 14;
+  -fx-font-weight: 600;
+}
+
+.body {
+  -fx-label-padding: 1 0;
+  -fx-font-size: 14;
+  -fx-font-weight: 400;
+}
+
+.caption {
+  -fx-label-padding: 1 0;
+  -fx-font-size: 12;
+  -fx-font-weight: 400;
+}
+
+/* Forms
+ * See https://docs.microsoft.com/en-us/windows/uwp/design/controls-and-patterns/forms
+ */
+
+.input-control {
+  -fx-padding: 0 0 16 0;
+  -fx-border-insets: 0 0 16 0;
+  -fx-background-insets: 0 0 16 0;
+}
+
+.input-control > .body {
+  -fx-padding: 0 0 8 0;
+  -fx-border-insets: 0 0 8 0;
+  -fx-background-insets: 0 0 8 0;
+}
+
+.input-control > .caption {
+  -fx-padding: 4 0 0 0;
+  -fx-border-insets: 4 0 0 0;
+  -fx-background-insets: 4 0 0 0;
+  -fx-text-fill: -fx-mid-text-color;
+}
+
+/*
+ * Adapt Java FX Controls
+ */
+
+.button,
+.check-box > .box {
+  -fx-background-color: #ccc;
+  -fx-background-insets: 0;
+  -fx-background-radius: 2;
+  -fx-border-width: 1.5;
+  -fx-border-color: #ccc;
+  -fx-border-radius: 2;
+  -fx-padding: 4 8;
+  -fx-text-fill: -fx-text-base-color;
+}
+
+.button:focused,
+.check-box:focused > .box {
+  -fx-border-color: -fx-accent;
+}
+
+.button:default {
+  -fx-background-color: -fx-accent;
+  -fx-border-color: -fx-accent;
+  -fx-text-fill: -fx-light-text-color;
+}
+
+.check-box {
+  -fx-label-padding: 0 0 0 8;
+}
+
+.check-box > .box {
+  -fx-background-color: -fx-background;
+  -fx-border-color: -fx-text-box-border;
+  -fx-padding: 2;
+}
+
+.check-box:selected > .box {
+  -fx-border-color: -fx-accent;
+  -fx-background-color: -fx-accent;
+}
+
+.check-box > .box > .mark {
+  -fx-background-color: white;
+  -fx-shape: "M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z";
+}
+
+.text-input {
+  -fx-text-fill: -fx-text-inner-color;
+  -fx-highlight-fill: -fx-accent;
+  -fx-highlight-text-fill: -fx-control-inner-background;
+  -fx-prompt-text-fill: -fx-text-box-border;
+  -fx-background-color: -fx-control-inner-background;
+  -fx-border-width: 1.5;
+  -fx-border-color: -fx-text-box-border;
+  -fx-border-radius: 2;
+  -fx-padding: 8 12;
+}
+.text-input:focused {
+  -fx-border-color: -fx-accent;
+}

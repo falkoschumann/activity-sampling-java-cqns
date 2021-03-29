@@ -12,17 +12,20 @@
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox prefHeight="640.0" prefWidth="360.0" stylesheets="@app.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainView">
    <children>
       <ToolBar>
         <items>
+            <Label text="Label" />
+            <Region fx:id="spacer" />
           <Button mnemonicParsing="false" onAction="#openPreferences">
                <graphic>
                   <ImageView pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@settings.png" />
+                        <Image url="@icons/settings.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -34,7 +37,7 @@
                <graphic>
                   <ImageView pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@info.png" />
+                        <Image url="@icons/info.png" />
                      </image>
                   </ImageView>
                </graphic>

@@ -16,10 +16,14 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class MainView {
+  @FXML private Region spacer;
   @FXML private VBox activityForm;
   @FXML private TextField activityText;
   @FXML private TextField tagsText;
@@ -60,6 +64,8 @@ public class MainView {
 
   @FXML
   private void initialize() {
+    HBox.setHgrow(spacer, Priority.ALWAYS);
+
     activityForm.disableProperty().bind(viewModel.formDisabledProperty());
     activityForm.disableProperty().addListener(observable -> activityText.requestFocus());
     activityText.textProperty().bindBidirectional(viewModel.activityProperty());
