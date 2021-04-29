@@ -4,8 +4,6 @@ import java.time.LocalDate
 
 plugins {
   id 'activity-sampling.java-application-conventions'
-  id 'com.gluonhq.client-gradle-plugin'
-  id 'org.beryx.jlink'
 }
 
 dependencies {
@@ -27,10 +25,6 @@ application {
   mainClassName = 'de.muspellheim.activitysampling.App'
 }
 
-jlink {
-  options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages', '--include-locales', 'en,de']
-}
-
 if (Os.isFamily(Os.FAMILY_MAC)) {
   jlink {
     jpackage {
@@ -40,7 +34,7 @@ if (Os.isFamily(Os.FAMILY_MAC)) {
       imageOptions = [
         '--copyright', copyright,
         '--mac-sign',
-        '--mac-signing-key-user-name', project.findProperty('macSigning.keyUserName')
+        '--mac-signing-key-user-name', project.findProperty('mac.signingKeyUserName')
       ]
     }
   }
@@ -66,28 +60,4 @@ if (Os.isFamily(Os.FAMILY_WINDOWS)) {
       ]
     }
   }
-}
-
-gluonClient {
-  resourcesList = ['app.properties']
-  reflectionList = [
-    'de.muspellheim.activitysampling.frontend.MainView',
-    'de.muspellheim.activitysampling.frontend.PreferencesView',
-    'de.muspellheim.activitysampling.frontend.InfoView',
-    'javafx.geometry.Insets',
-    'javafx.scene.control.Button',
-    'javafx.scene.control.ChoiceBox',
-    'javafx.scene.image.Image',
-    'javafx.scene.image.ImageView',
-    'javafx.scene.control.Label',
-    'javafx.scene.control.MenuItem',
-    'javafx.scene.control.ProgressBar',
-    'javafx.scene.control.SplitMenuButton',
-    'javafx.scene.control.TextArea',
-    'javafx.scene.control.TextField',
-    'javafx.scene.control.ToolBar',
-    'javafx.scene.image.Image',
-    'javafx.scene.image.ImageView',
-    'javafx.scene.layout.VBox',
-  ]
 }
