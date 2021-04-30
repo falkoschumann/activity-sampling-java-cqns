@@ -64,26 +64,26 @@ public class ActivityLogQueryHandlerTests {
   private static List<ActivityLoggedEvent> createEvents() {
     return List.of(
         new ActivityLoggedEvent(
-            ACTIVITY_1.getId(),
-            ACTIVITY_1.getTimestamp().atZone(ZoneId.systemDefault()).toInstant(),
-            ACTIVITY_1.getPeriod(),
-            ACTIVITY_1.getActivity(),
-            ACTIVITY_1.getTags()),
+            ACTIVITY_1.id(),
+            ACTIVITY_1.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
+            ACTIVITY_1.period(),
+            ACTIVITY_1.activity(),
+            ACTIVITY_1.tags()),
         new ActivityLoggedEvent(
-            ACTIVITY_2.getId(),
-            ACTIVITY_2.getTimestamp().atZone(ZoneId.systemDefault()).toInstant(),
-            ACTIVITY_2.getPeriod(),
-            ACTIVITY_2.getActivity()),
+            ACTIVITY_2.id(),
+            ACTIVITY_2.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
+            ACTIVITY_2.period(),
+            ACTIVITY_2.activity()),
         new ActivityLoggedEvent(
-            ACTIVITY_3.getId(),
-            ACTIVITY_3.getTimestamp().atZone(ZoneId.systemDefault()).toInstant(),
-            ACTIVITY_3.getPeriod(),
-            ACTIVITY_3.getActivity()),
+            ACTIVITY_3.id(),
+            ACTIVITY_3.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
+            ACTIVITY_3.period(),
+            ACTIVITY_3.activity()),
         new ActivityLoggedEvent(
-            ACTIVITY_4.getId(),
-            ACTIVITY_4.getTimestamp().atZone(ZoneId.systemDefault()).toInstant(),
-            ACTIVITY_4.getPeriod(),
-            ACTIVITY_4.getActivity(),
-            ACTIVITY_4.getTags()));
+            ACTIVITY_4.id(),
+            ACTIVITY_4.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
+            ACTIVITY_4.period(),
+            ACTIVITY_4.activity(),
+            ACTIVITY_4.tags()));
   }
 }

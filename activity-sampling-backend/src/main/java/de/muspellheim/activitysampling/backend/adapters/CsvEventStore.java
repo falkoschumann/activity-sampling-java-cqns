@@ -91,14 +91,13 @@ public class CsvEventStore implements EventStore {
             StandardOpenOption.APPEND,
             StandardOpenOption.WRITE)) {
       var formattedTimestamp =
-          LocalDateTime.ofInstant(e.getTimestamp(), ZoneId.systemDefault())
+          LocalDateTime.ofInstant(e.timestamp(), ZoneId.systemDefault())
               .format(TIMESTAMP_FORMATTER);
       var formattedPeriod =
-          LocalTime.ofSecondOfDay(e.getPeriod().toSeconds()).format(PERIOD_FORMATTER);
+          LocalTime.ofSecondOfDay(e.period().toSeconds()).format(PERIOD_FORMATTER);
       var printer = new CSVPrinter(out, CSV_FORMAT);
-      String formattedTags = String.join(", ", e.getTags());
-      printer.printRecord(
-          e.getId(), formattedTimestamp, formattedPeriod, e.getActivity(), formattedTags);
+      String formattedTags = String.join(", ", e.tags());
+      printer.printRecord(e.id(), formattedTimestamp, formattedPeriod, e.activity(), formattedTags);
     }
   }
 

@@ -21,7 +21,7 @@ public class PreferencesQueryHandlerTests {
 
     var result = handler.handle(new PreferencesQuery());
 
-    assertEquals(result.getPeriodDuration(), Duration.ofMinutes(20));
-    assertTrue(result.getActivityLogFile().toString().endsWith("activity-log.csv"));
+    assertEquals(result.periodDuration(), Duration.ofMinutes(20));
+    assertTrue(result.activityLogFile().toString().endsWith("activity-log.csv"));
   }
 }

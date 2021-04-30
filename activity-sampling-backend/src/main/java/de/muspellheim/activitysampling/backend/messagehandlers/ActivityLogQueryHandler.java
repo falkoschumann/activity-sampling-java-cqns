@@ -17,7 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import lombok.extern.java.Log;
 
 @Log
@@ -36,12 +35,12 @@ public class ActivityLogQueryHandler {
               .map(
                   it ->
                       new Activity(
-                          it.getId(),
-                          LocalDateTime.ofInstant(it.getTimestamp(), ZoneId.systemDefault()),
-                          it.getPeriod(),
-                          it.getActivity(),
-                          it.getTags()))
-              .collect(Collectors.toUnmodifiableList());
+                          it.id(),
+                          LocalDateTime.ofInstant(it.timestamp(), ZoneId.systemDefault()),
+                          it.period(),
+                          it.activity(),
+                          it.tags()))
+              .toList();
 
       var recent = new LinkedList<Activity>();
       log.forEach(
@@ -49,8 +48,8 @@ public class ActivityLogQueryHandler {
             recent.stream()
                 .filter(
                     other ->
-                        Objects.equals(it.getActivity(), other.getActivity())
-                            && Objects.equals(it.getTags(), other.getTags()))
+                        Objects.equals(it.activity(), other.activity())
+                            && Objects.equals(it.tags(), other.tags()))
                 .findFirst()
                 .ifPresent(same -> recent.remove(same));
             recent.add(it);

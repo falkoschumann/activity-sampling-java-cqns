@@ -8,7 +8,7 @@ package de.muspellheim.activitysampling.backend;
 import java.time.Instant;
 
 public interface Event {
-  String getId();
+  String id();
 
-  Instant getTimestamp();
+  Instant timestamp();
 }

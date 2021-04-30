@@ -27,10 +27,10 @@ public class LogActivityCommandHandler {
     try {
       eventStore.record(
           new ActivityLoggedEvent(
-              command.getTimestamp().atZone(ZoneId.systemDefault()).toInstant(),
-              command.getPeriod(),
-              command.getActivity(),
-              command.getTags()));
+              command.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
+              command.period(),
+              command.activity(),
+              command.tags()));
       return new Success();
     } catch (Exception e) {
       log.log(Level.WARNING, "Can not handle command: " + command, e);

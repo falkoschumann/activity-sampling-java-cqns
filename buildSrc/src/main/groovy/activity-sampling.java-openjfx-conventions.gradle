@@ -1,5 +1,5 @@
 def openjfxGroup = 'org.openjfx'
-def openjfxVersion = '15.0.1'
+def openjfxVersion = '16'
 def osName = System.properties['os.name'].toLowerCase()
 def openjfxPlatform = osName.contains('mac') ? 'mac' : osName.contains('win') ? 'win' : osName.contains('linux') ? 'linux' : null
 

@@ -105,14 +105,14 @@ public class ActivitySamplingViewModel {
 
   public void loadPreferences() {
     var result = messageHandling.handle(new PreferencesQuery());
-    periodDuration.setValue(result.getPeriodDuration());
-    activityLogFile.setValue(result.getActivityLogFile().toString());
+    periodDuration.setValue(result.periodDuration());
+    activityLogFile.setValue(result.activityLogFile().toString());
   }
 
   public void reloadActivityLog() {
     var result = messageHandling.handle(new ActivityLogQuery());
-    updateRecentActivities(result.getRecent());
-    updateActivityLog(result.getLog());
+    updateRecentActivities(result.recent());
+    updateActivityLog(result.log());
   }
 
   private void updateRecentActivities(List<Activity> recent) {
@@ -121,8 +121,8 @@ public class ActivitySamplingViewModel {
     recentActivities.setAll(activities);
     if (!recent.isEmpty()) {
       var lastActivity = recent.get(0);
-      activity.set(lastActivity.getActivity());
-      tags.set(String.join(", ", lastActivity.getTags()));
+      activity.set(lastActivity.activity());
+      tags.set(String.join(", ", lastActivity.tags()));
     }
   }
 
@@ -134,20 +134,17 @@ public class ActivitySamplingViewModel {
     for (int i = 0; i < log.size(); i++) {
       var activity = log.get(i);
       if (i == 0) {
-        logBuilder.append(dateFormatter.format(activity.getTimestamp()));
+        logBuilder.append(dateFormatter.format(activity.timestamp()));
         logBuilder.append("\n");
       } else {
         var lastActivity = log.get(i - 1);
-        if (!lastActivity
-            .getTimestamp()
-            .toLocalDate()
-            .equals(activity.getTimestamp().toLocalDate())) {
-          logBuilder.append(dateFormatter.format(activity.getTimestamp()));
+        if (!lastActivity.timestamp().toLocalDate().equals(activity.timestamp().toLocalDate())) {
+          logBuilder.append(dateFormatter.format(activity.timestamp()));
           logBuilder.append("\n");
         }
       }
 
-      logBuilder.append(timeFormatter.format(activity.getTimestamp()));
+      logBuilder.append(timeFormatter.format(activity.timestamp()));
       logBuilder.append(" - ");
       logBuilder.append(stringConverter.toString(activity));
       logBuilder.append("\n");
@@ -189,7 +186,7 @@ public class ActivitySamplingViewModel {
     var stringConverter = new ActivityStringConverter();
     var a = stringConverter.fromString(activity);
     messageHandling.handle(
-        new LogActivityCommand(endTime, periodDuration.get(), a.getActivity(), a.getTags()));
+        new LogActivityCommand(endTime, periodDuration.get(), a.activity(), a.tags()));
     formDisabled.set(true);
     reloadActivityLog();
   }
