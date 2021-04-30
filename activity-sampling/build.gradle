@@ -22,7 +22,7 @@ processResources {
 
 application {
   mainModule = 'de.muspellheim.activitysampling'
-  mainClassName = 'de.muspellheim.activitysampling.App'
+  mainClass = 'de.muspellheim.activitysampling.App'
 }
 
 if (Os.isFamily(Os.FAMILY_MAC)) {
