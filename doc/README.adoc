@@ -1,25 +1,15 @@
-= TodoMVC
+= Activity Sampling
 
-Lorem ipsum.
+== System Context
 
-== System Context Diagram für Activity Sampling
+image::system-context-activity-sampling.png[System-Context-Diagramm für Activity Sampling]
 
-image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/falkoschumann/activity-sampling-java/master/doc/SystemContextDiagramActivitySampling.puml[System Context Diagram für Activity Sampling]
+== Architektur
 
-Lorem ipsum.
+=== Containers
 
-== Containers
+image::container-activity-sampling.png[Container-Diagramm für Activity Sampling]
 
-=== Container Diagram für Activity Sampling
+=== Components
 
-image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/falkoschumann/activity-sampling-java/master/doc//ContainerDiagramActivitySampling.puml[Container Diagram für Activity Sampling]
-
-Lorem ipsum.
-
-== Components
-
-=== Component Diagram für Activity Sampling
-
-image::http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/falkoschumann/activity-sampling-java/master/doc//ComponentDiagramActivitySampling.puml[Component Diagram für Activity Sampling]
-
-Lorem ipsum.
+image::components-activity-sampling.png[Component-Diagramm für Activity Sampling]
