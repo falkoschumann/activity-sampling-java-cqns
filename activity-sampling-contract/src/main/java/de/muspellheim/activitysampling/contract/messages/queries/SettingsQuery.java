@@ -5,4 +5,4 @@
 
 package de.muspellheim.activitysampling.contract.messages.queries;
 
-public record PreferencesQuery() {}
+public record SettingsQuery() {}

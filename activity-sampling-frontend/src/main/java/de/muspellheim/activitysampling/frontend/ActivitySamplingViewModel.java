@@ -11,7 +11,7 @@ import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivity
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -104,7 +104,7 @@ public class ActivitySamplingViewModel {
   }
 
   public void loadPreferences() {
-    var result = messageHandling.handle(new PreferencesQuery());
+    var result = messageHandling.handle(new SettingsQuery());
     periodDuration.setValue(result.periodDuration());
     activityLogFile.setValue(result.activityLogFile().toString());
   }

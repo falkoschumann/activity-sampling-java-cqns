@@ -5,13 +5,13 @@
 
 package de.muspellheim.activitysampling.backend.adapters;
 
-import de.muspellheim.activitysampling.backend.PreferencesRepository;
+import de.muspellheim.activitysampling.backend.SettingsRepository;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.prefs.Preferences;
 
-public class PreferencesPreferencesRepository implements PreferencesRepository {
+public class PreferencesSettingsRepository implements SettingsRepository {
   private static final String KEY_PREFIX = "de.muspellheim.activitysampling";
   private static final String KEY_PERIOD_DURATION = KEY_PREFIX + "/periodDuration";
   private static final String KEY_ACTIVITY_LOG_FILE = KEY_PREFIX + "/activityLogFile";
@@ -20,8 +20,7 @@ public class PreferencesPreferencesRepository implements PreferencesRepository {
 
   @Override
   public Duration loadPeriodDuration() {
-    var defaultValue = Duration.ofMinutes(20).toString();
-    var value = preferences.get(KEY_PERIOD_DURATION, defaultValue);
+    var value = preferences.get(KEY_PERIOD_DURATION, DEFAULT_PERIOD_DURATION.toString());
     return Duration.parse(value);
   }
 
@@ -32,8 +31,7 @@ public class PreferencesPreferencesRepository implements PreferencesRepository {
 
   @Override
   public Path loadActivityLogFile() {
-    var defaultValue = Paths.get(System.getProperty("user.home"), "activity-log.csv").toString();
-    var value = preferences.get(KEY_ACTIVITY_LOG_FILE, defaultValue);
+    var value = preferences.get(KEY_ACTIVITY_LOG_FILE, DEFAULT_ACTIVITY_LOG_FILE.toString());
     return Paths.get(value);
   }
 

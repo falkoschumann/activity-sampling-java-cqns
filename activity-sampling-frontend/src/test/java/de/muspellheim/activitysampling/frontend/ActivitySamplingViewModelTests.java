@@ -19,8 +19,8 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -64,9 +64,9 @@ class ActivitySamplingViewModelTests {
     Locale.setDefault(Locale.GERMANY);
 
     messageHandling = mock(MessageHandling.class);
-    when(messageHandling.handle(new PreferencesQuery()))
+    when(messageHandling.handle(new SettingsQuery()))
         .thenReturn(
-            new PreferencesQueryResult(Duration.ofMinutes(20), Paths.get("~/activity-log.csv")));
+            new SettingsQueryResult(Duration.ofMinutes(20), Paths.get("~/activity-log.csv")));
 
     when(messageHandling.handle(new ActivityLogQuery()))
         .thenReturn(

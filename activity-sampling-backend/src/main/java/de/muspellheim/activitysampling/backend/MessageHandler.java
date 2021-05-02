@@ -9,7 +9,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.ActivityLogQueryH
 import de.muspellheim.activitysampling.backend.messagehandlers.ChangeActivityLogFileCommandHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.ChangePeriodDurationCommandHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
-import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
+import de.muspellheim.activitysampling.backend.messagehandlers.SettingsQueryHandler;
 import de.muspellheim.activitysampling.contract.MessageHandling;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
@@ -17,23 +17,23 @@ import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
 
 public class MessageHandler implements MessageHandling {
   private final LogActivityCommandHandler logActivityCommandHandler;
   private final ChangePeriodDurationCommandHandler changePeriodDurationCommandHandler;
   private final ChangeActivityLogFileCommandHandler changeActivityLogFileCommandHandler;
   private final ActivityLogQueryHandler activityLogQueryHandler;
-  private final PreferencesQueryHandler preferencesQueryHandler;
+  private final SettingsQueryHandler settingsQueryHandler;
 
-  public MessageHandler(EventStore eventStore, PreferencesRepository preferencesStore) {
+  public MessageHandler(EventStore eventStore, SettingsRepository settingsRepository) {
     logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
-    changePeriodDurationCommandHandler = new ChangePeriodDurationCommandHandler(preferencesStore);
+    changePeriodDurationCommandHandler = new ChangePeriodDurationCommandHandler(settingsRepository);
     changeActivityLogFileCommandHandler =
-        new ChangeActivityLogFileCommandHandler(preferencesStore, eventStore);
+        new ChangeActivityLogFileCommandHandler(settingsRepository, eventStore);
     activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
-    preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
+    settingsQueryHandler = new SettingsQueryHandler(settingsRepository);
   }
 
   @Override
@@ -57,7 +57,7 @@ public class MessageHandler implements MessageHandling {
   }
 
   @Override
-  public PreferencesQueryResult handle(PreferencesQuery query) {
-    return preferencesQueryHandler.handle(query);
+  public SettingsQueryResult handle(SettingsQuery query) {
+    return settingsQueryHandler.handle(query);
   }
 }

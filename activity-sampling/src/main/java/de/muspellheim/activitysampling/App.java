@@ -7,11 +7,12 @@ package de.muspellheim.activitysampling;
 
 import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.MessageHandler;
-import de.muspellheim.activitysampling.backend.PreferencesRepository;
+import de.muspellheim.activitysampling.backend.SettingsRepository;
 import de.muspellheim.activitysampling.backend.adapters.CsvEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
-import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesRepository;
-import de.muspellheim.activitysampling.backend.adapters.PreferencesPreferencesRepository;
+import de.muspellheim.activitysampling.backend.adapters.MemorySettingsRepository;
+import de.muspellheim.activitysampling.backend.adapters.PreferencesSettingsRepository;
+import de.muspellheim.activitysampling.contract.MessageHandling;
 import de.muspellheim.activitysampling.frontend.MainView;
 import de.muspellheim.activitysampling.frontend.ViewModelFactory;
 import java.io.InputStream;
@@ -20,31 +21,32 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 
 public class App extends Application {
-  private EventStore eventStore;
-  private PreferencesRepository preferencesRepository;
+  private MessageHandling backend;
 
   public static void main(String[] args) {
     Application.launch(args);
   }
 
   @Override
-  public void init() {
+  public void init() throws Exception {
+    EventStore eventStore;
+    SettingsRepository settingsRepository;
     if (getParameters().getUnnamed().contains("--demo")) {
       System.out.println("Run in demo mode...");
       eventStore = new MemoryEventStore();
       eventStore.setOnRecorded(it -> System.out.println("Logged event: " + it));
-      preferencesRepository = new MemoryPreferencesRepository();
+      settingsRepository = new MemorySettingsRepository();
     } else {
-      preferencesRepository = new PreferencesPreferencesRepository();
-      var activityLogFile = preferencesRepository.loadActivityLogFile();
+      settingsRepository = new PreferencesSettingsRepository();
+      var activityLogFile = settingsRepository.loadActivityLogFile();
       System.out.println("Save activity log in: " + activityLogFile.toAbsolutePath());
       eventStore = new CsvEventStore(activityLogFile.toString());
     }
+    backend = new MessageHandler(eventStore, settingsRepository);
   }
 
   @Override
   public void start(Stage primaryStage) throws Exception {
-    var backend = new MessageHandler(eventStore, preferencesRepository);
     ViewModelFactory.initMessageHandling(backend);
 
     var url = getClass().getResource("/app.png");

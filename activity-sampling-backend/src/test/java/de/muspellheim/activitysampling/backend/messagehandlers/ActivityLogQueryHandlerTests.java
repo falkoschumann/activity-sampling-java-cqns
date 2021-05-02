@@ -48,11 +48,11 @@ public class ActivityLogQueryHandlerTests {
 
   @Test
   void activityLog() throws Exception {
-    var store = new MemoryEventStore();
-    store.record(createEvents());
-    var handler = new ActivityLogQueryHandler(store);
+    var eventStore = new MemoryEventStore();
+    eventStore.record(createEvents());
+    var queryHandler = new ActivityLogQueryHandler(eventStore);
 
-    var result = handler.handle(new ActivityLogQuery());
+    var result = queryHandler.handle(new ActivityLogQuery());
 
     assertEquals(
         new ActivityLogQueryResult(

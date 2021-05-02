@@ -26,10 +26,10 @@ class LogActivityCommandHandlerTests {
   @Test
   void logActivity() {
     var eventStore = new MemoryEventStore();
-    var handler = new LogActivityCommandHandler(eventStore);
+    var commandHandler = new LogActivityCommandHandler(eventStore);
 
     var status =
-        handler.handle(
+        commandHandler.handle(
             new LogActivityCommand(
                 LocalDateTime.of(2020, 11, 22, 17, 47, 17),
                 Duration.ofMinutes(20),

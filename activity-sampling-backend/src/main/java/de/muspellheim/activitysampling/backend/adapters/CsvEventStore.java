@@ -63,7 +63,7 @@ public class CsvEventStore implements EventStore {
   }
 
   @Override
-  public void record(Event event) throws Exception {
+  public void record(Event event) throws IOException {
     if (Files.notExists(getFile())) {
       createFile();
     }
@@ -110,7 +110,7 @@ public class CsvEventStore implements EventStore {
   }
 
   @Override
-  public Stream<? extends Event> replay() throws Exception {
+  public Stream<? extends Event> replay() throws IOException {
     try {
       var reader = Files.newBufferedReader(getFile(), StandardCharsets.UTF_8);
       var parser =

@@ -8,7 +8,7 @@ package de.muspellheim.activitysampling.backend.messagehandlers;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesRepository;
+import de.muspellheim.activitysampling.backend.adapters.MemorySettingsRepository;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import java.time.Duration;
@@ -17,13 +17,17 @@ import org.junit.jupiter.api.Test;
 public class ChangePeriodDurationCommandHandlerTests {
   @Test
   void changePeriodDuration() {
-    var store = new MemoryPreferencesRepository();
-    var handler = new ChangePeriodDurationCommandHandler(store);
+    var settingsRepository = new MemorySettingsRepository();
+    var commandHandler = new ChangePeriodDurationCommandHandler(settingsRepository);
 
-    var result = handler.handle(new ChangePeriodDurationCommand(Duration.ofMinutes(30)));
+    var result = commandHandler.handle(new ChangePeriodDurationCommand(Duration.ofMinutes(30)));
 
     assertAll(
         () -> assertEquals(new Success(), result, "Command status"),
-        () -> assertEquals(Duration.ofMinutes(30), store.loadPeriodDuration(), "Period duration"));
+        () ->
+            assertEquals(
+                Duration.ofMinutes(30),
+                settingsRepository.loadPeriodDuration(),
+                "Period duration"));
   }
 }

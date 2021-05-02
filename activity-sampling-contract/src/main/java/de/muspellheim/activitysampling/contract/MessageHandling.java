@@ -11,8 +11,8 @@ import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
 
 public interface MessageHandling {
   CommandStatus handle(ChangeActivityLogFileCommand command);
@@ -23,5 +23,5 @@ public interface MessageHandling {
 
   ActivityLogQueryResult handle(ActivityLogQuery query);
 
-  PreferencesQueryResult handle(PreferencesQuery query);
+  SettingsQueryResult handle(SettingsQuery query);
 }

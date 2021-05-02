@@ -34,7 +34,7 @@ public class LogActivityCommandHandler {
       return new Success();
     } catch (Exception e) {
       log.log(Level.WARNING, "Can not handle command: " + command, e);
-      return new Failure(e.toString());
+      return new Failure(e.getLocalizedMessage());
     }
   }
 }

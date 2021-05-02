@@ -9,5 +9,5 @@ import java.nio.file.Path;
 import java.time.Duration;
 import lombok.NonNull;
 
-public record PreferencesQueryResult(
+public record SettingsQueryResult(
     @NonNull Duration periodDuration, @NonNull Path activityLogFile) {}
