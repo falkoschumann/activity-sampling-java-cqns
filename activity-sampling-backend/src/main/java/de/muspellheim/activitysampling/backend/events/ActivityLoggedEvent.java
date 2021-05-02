@@ -10,9 +10,14 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import lombok.NonNull;
 
 public record ActivityLoggedEvent(
-    String id, Instant timestamp, Duration period, String activity, List<String> tags)
+    @NonNull String id,
+    @NonNull Instant timestamp,
+    @NonNull Duration period,
+    @NonNull String activity,
+    @NonNull List<String> tags)
     implements Event {
 
   public ActivityLoggedEvent(String id, Instant timestamp, Duration period, String activity) {

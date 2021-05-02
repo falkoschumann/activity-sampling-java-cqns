@@ -5,4 +5,6 @@
 
 package de.muspellheim.activitysampling.contract.messages.commands;
 
-public record Failure(String errorMessage) implements CommandStatus {}
+import lombok.NonNull;
+
+public record Failure(@NonNull String errorMessage) implements CommandStatus {}

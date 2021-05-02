@@ -7,5 +7,7 @@ package de.muspellheim.activitysampling.contract.messages.queries;
 
 import java.nio.file.Path;
 import java.time.Duration;
+import lombok.NonNull;
 
-public record PreferencesQueryResult(Duration periodDuration, Path activityLogFile) {}
+public record PreferencesQueryResult(
+    @NonNull Duration periodDuration, @NonNull Path activityLogFile) {}

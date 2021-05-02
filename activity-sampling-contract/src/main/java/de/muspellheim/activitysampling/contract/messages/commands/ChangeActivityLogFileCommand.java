@@ -6,5 +6,6 @@
 package de.muspellheim.activitysampling.contract.messages.commands;
 
 import java.nio.file.Path;
+import lombok.NonNull;
 
-public record ChangeActivityLogFileCommand(Path activityLogFile) {}
+public record ChangeActivityLogFileCommand(@NonNull Path activityLogFile) {}
