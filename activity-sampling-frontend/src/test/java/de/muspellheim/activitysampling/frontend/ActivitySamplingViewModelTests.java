@@ -9,11 +9,20 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class ActivitySamplingViewModelTests {
@@ -43,7 +52,7 @@ class ActivitySamplingViewModelTests {
           Duration.ofMinutes(20),
           "A",
           List.of("Foo", "Bar"));
-  /*
+
     @BeforeEach
     void setUp() {
       Locale.setDefault(Locale.GERMANY);
@@ -75,11 +84,11 @@ class ActivitySamplingViewModelTests {
         () -> assertEquals("", viewModel.activityLogProperty().get(), "activity log"),
         () -> assertNull(viewModel.activityLogFileProperty().get(), "activity log file"));
   }
-  /*
+
    @Test
    void reloadActivityLog() {
      var viewModel = new ActivitySamplingViewModel(messageHandling);
-     viewModel.reloadActivityLog();
+     viewModel.loadActivityLog();
 
      assertAll(
          () -> assertEquals("A", viewModel.activityProperty().get(), "activity"),
@@ -195,5 +204,4 @@ class ActivitySamplingViewModelTests {
                  viewModel.activityLogProperty().get(),
                  "activity log"));
    }
-  */
 }

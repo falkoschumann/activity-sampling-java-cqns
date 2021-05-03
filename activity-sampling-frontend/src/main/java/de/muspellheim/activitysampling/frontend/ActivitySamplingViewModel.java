@@ -35,12 +35,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class ActivitySamplingViewModel {
-  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
-  @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
-  @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
-  @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
-  @Getter @Setter private Consumer<SettingsQuery> onSettingsQuery;
-
   private final ReadOnlyBooleanWrapper formDisabled = new ReadOnlyBooleanWrapper(true);
   private final StringProperty activity = new SimpleStringProperty("");
   private final StringProperty tags = new SimpleStringProperty("");
@@ -121,7 +115,7 @@ public class ActivitySamplingViewModel {
     onSettingsQuery.accept(new SettingsQuery());
   }
 
-  public void reloadActivityLog() {
+  public void loadActivityLog() {
     onActivityLogQuery.accept(new ActivityLogQuery());
   }
 
@@ -199,6 +193,5 @@ public class ActivitySamplingViewModel {
         new LogActivityCommand(endTime, periodDuration.get(), activity.activity(), activity.tags());
     onLogActivityCommand.accept(command);
     formDisabled.set(true);
-    reloadActivityLog();
   }
 }

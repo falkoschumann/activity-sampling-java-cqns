@@ -5,7 +5,15 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
+import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
+import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -20,9 +28,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 
 public class MainView {
+  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
+  @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
+  @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
+  @Getter @Setter private Consumer<SettingsQuery> onSettingsQuery;
+
   @FXML private VBox activityForm;
   @FXML private TextField activityText;
   @FXML private TextField tagsText;
@@ -33,8 +48,6 @@ public class MainView {
 
   private final AppTrayIcon trayIcon = new AppTrayIcon();
   private final SystemClock clock = new SystemClock();
-
-  @Getter private final ActivitySamplingViewModel viewModel = new ActivitySamplingViewModel();
 
   @SneakyThrows
   public static MainView create(Stage stage) {
@@ -48,10 +61,21 @@ public class MainView {
 
   public void run() {
     getWindow().show();
-    viewModel.loadPreferences();
-    viewModel.reloadActivityLog();
-
+    onSettingsQuery.accept(new SettingsQuery());
+    onActivityLogQuery.accept(new ActivityLogQuery());
     clock.run();
+  }
+
+  public void display(ActivityLogQueryResult result) {
+    updateRecentActivities(result.recent());
+    var log = new ActivityLogRenderer().toString(result.log());
+    activityLogText.setText(log);
+    Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE));
+  }
+
+  public void display(SettingsQueryResult result) {
+    periodDuration.setValue(result.periodDuration());
+    activityLogFile.setValue(result.activityLogFile().toString());
   }
 
   private Stage getWindow() {

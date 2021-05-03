@@ -57,48 +57,46 @@ public class App extends Application {
 
     var frontend = MainView.create(primaryStage);
 
-    // TODO Extrahiere Request-Handler
+    // TODO Extrahiere Request-Handler?
     frontend
-        .getViewModel()
         .setOnLogActivityCommand(
             cmd -> {
               logActivityCommandHandler.handle(cmd);
               var result = activityLogQueryHandler.handle(new ActivityLogQuery());
-              frontend.getViewModel().display(result);
+              frontend.display(result);
             });
 
     frontend
-        .getViewModel()
         .setOnChangePeriodDurationCommand(
             cmd -> {
               changePeriodDurationCommandHandler.handle(cmd);
               var result = settingsQueryHandler.handle(new SettingsQuery());
-              frontend.getViewModel().display(result);
+              frontend.display(result);
             });
 
     frontend
-        .getViewModel()
+
         .setOnChangeActivityLogFileCommand(
             cmd -> {
               changeActivityLogFileCommandHandler.handle(cmd);
               var result = settingsQueryHandler.handle(new SettingsQuery());
-              frontend.getViewModel().display(result);
+              frontend.display(result);
             });
 
     frontend
-        .getViewModel()
+
         .setOnActivityLogQuery(
             cmd -> {
               var result = activityLogQueryHandler.handle(new ActivityLogQuery());
-              frontend.getViewModel().display(result);
+              frontend.display(result);
             });
 
     frontend
-        .getViewModel()
+
         .setOnSettingsQuery(
             cmd -> {
               var result = settingsQueryHandler.handle(new SettingsQuery());
-              frontend.getViewModel().display(result);
+              frontend.display(result);
             });
 
     frontend.run();
