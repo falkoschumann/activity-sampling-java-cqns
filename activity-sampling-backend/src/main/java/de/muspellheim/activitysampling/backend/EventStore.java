@@ -5,7 +5,7 @@
 
 package de.muspellheim.activitysampling.backend;
 
-import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -33,7 +33,7 @@ public interface EventStore {
     return (Stream<E>) replay().filter(it -> it.getClass().equals(eventType));
   }
 
-  default Stream<? extends Event> replay(List<Class<? extends Event>> eventTypes) throws Exception {
+  default Stream<? extends Event> replay(Set<Class<? extends Event>> eventTypes) throws Exception {
     return replay().filter(it -> eventTypes.contains(it.getClass()));
   }
 }

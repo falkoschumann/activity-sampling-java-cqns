@@ -17,8 +17,7 @@ import java.util.List;
 import javafx.beans.InvalidationListener;
 
 class AppTrayIcon {
-  private final ActivitySamplingViewModel viewModel =
-      ViewModelFactory.getActivitySamplingViewModel();
+  private final ActivitySamplingViewModel viewModel = new ActivitySamplingViewModel();
 
   private TrayIcon trayIcon;
 

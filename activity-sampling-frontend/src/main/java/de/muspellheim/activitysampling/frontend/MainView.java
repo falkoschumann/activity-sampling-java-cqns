@@ -5,49 +5,45 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.SneakyThrows;
 
 public class MainView {
-  @FXML private Region spacer;
   @FXML private VBox activityForm;
   @FXML private TextField activityText;
   @FXML private TextField tagsText;
   @FXML private SplitMenuButton logButton;
-  @FXML private Label progressText;
+  @FXML private Label progressLabel;
   @FXML private ProgressBar progressBar;
-  @FXML private TextArea activityLog;
+  @FXML private TextArea activityLogText;
 
   private final AppTrayIcon trayIcon = new AppTrayIcon();
   private final SystemClock clock = new SystemClock();
 
-  private final ActivitySamplingViewModel viewModel =
-      ViewModelFactory.getActivitySamplingViewModel();
+  @Getter private final ActivitySamplingViewModel viewModel = new ActivitySamplingViewModel();
 
+  @SneakyThrows
   public static MainView create(Stage stage) {
-    var factory = new ViewControllerFactory(MainView.class);
-
-    var scene = new Scene(factory.getView());
-    stage.setScene(scene);
-    stage.setTitle("Activity Sampling");
-    stage.setMinWidth(240);
-    stage.setMinHeight(420);
-
-    return factory.getController();
+    var location = MainView.class.getResource("MainView.fxml");
+    var resources = ResourceBundle.getBundle("ActivitySampling");
+    var loader = new FXMLLoader(location, resources);
+    loader.setRoot(stage);
+    loader.load();
+    return loader.getController();
   }
 
   public void run() {
@@ -64,8 +60,6 @@ public class MainView {
 
   @FXML
   private void initialize() {
-    HBox.setHgrow(spacer, Priority.ALWAYS);
-
     activityForm.disableProperty().bind(viewModel.formDisabledProperty());
     activityForm.disableProperty().addListener(observable -> activityText.requestFocus());
     activityText.textProperty().bindBidirectional(viewModel.activityProperty());
@@ -74,14 +68,14 @@ public class MainView {
         .getRecentActivities()
         .addListener((InvalidationListener) observable -> updateLogButton());
 
-    progressText.textProperty().bind(viewModel.remainingTimeProperty());
+    progressLabel.textProperty().bind(viewModel.remainingTimeProperty());
     progressBar.progressProperty().bind(viewModel.progressProperty());
 
-    activityLog.textProperty().bind(viewModel.activityLogProperty());
-    activityLog
+    activityLogText.textProperty().bind(viewModel.activityLogProperty());
+    activityLogText
         .textProperty()
         .addListener(
-            observable -> Platform.runLater(() -> activityLog.setScrollTop(Double.MAX_VALUE)));
+            observable -> Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE)));
 
     Platform.runLater(() -> getWindow().setOnHiding(e -> trayIcon.hide()));
 
@@ -102,7 +96,7 @@ public class MainView {
   }
 
   @FXML
-  private void openPreferences() {
+  private void openSettings() {
     var preferencesView = SettingsView.create(getWindow());
     preferencesView.run();
   }

@@ -19,8 +19,7 @@ public class SettingsView {
   @FXML private ChoiceBox<Duration> periodDuration;
   @FXML private TextField activityLogFile;
 
-  private final ActivitySamplingViewModel viewModel =
-      ViewModelFactory.getActivitySamplingViewModel();
+  private final ActivitySamplingViewModel viewModel = new ActivitySamplingViewModel();
 
   public static SettingsView create(Stage owner) {
     var factory = new ViewControllerFactory(SettingsView.class);

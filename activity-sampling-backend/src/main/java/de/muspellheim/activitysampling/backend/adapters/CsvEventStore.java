@@ -35,6 +35,7 @@ import lombok.extern.java.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 
 @Log
 public class CsvEventStore implements EventStore {
@@ -126,7 +127,7 @@ public class CsvEventStore implements EventStore {
     }
   }
 
-  private ActivityLoggedEvent createEvent(org.apache.commons.csv.CSVRecord record) {
+  private ActivityLoggedEvent createEvent(CSVRecord record) {
     var id = record.get(Headers.ID);
     var timestamp =
         LocalDateTime.parse(record.get(Headers.Timestamp), TIMESTAMP_FORMATTER)

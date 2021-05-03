@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Scene?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuItem?>
@@ -12,76 +13,82 @@
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.stage.Stage?>
 
-<VBox prefHeight="640.0" prefWidth="360.0" stylesheets="@app.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainView">
-   <children>
-      <ToolBar>
-        <items>
-            <Label text="Label" />
-            <Region fx:id="spacer" />
-          <Button mnemonicParsing="false" onAction="#openPreferences">
-               <graphic>
-                  <ImageView pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icons/settings.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="%main.button.tooltip.openSettings" />
-               </tooltip>
-            </Button>
-            <Button mnemonicParsing="false" onAction="#openInfo">
-               <graphic>
-                  <ImageView pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@icons/info.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <tooltip>
-                  <Tooltip text="%main.button.tooltip.openInfo" />
-               </tooltip>
-            </Button>
-        </items>
-      </ToolBar>
-      <VBox spacing="8.0" styleClass="small-window" VBox.vgrow="ALWAYS">
-         <children>
-            <VBox fx:id="activityForm" spacing="8.0">
+<fx:root minHeight="420.0" minWidth="240.0" title="Activity Sampling" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainView">
+   <scene>
+      <Scene>
+         <root>
+            <VBox prefHeight="640.0" prefWidth="360.0" stylesheets="@style.css">
                <children>
-                  <VBox styleClass="base">
-                     <children>
-                        <Label styleClass="base" text="%main.label.activity" />
-                        <TextField fx:id="activityText" onAction="#logActivity" promptText="%main.text.activity" />
-                     </children>
-                  </VBox>
-                  <VBox styleClass="base">
-                     <children>
-                        <Label styleClass="base" text="%main.label.tags" />
-                        <TextField fx:id="tagsText" onAction="#logActivity" promptText="%main.text.tags" />
-                     </children>
-                  </VBox>
-                  <SplitMenuButton fx:id="logButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#logActivity" text="%main.button.log">
+                  <ToolBar>
                     <items>
-                      <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />
-                      <MenuItem mnemonicParsing="false" text="[Foo, Bar] Lorem ipsum" />
+                      <Button mnemonicParsing="false" onAction="#openSettings">
+                           <graphic>
+                              <ImageView pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@icons/settings.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <tooltip>
+                              <Tooltip text="%main.openSettingsButton.tooltip" />
+                           </tooltip>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#openInfo">
+                           <graphic>
+                              <ImageView pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@icons/info.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <tooltip>
+                              <Tooltip text="%main.openInfoButton.tooltip" />
+                           </tooltip>
+                        </Button>
                     </items>
-                  </SplitMenuButton>
+                  </ToolBar>
+                  <VBox spacing="8.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <VBox fx:id="activityForm" spacing="8.0">
+                           <children>
+                              <VBox spacing="4.0">
+                                 <children>
+                                    <Label text="%main.activityLabel" />
+                                    <TextField fx:id="activityText" onAction="#logActivity" promptText="%main.activityText.promptText" />
+                                 </children>
+                              </VBox>
+                              <VBox spacing="4.0">
+                                 <children>
+                                    <Label text="%main.tagsLabel" />
+                                    <TextField fx:id="tagsText" onAction="#logActivity" promptText="%main.tagsText.promptText" />
+                                 </children>
+                              </VBox>
+                              <SplitMenuButton fx:id="logButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#logActivity" text="%main.logButton">
+                                <items>
+                                  <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />
+                                  <MenuItem mnemonicParsing="false" text="[Foo, Bar] Lorem ipsum" />
+                                </items>
+                              </SplitMenuButton>
+                           </children>
+                        </VBox>
+                        <VBox fx:id="progress" spacing="4.0">
+                           <children>
+                              <Label fx:id="progressLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" text="00:20:00" />
+                              <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                           </children>
+                        </VBox>
+                        <TextArea fx:id="activityLogText" editable="false" VBox.vgrow="ALWAYS" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                     </VBox.margin>
+                  </VBox>
                </children>
             </VBox>
-            <VBox fx:id="progress">
-               <children>
-                  <Label fx:id="progressText" alignment="CENTER" maxWidth="1.7976931348623157E308" styleClass="body" text="00:20:00" />
-                  <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" progress="0.0" />
-               </children>
-            </VBox>
-            <TextArea fx:id="activityLog" editable="false" VBox.vgrow="ALWAYS" />
-         </children>
-         <VBox.margin>
-            <Insets bottom="12.0" top="12.0" />
-         </VBox.margin>
-      </VBox>
-   </children>
-</VBox>
+         </root>
+      </Scene>
+   </scene>
+</fx:root>

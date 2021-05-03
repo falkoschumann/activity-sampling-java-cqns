@@ -20,7 +20,7 @@ public class InfoView {
   @FXML private Label version;
   @FXML private Label copyright;
 
-  private final InfoViewModel viewModel = ViewModelFactory.getInfoViewModel();
+  private final InfoViewModel viewModel = new InfoViewModel(null, null);
 
   public static InfoView create(Stage owner) {
     var factory = new ViewControllerFactory(InfoView.class);

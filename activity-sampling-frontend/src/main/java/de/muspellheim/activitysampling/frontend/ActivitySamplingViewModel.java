@@ -5,19 +5,21 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.MessageHandling;
 import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javafx.beans.property.DoubleProperty;
@@ -29,8 +31,16 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import lombok.Getter;
+import lombok.Setter;
 
 public class ActivitySamplingViewModel {
+  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
+  @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
+  @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
+  @Getter @Setter private Consumer<SettingsQuery> onSettingsQuery;
+
   private final ReadOnlyBooleanWrapper formDisabled = new ReadOnlyBooleanWrapper(true);
   private final StringProperty activity = new SimpleStringProperty("");
   private final StringProperty tags = new SimpleStringProperty("");
@@ -43,7 +53,7 @@ public class ActivitySamplingViewModel {
         @Override
         protected void invalidated() {
           var command = new ChangePeriodDurationCommand(getValue());
-          messageHandling.handle(command);
+          onChangePeriodDurationCommand.accept(command);
           startTime = null;
         }
       };
@@ -54,18 +64,12 @@ public class ActivitySamplingViewModel {
         @Override
         protected void invalidated() {
           var command = new ChangeActivityLogFileCommand(Paths.get(getValue()));
-          messageHandling.handle(command);
+          onChangeActivityLogFileCommand.accept(command);
         }
       };
 
-  private final MessageHandling messageHandling;
-
   private LocalDateTime startTime;
   private LocalDateTime endTime;
-
-  public ActivitySamplingViewModel(MessageHandling messageHandling) {
-    this.messageHandling = messageHandling;
-  }
 
   public ReadOnlyBooleanWrapper formDisabledProperty() {
     return formDisabled;
@@ -103,16 +107,22 @@ public class ActivitySamplingViewModel {
     return activityLogFile;
   }
 
-  public void loadPreferences() {
-    var result = messageHandling.handle(new SettingsQuery());
+  public void display(ActivityLogQueryResult result) {
+    updateRecentActivities(result.recent());
+    updateActivityLog(result.log());
+  }
+
+  public void display(SettingsQueryResult result) {
     periodDuration.setValue(result.periodDuration());
     activityLogFile.setValue(result.activityLogFile().toString());
   }
 
+  public void loadPreferences() {
+    onSettingsQuery.accept(new SettingsQuery());
+  }
+
   public void reloadActivityLog() {
-    var result = messageHandling.handle(new ActivityLogQuery());
-    updateRecentActivities(result.recent());
-    updateActivityLog(result.log());
+    onActivityLogQuery.accept(new ActivityLogQuery());
   }
 
   private void updateRecentActivities(List<Activity> recent) {
@@ -182,11 +192,12 @@ public class ActivitySamplingViewModel {
     logActivity("[" + tags.get() + "] " + activity.get());
   }
 
-  public void logActivity(String activity) {
+  public void logActivity(String s) {
     var stringConverter = new ActivityStringConverter();
-    var a = stringConverter.fromString(activity);
-    messageHandling.handle(
-        new LogActivityCommand(endTime, periodDuration.get(), a.activity(), a.tags()));
+    var activity = stringConverter.fromString(s);
+    var command =
+        new LogActivityCommand(endTime, periodDuration.get(), activity.activity(), activity.tags());
+    onLogActivityCommand.accept(command);
     formDisabled.set(true);
     reloadActivityLog();
   }

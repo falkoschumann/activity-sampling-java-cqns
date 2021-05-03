@@ -1,0 +1,60 @@
+/*
+ * Style based on Universal Windows Platform
+ * See https://docs.microsoft.com/en-us/windows/uwp/design/
+ */
+
+.root {
+  -fx-font-family: "Verdana";
+
+  /* Default style from Type Ramp Body */
+  -fx-font-size: 14px;
+  -fx-font-weight: 400; /* regular */
+}
+
+/*
+ * Type Ramp
+ * See https://docs.microsoft.com/en-us/windows/uwp/design/style/typography#hierarchy
+ */
+
+.header {
+  -fx-font-size: 46px;
+  -fx-font-weight: 100; /* light */
+}
+
+.subheader {
+  -fx-font-size: 34px;
+  -fx-font-weight: 100; /* light */
+}
+
+.title {
+  -fx-font-size: 24px;
+  -fx-font-weight: 200; /* semilight */
+}
+
+.subtitle {
+  -fx-font-size: 20px;
+  -fx-font-weight: 400; /* regular */
+}
+
+.base {
+  -fx-font-size: 14px;
+  -fx-font-weight: 600; /* semibold */
+}
+
+.body {
+  -fx-font-size: 14;
+  -fx-font-weight: 400; /* regular */
+}
+
+.caption {
+  -fx-font-size: 12px;
+  -fx-font-weight: 400; /* regular */
+}
+
+/*
+ * Controls
+ */
+
+.tool-bar {
+  -fx-alignment: CENTER_RIGHT;
+}
