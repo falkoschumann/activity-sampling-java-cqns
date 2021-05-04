@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javafx.beans.property.DoubleProperty;
@@ -31,8 +30,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import lombok.Getter;
-import lombok.Setter;
 
 public class ActivitySamplingViewModel {
   private final ReadOnlyBooleanWrapper formDisabled = new ReadOnlyBooleanWrapper(true);
@@ -103,7 +100,7 @@ public class ActivitySamplingViewModel {
 
   public void display(ActivityLogQueryResult result) {
     updateRecentActivities(result.recent());
-    updateActivityLog(result.log());
+    updateActivityLog(result.activities());
   }
 
   public void display(SettingsQueryResult result) {

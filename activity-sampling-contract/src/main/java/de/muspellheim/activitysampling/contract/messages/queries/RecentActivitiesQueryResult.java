@@ -9,4 +9,4 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import java.util.List;
 import lombok.NonNull;
 
-public record ActivityLogQueryResult(@NonNull List<Activity> activities) {}
+public record RecentActivitiesQueryResult(@NonNull List<Activity> activities) {}
