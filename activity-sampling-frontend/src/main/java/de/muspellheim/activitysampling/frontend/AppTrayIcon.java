@@ -5,6 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.data.Activity;
 import java.awt.AWTException;
 import java.awt.EventQueue;
 import java.awt.MenuItem;
@@ -14,10 +15,12 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.util.List;
-import javafx.beans.InvalidationListener;
+import java.util.function.Consumer;
+import lombok.Getter;
+import lombok.Setter;
 
 class AppTrayIcon {
-  private final ActivitySamplingViewModel viewModel = new ActivitySamplingViewModel();
+  @Getter @Setter private Consumer<Activity> onLogActivity;
 
   private TrayIcon trayIcon;
 
@@ -30,48 +33,44 @@ class AppTrayIcon {
     var url = getClass().getResource("app.png");
     var image = Toolkit.getDefaultToolkit().getImage(url);
     trayIcon = new TrayIcon(image);
-
-    viewModel
-        .formDisabledProperty()
-        .addListener(((observable, oldValue, newValue) -> showOrHide(newValue)));
-    viewModel
-        .getRecentActivities()
-        .addListener((InvalidationListener) observable -> updateMenuItems());
   }
 
-  private void updateMenuItems() {
+  public void setRecentActivities(List<Activity> recentActivities) {
+    if (!SystemTray.isSupported()) {
+      return;
+    }
+
     EventQueue.invokeLater(
         () -> {
+          var stringConverter = new ActivityStringConverter();
           var menu = new PopupMenu();
-          viewModel
-              .getRecentActivities()
-              .forEach(
-                  it -> {
-                    MenuItem item = new MenuItem(it);
-                    item.addActionListener(e -> viewModel.logActivity(it));
-                    menu.add(item);
-                  });
+          recentActivities.forEach(
+              it -> {
+                MenuItem item = new MenuItem(stringConverter.toString(it));
+                item.addActionListener(e -> onLogActivity.accept(it));
+                menu.add(item);
+              });
           trayIcon.setPopupMenu(menu);
         });
   }
 
-  private void showOrHide(Boolean newValue) {
+  void show() {
+    if (!SystemTray.isSupported()) {
+      return;
+    }
+
     EventQueue.invokeLater(
         () -> {
           var tray = SystemTray.getSystemTray();
-          if (newValue) {
-            tray.remove(trayIcon);
-          } else {
-            if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
-              try {
-                tray.add(trayIcon);
-              } catch (AWTException e) {
-                System.err.println("Can not add icon to system tray: " + e.toString());
-              }
+          if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
+            try {
+              tray.add(trayIcon);
+            } catch (AWTException e) {
+              System.err.println("Can not add icon to system tray: " + e);
             }
-
-            trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
           }
+
+          trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
         });
   }
 

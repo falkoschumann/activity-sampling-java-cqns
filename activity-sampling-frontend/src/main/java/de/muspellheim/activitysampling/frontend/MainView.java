@@ -14,7 +14,6 @@ import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitie
 import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitiesQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -77,12 +76,11 @@ public class MainView {
   }
 
   public void display(RecentActivitiesQueryResult result) {
-    var stringConverter = new ActivityStringConverter();
     var menuItems =
         result.activities().stream()
             .map(
                 it -> {
-                  var menuItem = new MenuItem(stringConverter.toString(it));
+                  var menuItem = new MenuItem(new ActivityStringConverter().toString(it));
                   menuItem.setOnAction(
                       e ->
                           onLogActivityCommand.accept(
@@ -96,7 +94,8 @@ public class MainView {
     if (!result.activities().isEmpty()) {
       var lastActivity = result.activities().get(0);
       activityText.setText(lastActivity.activity());
-      tagsText.setText(String.join(", ", lastActivity.tags()));
+
+      tagsText.setText(new TagsStringConverter().toString(lastActivity.tags()));
     }
   }
 
@@ -142,10 +141,7 @@ public class MainView {
 
   @FXML
   private void logActivity() {
-    var tags =
-        List.of(tagsText.getText().split(",")).stream()
-            .map(it -> it.strip())
-            .collect(Collectors.toList());
+    var tags = new TagsStringConverter().fromString(tagsText.getText());
     onLogActivityCommand.accept(new LogActivityCommand(null, null, activityText.getText(), tags));
   }
 }

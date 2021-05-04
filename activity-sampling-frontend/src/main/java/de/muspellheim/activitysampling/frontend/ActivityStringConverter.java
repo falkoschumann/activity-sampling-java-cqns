@@ -10,15 +10,16 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javafx.util.StringConverter;
 
 public class ActivityStringConverter extends StringConverter<Activity> {
+  private final TagsStringConverter tagsStringConverter = new TagsStringConverter();
+
   @Override
   public String toString(Activity object) {
     String string = object.activity();
     if (!object.tags().isEmpty()) {
-      string = "[" + String.join(", ", object.tags()) + "] " + string;
+      string = tagsStringConverter.toString(object.tags());
     }
     return string;
   }
@@ -33,10 +34,7 @@ public class ActivityStringConverter extends StringConverter<Activity> {
       activity = matcher.group(3);
       var tagsString = matcher.group(2);
       if (tagsString != null) {
-        tags =
-            List.of(tagsString.split(",")).stream()
-                .map(it -> it.strip())
-                .collect(Collectors.toList());
+        tags = tagsStringConverter.fromString(tagsString);
       }
     } else {
       activity = string;

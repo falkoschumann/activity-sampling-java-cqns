@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +20,7 @@ class SystemClock {
   private final Timer timer = new Timer(true);
 
   void run() {
-    timer.schedule(new SystemClockTask(), 0, 1000);
+    timer.schedule(new SystemClockTask(), 0, TimeUnit.SECONDS.toMillis(1));
   }
 
   private class SystemClockTask extends TimerTask {
