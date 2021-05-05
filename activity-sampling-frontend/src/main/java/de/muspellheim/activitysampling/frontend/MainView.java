@@ -100,8 +100,8 @@ public class MainView {
   }
 
   public void display(SettingsQueryResult result) {
-    periodDuration.setValue(result.periodDuration());
-    activityLogFile.setValue(result.activityLogFile().toString());
+    // periodDuration.setValue(result.periodDuration());
+    // activityLogFile.setValue(result.activityLogFile().toString());
   }
 
   private Stage getWindow() {
@@ -110,6 +110,7 @@ public class MainView {
 
   @FXML
   private void initialize() {
+    /*
     activityForm.disableProperty().bind(viewModel.formDisabledProperty());
     activityForm.disableProperty().addListener(observable -> activityText.requestFocus());
 
@@ -125,6 +126,7 @@ public class MainView {
     Platform.runLater(() -> getWindow().setOnHiding(e -> trayIcon.hide()));
 
     clock.setOnTick(it -> Platform.runLater(() -> viewModel.clockTicked(it)));
+     */
   }
 
   @FXML

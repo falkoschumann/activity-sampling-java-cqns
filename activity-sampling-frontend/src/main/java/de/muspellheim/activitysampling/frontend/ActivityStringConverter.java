@@ -19,7 +19,7 @@ public class ActivityStringConverter extends StringConverter<Activity> {
   public String toString(Activity object) {
     String string = object.activity();
     if (!object.tags().isEmpty()) {
-      string = tagsStringConverter.toString(object.tags());
+      string = "[" + tagsStringConverter.toString(object.tags()) + "] " + string;
     }
     return string;
   }

@@ -36,7 +36,7 @@ public class SettingsView {
 
   public void run() {
     getWindow().show();
-    //viewModel.loadPreferences();
+    // viewModel.loadPreferences();
   }
 
   private Stage getWindow() {

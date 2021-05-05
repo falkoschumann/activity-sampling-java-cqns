@@ -9,9 +9,7 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
-import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
-import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -44,7 +42,7 @@ public class ActivitySamplingViewModel {
         @Override
         protected void invalidated() {
           var command = new ChangePeriodDurationCommand(getValue());
-          onChangePeriodDurationCommand.accept(command);
+          // onChangePeriodDurationCommand.accept(command);
           startTime = null;
         }
       };
@@ -55,7 +53,7 @@ public class ActivitySamplingViewModel {
         @Override
         protected void invalidated() {
           var command = new ChangeActivityLogFileCommand(Paths.get(getValue()));
-          onChangeActivityLogFileCommand.accept(command);
+          // onChangeActivityLogFileCommand.accept(command);
         }
       };
 
@@ -99,7 +97,7 @@ public class ActivitySamplingViewModel {
   }
 
   public void display(ActivityLogQueryResult result) {
-    updateRecentActivities(result.recent());
+    // updateRecentActivities(result.recent());
     updateActivityLog(result.activities());
   }
 
@@ -109,11 +107,11 @@ public class ActivitySamplingViewModel {
   }
 
   public void loadPreferences() {
-    onSettingsQuery.accept(new SettingsQuery());
+    // onSettingsQuery.accept(new SettingsQuery());
   }
 
   public void loadActivityLog() {
-    onActivityLogQuery.accept(new ActivityLogQuery());
+    // onActivityLogQuery.accept(new ActivityLogQuery());
   }
 
   private void updateRecentActivities(List<Activity> recent) {
@@ -188,7 +186,7 @@ public class ActivitySamplingViewModel {
     var activity = stringConverter.fromString(s);
     var command =
         new LogActivityCommand(endTime, periodDuration.get(), activity.activity(), activity.tags());
-    onLogActivityCommand.accept(command);
+    // onLogActivityCommand.accept(command);
     formDisabled.set(true);
   }
 }
