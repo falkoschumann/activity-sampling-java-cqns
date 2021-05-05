@@ -10,15 +10,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.data.Activity;
-import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitiesQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitiesQueryResult;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class ActivityLogQueryHandlerTests {
+public class RecentActivitiesQueryHandlerTests {
   private static final Activity ACTIVITY_1 =
       new Activity(
           "a7caf1b0-886e-406f-8fbc-71da9f34714e",
@@ -50,13 +50,11 @@ public class ActivityLogQueryHandlerTests {
   void activityLog() throws Exception {
     var eventStore = new MemoryEventStore();
     eventStore.record(createEvents());
-    var queryHandler = new ActivityLogQueryHandler(eventStore);
+    var queryHandler = new RecentActivitiesQueryHandler(eventStore);
 
-    var result = queryHandler.handle(new ActivityLogQuery());
+    var result = queryHandler.handle(new RecentActivitiesQuery());
 
-    assertEquals(
-        new ActivityLogQueryResult(List.of(ACTIVITY_1, ACTIVITY_2, ACTIVITY_3, ACTIVITY_4)),
-        result);
+    assertEquals(new RecentActivitiesQueryResult(List.of(ACTIVITY_4, ACTIVITY_3)), result);
   }
 
   private static List<ActivityLoggedEvent> createEvents() {
