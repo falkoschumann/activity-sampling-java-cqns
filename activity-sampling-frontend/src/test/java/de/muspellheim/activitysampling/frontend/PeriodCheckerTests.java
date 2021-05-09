@@ -21,23 +21,23 @@ public class PeriodCheckerTests {
   @Mock private Consumer<Duration> remainingTimeChanged;
   @Mock private Consumer<LocalDateTime> periodEnded;
 
-  private PeriodChecker checker;
+  private PeriodCheck periodCheck;
 
   @BeforeEach
   void setUp() {
     openMocks(this);
 
-    checker = new PeriodChecker();
-    checker.setOnRemainingTimeChanged(remainingTimeChanged);
-    checker.setOnPeriodEnded(periodEnded);
+    periodCheck = new PeriodCheck();
+    periodCheck.setOnRemainingTimeChanged(remainingTimeChanged);
+    periodCheck.setOnPeriodEnded(periodEnded);
   }
 
   @Test
   void periodStarted() {
-    checker.initWith(Duration.ofMinutes(20));
+    periodCheck.initWith(Duration.ofMinutes(20));
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 20);
-    checker.clockTicked(currentTime);
+    periodCheck.check(currentTime);
 
     verify(remainingTimeChanged).accept(Duration.ofMinutes(20));
     verify(periodEnded, never()).accept(any());
@@ -45,12 +45,12 @@ public class PeriodCheckerTests {
 
   @Test
   void periodProgressed() {
-    checker.initWith(Duration.ofMinutes(20));
+    periodCheck.initWith(Duration.ofMinutes(20));
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
-    checker.clockTicked(startTime);
+    periodCheck.check(startTime);
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 31, 45);
-    checker.clockTicked(currentTime);
+    periodCheck.check(currentTime);
 
     verify(remainingTimeChanged).accept(Duration.ofMinutes(8).plusSeconds(15));
     verify(periodEnded, never()).accept(any());
@@ -58,12 +58,12 @@ public class PeriodCheckerTests {
 
   @Test
   void periodEnded() {
-    checker.initWith(Duration.ofMinutes(20));
+    periodCheck.initWith(Duration.ofMinutes(20));
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
-    checker.clockTicked(startTime);
+    periodCheck.check(startTime);
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 40);
-    checker.clockTicked(currentTime);
+    periodCheck.check(currentTime);
 
     verify(remainingTimeChanged).accept(Duration.ZERO);
     verify(periodEnded).accept(currentTime);

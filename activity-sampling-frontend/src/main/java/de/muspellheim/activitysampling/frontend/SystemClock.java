@@ -26,8 +26,8 @@ class SystemClock {
   private class SystemClockTask extends TimerTask {
     @Override
     public void run() {
-      var timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-      onTick.accept(timestamp);
+      var current = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+      onTick.accept(current);
     }
   }
 }

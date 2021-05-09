@@ -48,7 +48,7 @@ public class MainView {
   @FXML private ProgressBar progressBar;
   @FXML private TextArea activityLogText;
 
-  private final AppTrayIcon trayIcon = new AppTrayIcon();
+  private final TrayIconController trayIcon = new TrayIconController();
   private final SystemClock clock = new SystemClock();
 
   @SneakyThrows

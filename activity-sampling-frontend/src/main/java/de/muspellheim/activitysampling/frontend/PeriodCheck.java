@@ -11,35 +11,33 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PeriodChecker {
+public class PeriodCheck {
   @Getter @Setter Consumer<Duration> onRemainingTimeChanged;
   @Getter @Setter Consumer<LocalDateTime> onPeriodEnded;
 
   private Duration period;
-  private LocalDateTime startTime;
-  private LocalDateTime endTime;
+  private LocalDateTime start;
 
   public void initWith(Duration period) {
     this.period = period;
-    startTime = null;
+    start = null;
   }
 
-  public void clockTicked(LocalDateTime timestamp) {
-    if (startTime == null) {
-      startTime = timestamp;
+  public void check(LocalDateTime timestamp) {
+    if (start == null) {
+      start = timestamp;
       onRemainingTimeChanged.accept(period);
       return;
     }
 
-    var elapsedTime = Duration.between(startTime, timestamp);
-    var remainingTime = period.minus(elapsedTime);
-    if (remainingTime.toSeconds() <= 0) {
-      endTime = timestamp;
+    var elapsed = Duration.between(start, timestamp);
+    var remaining = period.minus(elapsed);
+    if (remaining.toSeconds() <= 0) {
       onRemainingTimeChanged.accept(Duration.ZERO);
       onPeriodEnded.accept(timestamp);
-      startTime = null;
+      start = null;
     } else {
-      onRemainingTimeChanged.accept(remainingTime);
+      onRemainingTimeChanged.accept(remaining);
     }
   }
 }

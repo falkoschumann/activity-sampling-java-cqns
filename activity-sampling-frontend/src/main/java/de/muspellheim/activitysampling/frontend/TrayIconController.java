@@ -19,35 +19,36 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-class AppTrayIcon {
-  @Getter @Setter private Consumer<Activity> onLogActivity;
+class TrayIconController {
+  @Getter @Setter private Consumer<Activity> onLogActivitySelected;
 
   private TrayIcon trayIcon;
 
-  AppTrayIcon() {
+  TrayIconController() {
     if (!SystemTray.isSupported()) {
       System.out.println("System tray is not supported on this platform");
       return;
     }
 
+    // TODO Tray-Icon explizit verwenden, statt App-Icon wiederzuverwenden
     var url = getClass().getResource("app.png");
     var image = Toolkit.getDefaultToolkit().getImage(url);
     trayIcon = new TrayIcon(image);
   }
 
-  public void setRecentActivities(List<Activity> recentActivities) {
+  void setRecentActivities(List<Activity> recentActivities) {
     if (!SystemTray.isSupported()) {
       return;
     }
 
     EventQueue.invokeLater(
         () -> {
-          var stringConverter = new ActivityStringConverter();
           var menu = new PopupMenu();
+          var stringConverter = new ActivityStringConverter();
           recentActivities.forEach(
               it -> {
                 MenuItem item = new MenuItem(stringConverter.toString(it));
-                item.addActionListener(e -> onLogActivity.accept(it));
+                item.addActionListener(e -> onLogActivitySelected.accept(it));
                 menu.add(item);
               });
           trayIcon.setPopupMenu(menu);
@@ -62,14 +63,14 @@ class AppTrayIcon {
     EventQueue.invokeLater(
         () -> {
           var tray = SystemTray.getSystemTray();
-          if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
+          var trayIcons = List.of(tray.getTrayIcons());
+          if (!trayIcons.contains(trayIcon)) {
             try {
               tray.add(trayIcon);
             } catch (AWTException e) {
               System.err.println("Can not add icon to system tray: " + e);
             }
           }
-
           trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
         });
   }
