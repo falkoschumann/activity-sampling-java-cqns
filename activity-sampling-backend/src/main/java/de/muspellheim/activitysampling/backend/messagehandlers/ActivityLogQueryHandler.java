@@ -18,7 +18,8 @@ import lombok.extern.java.Log;
 
 @Log
 public class ActivityLogQueryHandler {
-  // TODO Nutze Eventstore#onRecorded, anstelle Replay bei jedem Aufruf
+  // TODO Nutze Replay nur bei Initialisierung und danach Eventstore#onRecorded,
+  //  anstelle Replay bei jedem Aufruf
   private final EventStore eventStore;
 
   public ActivityLogQueryHandler(EventStore eventStore) {

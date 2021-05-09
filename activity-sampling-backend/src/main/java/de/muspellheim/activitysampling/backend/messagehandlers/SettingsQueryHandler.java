@@ -8,7 +8,10 @@ package de.muspellheim.activitysampling.backend.messagehandlers;
 import de.muspellheim.activitysampling.backend.SettingsRepository;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
+import java.util.logging.Level;
+import lombok.extern.java.Log;
 
+@Log
 public class SettingsQueryHandler {
   private final SettingsRepository settingsStore;
 
@@ -22,6 +25,7 @@ public class SettingsQueryHandler {
       var activityLogFile = settingsStore.loadActivityLogFile();
       return new SettingsQueryResult(periodDuration, activityLogFile);
     } catch (Exception e) {
+      log.log(Level.WARNING, "Can not handle query: " + query, e);
       return new SettingsQueryResult(
           SettingsRepository.DEFAULT_PERIOD_DURATION, SettingsRepository.DEFAULT_ACTIVITY_LOG_FILE);
     }

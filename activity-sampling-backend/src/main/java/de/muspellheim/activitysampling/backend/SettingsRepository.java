@@ -13,11 +13,11 @@ public interface SettingsRepository {
   Duration DEFAULT_PERIOD_DURATION = Duration.ofMinutes(20);
   Path DEFAULT_ACTIVITY_LOG_FILE = Paths.get(System.getProperty("user.home"), "activity-log.csv");
 
-  Duration loadPeriodDuration() throws Exception;
+  Duration loadPeriodDuration();
 
-  void savePeriodDuration(Duration periodDuration) throws Exception;
+  void savePeriodDuration(Duration periodDuration);
 
-  Path loadActivityLogFile() throws Exception;
+  Path loadActivityLogFile();
 
-  void saveActivityLogFile(Path activityLogFile) throws Exception;
+  void saveActivityLogFile(Path activityLogFile);
 }

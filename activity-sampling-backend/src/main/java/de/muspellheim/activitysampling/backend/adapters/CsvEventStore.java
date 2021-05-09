@@ -22,15 +22,16 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -64,7 +65,8 @@ public class CsvEventStore implements EventStore {
   }
 
   @Override
-  public void record(Event event) throws IOException {
+  @SneakyThrows
+  public void record(Event event) {
     if (Files.notExists(getFile())) {
       createFile();
     }
@@ -103,15 +105,12 @@ public class CsvEventStore implements EventStore {
   }
 
   private void publishRecorded(Event event) {
-    if (onRecorded == null) {
-      return;
-    }
-
-    onRecorded.accept(event);
+    Optional.ofNullable(onRecorded).ifPresent(it -> it.accept(event));
   }
 
   @Override
-  public Stream<? extends Event> replay() throws IOException {
+  @SneakyThrows
+  public Stream<? extends Event> replay() {
     try {
       var reader = Files.newBufferedReader(getFile(), StandardCharsets.UTF_8);
       var parser =
@@ -137,23 +136,16 @@ public class CsvEventStore implements EventStore {
         Duration.ofSeconds(
             LocalTime.parse(record.get(Headers.Period), PERIOD_FORMATTER).toSecondOfDay());
     var activity = record.get(Headers.Activity);
-    var tags = record.get(Headers.Tags).isEmpty() ? null : record.get(Headers.Tags);
-    return new ActivityLoggedEvent(id, timestamp, period, activity, mapTags(tags));
+    var tags =
+        List.of(record.get(Headers.Tags).split(",")).stream()
+            .map(it -> it.strip())
+            .filter(it -> !it.isEmpty())
+            .collect(Collectors.toList());
+    return new ActivityLoggedEvent(id, timestamp, period, activity, tags);
   }
 
-  private static List<String> mapTags(String tags) {
-    if (tags == null) {
-      return List.of();
-    }
-
-    return List.of(tags.split(",")).stream().map(it -> it.strip()).collect(Collectors.toList());
-  }
-
+  @SneakyThrows
   private void close(Closeable closeable) {
-    try {
-      closeable.close();
-    } catch (IOException e) {
-      log.log(Level.WARNING, "Exception ignored", e);
-    }
+    closeable.close();
   }
 }

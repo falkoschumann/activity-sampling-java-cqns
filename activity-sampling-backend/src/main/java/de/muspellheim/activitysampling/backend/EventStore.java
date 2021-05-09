@@ -18,22 +18,20 @@ public interface EventStore {
 
   void setOnRecorded(Consumer<Event> consumer);
 
-  void record(Event event) throws Exception;
+  void record(Event event);
 
-  default void record(Iterable<? extends Event> events) throws Exception {
-    for (Event event : events) {
-      record(event);
-    }
+  default void record(Iterable<? extends Event> events) {
+    events.forEach(this::record);
   }
 
-  Stream<? extends Event> replay() throws Exception;
+  Stream<? extends Event> replay();
 
   @SuppressWarnings("unchecked")
-  default <E extends Event> Stream<E> replay(Class<E> eventType) throws Exception {
+  default <E extends Event> Stream<E> replay(Class<E> eventType) {
     return (Stream<E>) replay().filter(it -> it.getClass().equals(eventType));
   }
 
-  default Stream<? extends Event> replay(Set<Class<? extends Event>> eventTypes) throws Exception {
+  default Stream<? extends Event> replay(Set<Class<? extends Event>> eventTypes) {
     return replay().filter(it -> eventTypes.contains(it.getClass()));
   }
 }

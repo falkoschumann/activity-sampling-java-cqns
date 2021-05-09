@@ -9,6 +9,7 @@ import de.muspellheim.activitysampling.backend.Event;
 import de.muspellheim.activitysampling.backend.EventStore;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import lombok.Getter;
@@ -27,11 +28,7 @@ public class MemoryEventStore implements EventStore {
   }
 
   private void publishRecorded(Event event) {
-    if (onRecorded == null) {
-      return;
-    }
-
-    onRecorded.accept(event);
+    Optional.ofNullable(onRecorded).ifPresent(it -> it.accept(event));
   }
 
   @Override

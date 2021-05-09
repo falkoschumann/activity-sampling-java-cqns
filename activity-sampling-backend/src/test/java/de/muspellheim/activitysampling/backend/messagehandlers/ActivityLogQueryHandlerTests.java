@@ -71,12 +71,14 @@ public class ActivityLogQueryHandlerTests {
             ACTIVITY_2.id(),
             ACTIVITY_2.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
             ACTIVITY_2.period(),
-            ACTIVITY_2.activity()),
+            ACTIVITY_2.activity(),
+            List.of()),
         new ActivityLoggedEvent(
             ACTIVITY_3.id(),
             ACTIVITY_3.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
             ACTIVITY_3.period(),
-            ACTIVITY_3.activity()),
+            ACTIVITY_3.activity(),
+            List.of()),
         new ActivityLoggedEvent(
             ACTIVITY_4.id(),
             ACTIVITY_4.timestamp().atZone(ZoneId.systemDefault()).toInstant(),

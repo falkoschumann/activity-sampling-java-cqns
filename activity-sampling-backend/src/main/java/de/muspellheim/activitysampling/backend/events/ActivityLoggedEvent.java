@@ -20,10 +20,6 @@ public record ActivityLoggedEvent(
     @NonNull List<String> tags)
     implements Event {
 
-  public ActivityLoggedEvent(String id, Instant timestamp, Duration period, String activity) {
-    this(id, timestamp, period, activity, List.of());
-  }
-
   public ActivityLoggedEvent(
       Instant timestamp, Duration period, String activity, List<String> tags) {
     this(UUID.randomUUID().toString(), timestamp, period, activity, tags);
