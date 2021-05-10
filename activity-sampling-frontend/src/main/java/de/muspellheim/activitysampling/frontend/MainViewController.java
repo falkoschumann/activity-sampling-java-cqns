@@ -32,7 +32,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
-public class MainView {
+public class MainViewController {
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
   @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
   @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
@@ -48,12 +48,12 @@ public class MainView {
   @FXML private ProgressBar progressBar;
   @FXML private TextArea activityLogText;
 
-  private final TrayIconController trayIcon = new TrayIconController();
+  private final TrayIconController trayIconController = new TrayIconController();
   private final SystemClock clock = new SystemClock();
 
   @SneakyThrows
-  public static MainView create(Stage stage) {
-    var location = MainView.class.getResource("MainView.fxml");
+  public static MainViewController create(Stage stage) {
+    var location = MainViewController.class.getResource("MainView.fxml");
     var resources = ResourceBundle.getBundle("ActivitySampling");
     var loader = new FXMLLoader(location, resources);
     loader.setRoot(stage);

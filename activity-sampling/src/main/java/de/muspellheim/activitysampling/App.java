@@ -20,7 +20,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.SettingsQueryHand
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitiesQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
-import de.muspellheim.activitysampling.frontend.MainView;
+import de.muspellheim.activitysampling.frontend.MainViewController;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -58,7 +58,7 @@ public class App extends Application {
     var recentActivitiesQueryHandler = new RecentActivitiesQueryHandler(eventStore);
     var settingsQueryHandler = new SettingsQueryHandler(settingsRepository);
 
-    var frontend = MainView.create(primaryStage);
+    var frontend = MainViewController.create(primaryStage);
 
     // TODO Extrahiere Request-Handler?
     frontend.setOnLogActivityCommand(
