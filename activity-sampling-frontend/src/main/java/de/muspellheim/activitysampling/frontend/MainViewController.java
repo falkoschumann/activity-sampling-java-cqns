@@ -21,6 +21,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitMenuButton;
@@ -40,6 +41,7 @@ public class MainViewController {
   @Getter @Setter private Consumer<RecentActivitiesQuery> onRecentActivitiesQuery;
   @Getter @Setter private Consumer<SettingsQuery> onSettingsQuery;
 
+  @FXML private MenuBar menuBar;
   @FXML private VBox activityForm;
   @FXML private TextField activityText;
   @FXML private TextField tagsText;
@@ -110,6 +112,7 @@ public class MainViewController {
 
   @FXML
   private void initialize() {
+    menuBar.setUseSystemMenuBar(true);
     /*
     activityForm.disableProperty().bind(viewModel.formDisabledProperty());
     activityForm.disableProperty().addListener(observable -> activityText.requestFocus());
