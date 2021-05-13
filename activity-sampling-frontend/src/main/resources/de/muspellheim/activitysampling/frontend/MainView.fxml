@@ -18,9 +18,9 @@
 
 <fx:root minHeight="420.0" minWidth="240.0" title="Activity Sampling" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainViewController">
    <scene>
-      <Scene>
+      <Scene stylesheets="@uwp.css">
          <root>
-            <VBox prefHeight="640.0" prefWidth="360.0" stylesheets="@style.css">
+            <VBox prefHeight="640.0" prefWidth="360.0">
                <children>
                   <ToolBar>
                     <items>
