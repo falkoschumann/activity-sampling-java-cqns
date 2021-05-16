@@ -1,6 +1,6 @@
 Activity Sampling
 Copyright (c) 2020 Falko Schumann <falko.schumann@muspellheim.de>
 
-The Roboto font in
+The Inter font in
 activity-sampling-frontend/src/main/resources/de/muspellheim/activitysampling/frontend/fonts
-was designed by Christian Robertson (https://fonts.google.com/specimen/Roboto).
+was designed by Rasmus Andersson (https://fonts.google.com/specimen/Inter).
