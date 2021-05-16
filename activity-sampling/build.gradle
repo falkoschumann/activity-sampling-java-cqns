@@ -4,6 +4,11 @@ import java.time.LocalDate
 
 plugins {
   id 'activity-sampling.java-application-conventions'
+  id 'org.openjfx.javafxplugin'
+}
+
+javafx {
+  modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
 dependencies {

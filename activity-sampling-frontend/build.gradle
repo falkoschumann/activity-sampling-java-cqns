@@ -1,9 +1,13 @@
 plugins {
   id 'activity-sampling.java-library-conventions'
-  id 'activity-sampling.java-openjfx-conventions'
+  id 'org.openjfx.javafxplugin'
 }
 
 dependencies {
   api project(':activity-sampling-contract')
   testImplementation 'org.mockito:mockito-core:3.7.7'
+}
+
+javafx {
+  modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
