@@ -6,7 +6,6 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -14,32 +13,26 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.stage.Stage?>
 
-<fx:root minHeight="420.0" minWidth="240.0" title="Activity Sampling" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainViewController">
+<fx:root minHeight="420.0" minWidth="240.0" title="%main.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainViewController">
    <scene>
       <Scene stylesheets="@uwp.css">
          <root>
             <VBox prefHeight="640.0" prefWidth="360.0">
                <children>
-                  <MenuBar fx:id="menuBar">
+                  <MenuBar useSystemMenuBar="true">
                     <menus>
-                      <Menu mnemonicParsing="false" text="File">
+                      <Menu fx:id="fileMenu" mnemonicParsing="false" text="%main.fileMenu">
                         <items>
-                              <MenuItem mnemonicParsing="false" text="Preferences">
-                                 <accelerator>
-                                    <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
-                                 </accelerator>
-                              </MenuItem>
-                              <SeparatorMenuItem mnemonicParsing="false" />
-                          <MenuItem mnemonicParsing="false" text="Quit">
-                                 <accelerator>
-                                    <KeyCodeCombination alt="UP" code="Q" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
-                                 </accelerator>
-                              </MenuItem>
+                          <MenuItem mnemonicParsing="false" text="%main.fileMenu.preferences">
+                            <accelerator>
+                              <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                            </accelerator>
+                          </MenuItem>
                         </items>
                       </Menu>
-                      <Menu mnemonicParsing="false" text="Help">
+                      <Menu mnemonicParsing="false" text="%main.helpMenu">
                         <items>
-                          <MenuItem mnemonicParsing="false" text="About" />
+                          <MenuItem mnemonicParsing="false" text="%main.helpMenu.about" />
                         </items>
                       </Menu>
                     </menus>
@@ -51,16 +44,16 @@
                               <VBox styleClass="control">
                                  <children>
                                     <Label text="%main.activityLabel" />
-                                    <TextField fx:id="activityText" onAction="#logActivity" promptText="%main.activityText.promptText" />
+                                    <TextField fx:id="activityText" disable="${controller.activityFormDisabled}" onAction="#logActivity" promptText="%main.activityText.promptText" />
                                  </children>
                               </VBox>
                               <VBox styleClass="control">
                                  <children>
                                     <Label text="%main.tagsLabel" />
-                                    <TextField fx:id="tagsText" onAction="#logActivity" promptText="%main.tagsText.promptText" />
+                                    <TextField fx:id="tagsText" disable="${controller.activityFormDisabled}" onAction="#logActivity" promptText="%main.tagsText.promptText" />
                                  </children>
                               </VBox>
-                              <SplitMenuButton fx:id="logButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#logActivity" text="%main.logButton">
+                              <SplitMenuButton fx:id="logButton" disable="${controller.activityFormDisabled}" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#logActivity" text="%main.logButton">
                                 <items>
                                   <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />
                                   <MenuItem mnemonicParsing="false" text="[Foo, Bar] Lorem ipsum" />

@@ -18,16 +18,20 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuBar;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.KeyCharacterCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,8 +45,7 @@ public class MainViewController {
   @Getter @Setter private Consumer<RecentActivitiesQuery> onRecentActivitiesQuery;
   @Getter @Setter private Consumer<SettingsQuery> onSettingsQuery;
 
-  @FXML private MenuBar menuBar;
-  @FXML private VBox activityForm;
+  @FXML private Menu fileMenu;
   @FXML private TextField activityText;
   @FXML private TextField tagsText;
   @FXML private SplitMenuButton logButton;
@@ -50,8 +53,11 @@ public class MainViewController {
   @FXML private ProgressBar progressBar;
   @FXML private TextArea activityLogText;
 
-  private final TrayIconController trayIconController = new TrayIconController();
+  private final ReadOnlyBooleanWrapper activityFormDisabled = new ReadOnlyBooleanWrapper(true);
+
   private final SystemClock clock = new SystemClock();
+  private final PeriodCheck periodCheck = new PeriodCheck();
+  private final TrayIconController trayIconController = new TrayIconController();
 
   @SneakyThrows
   public static MainViewController create(Stage stage) {
@@ -61,6 +67,14 @@ public class MainViewController {
     loader.setRoot(stage);
     loader.load();
     return loader.getController();
+  }
+
+  public final ReadOnlyBooleanProperty activityFormDisabledProperty() {
+    return activityFormDisabled.getReadOnlyProperty();
+  }
+
+  public final boolean isActivityFormDisabled() {
+    return activityFormDisabled.get();
   }
 
   public void run() {
@@ -112,7 +126,14 @@ public class MainViewController {
 
   @FXML
   private void initialize() {
-    menuBar.setUseSystemMenuBar(true);
+    if (!System.getProperty("os.name").toLowerCase().contains("mac")) {
+      fileMenu.getItems().add(new SeparatorMenuItem());
+      var quit = new MenuItem("Quit");
+      quit.setAccelerator(new KeyCharacterCombination("Q", KeyCombination.META_DOWN));
+      quit.setOnAction(e -> logButton.getScene().getWindow().hide());
+      fileMenu.getItems().add(quit);
+    }
+
     /*
     activityForm.disableProperty().bind(viewModel.formDisabledProperty());
     activityForm.disableProperty().addListener(observable -> activityText.requestFocus());
