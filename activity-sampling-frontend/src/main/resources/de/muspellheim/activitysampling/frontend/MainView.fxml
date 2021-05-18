@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.stage.Stage?>
 
+<?import javafx.scene.control.SeparatorMenuItem?>
 <fx:root minHeight="420.0" minWidth="240.0" title="%main.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainViewController">
    <scene>
       <Scene stylesheets="@uwp.css">
@@ -26,6 +27,12 @@
                           <MenuItem mnemonicParsing="false" text="%main.fileMenu.preferences">
                             <accelerator>
                               <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                            </accelerator>
+                          </MenuItem>
+                          <SeparatorMenuItem visible="${controller.runningOnMac}" />
+                          <MenuItem visible="${controller.runningOnMac}" mnemonicParsing="false" text="%main.fileMenu.quit">
+                            <accelerator>
+                              <KeyCodeCombination alt="UP" code="Q" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                             </accelerator>
                           </MenuItem>
                         </items>

@@ -26,12 +26,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCharacterCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,7 +50,8 @@ public class MainViewController {
   @FXML private ProgressBar progressBar;
   @FXML private TextArea activityLogText;
 
-  private final ReadOnlyBooleanWrapper activityFormDisabled = new ReadOnlyBooleanWrapper(true);
+  private final ReadOnlyBooleanWrapper runningOnMac = new ReadOnlyBooleanWrapper(false);
+  private final ReadOnlyBooleanWrapper activityFormDisabled = new ReadOnlyBooleanWrapper(false);
 
   private final SystemClock clock = new SystemClock();
   private final PeriodCheck periodCheck = new PeriodCheck();
@@ -67,6 +65,37 @@ public class MainViewController {
     loader.setRoot(stage);
     loader.load();
     return loader.getController();
+  }
+
+  @FXML
+  private void initialize() {
+    logButton.disableProperty().bind(activityText.textProperty().isEmpty());
+
+    /*
+    activityForm.disableProperty().bind(viewModel.formDisabledProperty());
+    activityForm.disableProperty().addListener(observable -> activityText.requestFocus());
+
+    progressLabel.textProperty().bind(viewModel.remainingTimeProperty());
+    progressBar.progressProperty().bind(viewModel.progressProperty());
+
+    activityLogText.textProperty().bind(viewModel.activityLogProperty());
+    activityLogText
+        .textProperty()
+        .addListener(
+            observable -> Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE)));
+
+    Platform.runLater(() -> getWindow().setOnHiding(e -> trayIcon.hide()));
+
+    clock.setOnTick(it -> Platform.runLater(() -> viewModel.clockTicked(it)));
+     */
+  }
+
+  public final ReadOnlyBooleanProperty runningOnMacProperty() {
+    return runningOnMac.getReadOnlyProperty();
+  }
+
+  public final boolean isRunningOnMac() {
+    return runningOnMac.get();
   }
 
   public final ReadOnlyBooleanProperty activityFormDisabledProperty() {
@@ -122,35 +151,6 @@ public class MainViewController {
 
   private Stage getWindow() {
     return (Stage) activityText.getScene().getWindow();
-  }
-
-  @FXML
-  private void initialize() {
-    if (!System.getProperty("os.name").toLowerCase().contains("mac")) {
-      fileMenu.getItems().add(new SeparatorMenuItem());
-      var quit = new MenuItem("Quit");
-      quit.setAccelerator(new KeyCharacterCombination("Q", KeyCombination.META_DOWN));
-      quit.setOnAction(e -> logButton.getScene().getWindow().hide());
-      fileMenu.getItems().add(quit);
-    }
-
-    /*
-    activityForm.disableProperty().bind(viewModel.formDisabledProperty());
-    activityForm.disableProperty().addListener(observable -> activityText.requestFocus());
-
-    progressLabel.textProperty().bind(viewModel.remainingTimeProperty());
-    progressBar.progressProperty().bind(viewModel.progressProperty());
-
-    activityLogText.textProperty().bind(viewModel.activityLogProperty());
-    activityLogText
-        .textProperty()
-        .addListener(
-            observable -> Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE)));
-
-    Platform.runLater(() -> getWindow().setOnHiding(e -> trayIcon.hide()));
-
-    clock.setOnTick(it -> Platform.runLater(() -> viewModel.clockTicked(it)));
-     */
   }
 
   @FXML
