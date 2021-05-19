@@ -14,12 +14,15 @@ import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitie
 import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitiesQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
+import java.time.Duration;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -51,11 +54,25 @@ public class MainViewController {
   @FXML private TextArea activityLogText;
 
   private final ReadOnlyBooleanWrapper runningOnMac = new ReadOnlyBooleanWrapper(false);
-  private final ReadOnlyBooleanWrapper activityFormDisabled = new ReadOnlyBooleanWrapper(false);
+  private final ReadOnlyBooleanWrapper activityFormDisabled = new ReadOnlyBooleanWrapper(true);
+  private final ReadOnlyStringWrapper remainingTime = new ReadOnlyStringWrapper("00:20:00");
 
   private final SystemClock clock = new SystemClock();
   private final PeriodCheck periodCheck = new PeriodCheck();
   private final TrayIconController trayIconController = new TrayIconController();
+
+  public MainViewController() {
+    clock.setOnTick(periodCheck::check);
+
+    periodCheck.initWith(Duration.ofMinutes(20));
+    periodCheck.setOnRemainingTimeChanged(this::handleRemainingTimeChanged);
+    // TODO periodCheck.setOnPeriodEnded(this::handleOnPeriodEnded);
+  }
+
+  private void handleRemainingTimeChanged(Duration remaining) {
+    var s = new DurationStringConverter().toString(remaining);
+    Platform.runLater(() -> remainingTime.set(s));
+  }
 
   @SneakyThrows
   public static MainViewController create(Stage stage) {
@@ -104,6 +121,14 @@ public class MainViewController {
 
   public final boolean isActivityFormDisabled() {
     return activityFormDisabled.get();
+  }
+
+  public final ReadOnlyStringProperty remainingTimeProperty() {
+    return remainingTime.getReadOnlyProperty();
+  }
+
+  public final String getRemainingTime() {
+    return remainingTime.get();
   }
 
   public void run() {
