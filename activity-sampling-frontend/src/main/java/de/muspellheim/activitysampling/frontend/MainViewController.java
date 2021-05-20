@@ -14,21 +14,18 @@ import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitie
 import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitiesQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
-import java.time.Duration;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -45,34 +42,28 @@ public class MainViewController {
   @Getter @Setter private Consumer<RecentActivitiesQuery> onRecentActivitiesQuery;
   @Getter @Setter private Consumer<SettingsQuery> onSettingsQuery;
 
-  @FXML private Menu fileMenu;
+  @FXML private SeparatorMenuItem quitSeparatorMenuItem;
+  @FXML private MenuItem quitMenuItem;
   @FXML private TextField activityText;
   @FXML private TextField tagsText;
   @FXML private SplitMenuButton logButton;
-  @FXML private Label progressLabel;
+  @FXML private Label remainingTimeLabel;
   @FXML private ProgressBar progressBar;
   @FXML private TextArea activityLogText;
 
-  private final ReadOnlyBooleanWrapper runningOnMac = new ReadOnlyBooleanWrapper(false);
-  private final ReadOnlyBooleanWrapper activityFormDisabled = new ReadOnlyBooleanWrapper(true);
-  private final ReadOnlyStringWrapper remainingTime = new ReadOnlyStringWrapper("00:20:00");
+  private final BooleanProperty activityFormDisabled =
+      new SimpleBooleanProperty(true) {
+        @Override
+        protected void invalidated() {
+          if (!getValue()) {
+            activityText.requestFocus();
+          }
+        }
+      };
 
   private final SystemClock clock = new SystemClock();
   private final PeriodCheck periodCheck = new PeriodCheck();
   private final TrayIconController trayIconController = new TrayIconController();
-
-  public MainViewController() {
-    clock.setOnTick(periodCheck::check);
-
-    periodCheck.initWith(Duration.ofMinutes(20));
-    periodCheck.setOnRemainingTimeChanged(this::handleRemainingTimeChanged);
-    // TODO periodCheck.setOnPeriodEnded(this::handleOnPeriodEnded);
-  }
-
-  private void handleRemainingTimeChanged(Duration remaining) {
-    var s = new DurationStringConverter().toString(remaining);
-    Platform.runLater(() -> remainingTime.set(s));
-  }
 
   @SneakyThrows
   public static MainViewController create(Stage stage) {
@@ -86,7 +77,23 @@ public class MainViewController {
 
   @FXML
   private void initialize() {
+    if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+      quitSeparatorMenuItem.setVisible(false);
+      quitMenuItem.setVisible(false);
+    }
+
     logButton.disableProperty().bind(activityText.textProperty().isEmpty());
+
+    clock.setOnTick(periodCheck::check);
+    var durationStringConverter = new DurationStringConverter();
+    periodCheck.setOnRemainingTimeChanged(
+        it ->
+            Platform.runLater(
+                () -> remainingTimeLabel.setText(durationStringConverter.toString(it))));
+    // TODO periodCheck.setOnPeriodEnded();
+
+    activityText.disableProperty().bind(activityFormDisabled);
+    tagsText.disableProperty().bind(activityFormDisabled);
 
     /*
     activityForm.disableProperty().bind(viewModel.formDisabledProperty());
@@ -105,30 +112,6 @@ public class MainViewController {
 
     clock.setOnTick(it -> Platform.runLater(() -> viewModel.clockTicked(it)));
      */
-  }
-
-  public final ReadOnlyBooleanProperty runningOnMacProperty() {
-    return runningOnMac.getReadOnlyProperty();
-  }
-
-  public final boolean isRunningOnMac() {
-    return runningOnMac.get();
-  }
-
-  public final ReadOnlyBooleanProperty activityFormDisabledProperty() {
-    return activityFormDisabled.getReadOnlyProperty();
-  }
-
-  public final boolean isActivityFormDisabled() {
-    return activityFormDisabled.get();
-  }
-
-  public final ReadOnlyStringProperty remainingTimeProperty() {
-    return remainingTime.getReadOnlyProperty();
-  }
-
-  public final String getRemainingTime() {
-    return remainingTime.get();
   }
 
   public void run() {
@@ -193,6 +176,7 @@ public class MainViewController {
   @FXML
   private void logActivity() {
     var tags = new TagsStringConverter().fromString(tagsText.getText());
+    // TODO Fülle Timestamp und Period aus
     onLogActivityCommand.accept(new LogActivityCommand(null, null, activityText.getText(), tags));
   }
 }

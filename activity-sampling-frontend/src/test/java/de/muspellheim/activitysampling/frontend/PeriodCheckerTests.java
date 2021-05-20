@@ -34,7 +34,7 @@ public class PeriodCheckerTests {
 
   @Test
   void periodStarted() {
-    periodCheck.initWith(Duration.ofMinutes(20));
+    periodCheck.setPeriod(Duration.ofMinutes(20));
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 20);
     periodCheck.check(currentTime);
@@ -45,7 +45,7 @@ public class PeriodCheckerTests {
 
   @Test
   void periodProgressed() {
-    periodCheck.initWith(Duration.ofMinutes(20));
+    periodCheck.setPeriod(Duration.ofMinutes(20));
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
     periodCheck.check(startTime);
 
@@ -58,7 +58,7 @@ public class PeriodCheckerTests {
 
   @Test
   void periodEnded() {
-    periodCheck.initWith(Duration.ofMinutes(20));
+    periodCheck.setPeriod(Duration.ofMinutes(20));
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
     periodCheck.check(startTime);
 

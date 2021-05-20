@@ -15,10 +15,14 @@ public class PeriodCheck {
   @Getter @Setter Consumer<Duration> onRemainingTimeChanged;
   @Getter @Setter Consumer<LocalDateTime> onPeriodEnded;
 
-  private Duration period;
+  private Duration period = Duration.ofMinutes(20);
   private LocalDateTime start;
 
-  public void initWith(Duration period) {
+  public Duration getPeriod() {
+    return period;
+  }
+
+  public void setPeriod(Duration period) {
     this.period = period;
     start = null;
   }

@@ -22,15 +22,15 @@
                <children>
                   <MenuBar useSystemMenuBar="true">
                     <menus>
-                      <Menu fx:id="fileMenu" mnemonicParsing="false" text="%main.fileMenu">
+                      <Menu mnemonicParsing="false" text="%main.fileMenu">
                         <items>
                           <MenuItem mnemonicParsing="false" text="%main.fileMenu.preferences">
                             <accelerator>
                               <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                             </accelerator>
                           </MenuItem>
-                          <SeparatorMenuItem visible="${controller.runningOnMac}" />
-                          <MenuItem visible="${controller.runningOnMac}" mnemonicParsing="false" text="%main.fileMenu.quit">
+                          <SeparatorMenuItem fx:id="quitSeparatorMenuItem" />
+                          <MenuItem fx:id="quitMenuItem" mnemonicParsing="false" text="%main.fileMenu.quit">
                             <accelerator>
                               <KeyCodeCombination alt="UP" code="Q" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                             </accelerator>
@@ -51,16 +51,16 @@
                               <VBox styleClass="control">
                                  <children>
                                     <Label text="%main.activityLabel" />
-                                    <TextField fx:id="activityText" disable="${controller.activityFormDisabled}" onAction="#logActivity" promptText="%main.activityText.promptText" />
+                                    <TextField fx:id="activityText" onAction="#logActivity" promptText="%main.activityText.promptText" />
                                  </children>
                               </VBox>
                               <VBox styleClass="control">
                                  <children>
                                     <Label text="%main.tagsLabel" />
-                                    <TextField fx:id="tagsText" disable="${controller.activityFormDisabled}" onAction="#logActivity" promptText="%main.tagsText.promptText" />
+                                    <TextField fx:id="tagsText" onAction="#logActivity" promptText="%main.tagsText.promptText" />
                                  </children>
                               </VBox>
-                              <SplitMenuButton fx:id="logButton" disable="${controller.activityFormDisabled}" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#logActivity" text="%main.logButton">
+                              <SplitMenuButton fx:id="logButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#logActivity" text="%main.logButton">
                                 <items>
                                   <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />
                                   <MenuItem mnemonicParsing="false" text="[Foo, Bar] Lorem ipsum" />
@@ -68,7 +68,7 @@
                               </SplitMenuButton>
                               <VBox styleClass="control">
                                  <children>
-                                    <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="${controller.remainingTime}" />
+                                    <Label fx:id="remainingTimeLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" />
                                     <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                                  </children>
                               </VBox>
