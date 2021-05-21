@@ -33,7 +33,7 @@ public class App extends Application {
   }
 
   @Override
-  public void init() throws Exception {
+  public void init() {
     if (getParameters().getUnnamed().contains("--demo")) {
       System.out.println("Run in demo mode...");
       eventStore = new MemoryEventStore();

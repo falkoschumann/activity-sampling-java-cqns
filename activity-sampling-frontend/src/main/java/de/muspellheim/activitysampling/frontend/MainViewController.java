@@ -14,6 +14,8 @@ import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitie
 import de.muspellheim.activitysampling.contract.messages.queries.RecentActivitiesQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -65,6 +67,8 @@ public class MainViewController {
   private final PeriodCheck periodCheck = new PeriodCheck();
   private final TrayIconController trayIconController = new TrayIconController();
 
+  private LocalDateTime timestamp;
+
   @SneakyThrows
   public static MainViewController create(Stage stage) {
     var location = MainViewController.class.getResource("MainView.fxml");
@@ -77,20 +81,19 @@ public class MainViewController {
 
   @FXML
   private void initialize() {
+    periodCheck.setPeriod(Duration.ofSeconds(30));
     if (System.getProperty("os.name").toLowerCase().contains("mac")) {
       quitSeparatorMenuItem.setVisible(false);
       quitMenuItem.setVisible(false);
     }
 
-    logButton.disableProperty().bind(activityText.textProperty().isEmpty());
+    logButton
+        .disableProperty()
+        .bind(activityFormDisabled.or(activityText.textProperty().isEmpty()));
 
     clock.setOnTick(periodCheck::check);
-    var durationStringConverter = new DurationStringConverter();
-    periodCheck.setOnRemainingTimeChanged(
-        it ->
-            Platform.runLater(
-                () -> remainingTimeLabel.setText(durationStringConverter.toString(it))));
-    // TODO periodCheck.setOnPeriodEnded();
+    periodCheck.setOnRemainingTimeChanged(this::handleRemainingTimeChanged);
+    periodCheck.setOnPeriodEnded(this::handlePeriodEnded);
 
     activityText.disableProperty().bind(activityFormDisabled);
     tagsText.disableProperty().bind(activityFormDisabled);
@@ -114,6 +117,28 @@ public class MainViewController {
      */
   }
 
+  private void handleRemainingTimeChanged(Duration remaining) {
+    Platform.runLater(
+        () -> {
+          var durationStringConverter = new DurationStringConverter();
+          remainingTimeLabel.setText(durationStringConverter.toString(remaining));
+
+          var remainingSeconds = (double) remaining.getSeconds();
+          var totalSeconds = (double) periodCheck.getPeriod().getSeconds();
+          var progress = 1 - remainingSeconds / totalSeconds;
+          progressBar.setProgress(progress);
+        });
+  }
+
+  private void handlePeriodEnded(LocalDateTime timestamp) {
+    this.timestamp = timestamp;
+    Platform.runLater(
+        () -> {
+          activityFormDisabled.set(false);
+          activityText.requestFocus();
+        });
+  }
+
   public void run() {
     getWindow().show();
     onSettingsQuery.accept(new SettingsQuery());
@@ -123,36 +148,47 @@ public class MainViewController {
   }
 
   public void display(ActivityLogQueryResult result) {
-    var log = new ActivityLogRenderer().toString(result.activities());
-    activityLogText.setText(log);
-    Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE));
+    System.out.println(result);
+    Platform.runLater(
+        () -> {
+          var activityLogRenderer = new ActivityLogRenderer();
+          var log = activityLogRenderer.toString(result.activities());
+          activityLogText.setText(log);
+          activityLogText.setScrollTop(Double.MAX_VALUE);
+        });
   }
 
   public void display(RecentActivitiesQueryResult result) {
-    var menuItems =
-        result.activities().stream()
-            .map(
-                it -> {
-                  var menuItem = new MenuItem(new ActivityStringConverter().toString(it));
-                  menuItem.setOnAction(
-                      e ->
-                          onLogActivityCommand.accept(
-                              new LogActivityCommand(
-                                  it.timestamp(), it.period(), it.activity(), it.tags())));
-                  return menuItem;
-                })
-            .collect(Collectors.toList());
-    Platform.runLater(() -> logButton.getItems().setAll(menuItems));
+    System.out.println(result);
+    Platform.runLater(
+        () -> {
+          var menuItems =
+              result.activities().stream()
+                  .map(
+                      it -> {
+                        var menuItem = new MenuItem(new ActivityStringConverter().toString(it));
+                        menuItem.setOnAction(
+                            e ->
+                                onLogActivityCommand.accept(
+                                    new LogActivityCommand(
+                                        it.timestamp(), it.period(), it.activity(), it.tags())));
+                        return menuItem;
+                      })
+                  .collect(Collectors.toList());
+          logButton.getItems().setAll(menuItems);
 
-    if (!result.activities().isEmpty()) {
-      var lastActivity = result.activities().get(0);
-      activityText.setText(lastActivity.activity());
+          if (!result.activities().isEmpty()) {
+            var lastActivity = result.activities().get(0);
+            activityText.setText(lastActivity.activity());
 
-      tagsText.setText(new TagsStringConverter().toString(lastActivity.tags()));
-    }
+            var tagsStringConverter = new TagsStringConverter();
+            tagsText.setText(tagsStringConverter.toString(lastActivity.tags()));
+          }
+        });
   }
 
   public void display(SettingsQueryResult result) {
+    System.out.println(result);
     // periodDuration.setValue(result.periodDuration());
     // activityLogFile.setValue(result.activityLogFile().toString());
   }
@@ -176,7 +212,8 @@ public class MainViewController {
   @FXML
   private void logActivity() {
     var tags = new TagsStringConverter().fromString(tagsText.getText());
-    // TODO Fülle Timestamp und Period aus
-    onLogActivityCommand.accept(new LogActivityCommand(null, null, activityText.getText(), tags));
+    onLogActivityCommand.accept(
+        new LogActivityCommand(timestamp, periodCheck.getPeriod(), activityText.getText(), tags));
+    activityFormDisabled.set(true);
   }
 }
