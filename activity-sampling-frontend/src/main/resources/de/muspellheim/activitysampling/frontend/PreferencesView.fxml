@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Scene?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.stage.Stage?>
+
+<Stage fx:id="stage" minHeight="120.0" minWidth="400.0" title="%preferences.title" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.PreferencesViewController">
+   <scene>
+      <Scene stylesheets="@uwp.css">
+         <root>
+            <VBox prefWidth="640.0" styleClass="screen-medium">
+               <children>
+                  <VBox styleClass="form">
+                     <children>
+                        <VBox styleClass="control">
+                           <children>
+                              <Label text="%preferences.label.periodDuration" />
+                              <ChoiceBox fx:id="periodDurationChoice" onAction="#handleChangePeriodDuration" />
+                           </children>
+                        </VBox>
+                        <VBox styleClass="control">
+                           <children>
+                              <Label text="%preferences.label.saveActivityLogToFile" />
+                              <TextField fx:id="activityLogFileText" editable="false" promptText="activity-log.csv" />
+                              <Button mnemonicParsing="false" onAction="#handleChangeActivityLogFile" text="%preferences.button.change" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+         </root>
+      </Scene>
+   </scene>
+</Stage>

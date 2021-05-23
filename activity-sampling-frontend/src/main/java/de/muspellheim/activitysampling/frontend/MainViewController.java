@@ -25,6 +25,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SeparatorMenuItem;
@@ -44,6 +45,8 @@ public class MainViewController {
   @Getter @Setter private Consumer<RecentActivitiesQuery> onRecentActivitiesQuery;
   @Getter @Setter private Consumer<SettingsQuery> onSettingsQuery;
 
+  @FXML private Stage stage;
+  @FXML private MenuBar menuBar;
   @FXML private SeparatorMenuItem quitSeparatorMenuItem;
   @FXML private MenuItem quitMenuItem;
   @FXML private TextField activityText;
@@ -81,8 +84,8 @@ public class MainViewController {
 
   @FXML
   private void initialize() {
-    periodCheck.setPeriod(Duration.ofSeconds(30));
     if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+      menuBar.setUseSystemMenuBar(true);
       quitSeparatorMenuItem.setVisible(false);
       quitMenuItem.setVisible(false);
     }
@@ -140,7 +143,7 @@ public class MainViewController {
   }
 
   public void run() {
-    getWindow().show();
+    stage.show();
     onSettingsQuery.accept(new SettingsQuery());
     onActivityLogQuery.accept(new ActivityLogQuery());
     onRecentActivitiesQuery.accept(new RecentActivitiesQuery());
@@ -189,23 +192,19 @@ public class MainViewController {
 
   public void display(SettingsQueryResult result) {
     System.out.println(result);
-    // periodDuration.setValue(result.periodDuration());
-    // activityLogFile.setValue(result.activityLogFile().toString());
-  }
-
-  private Stage getWindow() {
-    return (Stage) activityText.getScene().getWindow();
+    periodCheck.setPeriod(result.periodDuration());
+    // TODO activityLogFile.setValue(result.activityLogFile().toString());
   }
 
   @FXML
-  private void openSettings() {
-    var preferencesView = SettingsView.create(getWindow());
+  private void openPreferences() {
+    var preferencesView = PreferencesViewController.create(stage);
     preferencesView.run();
   }
 
   @FXML
   private void openInfo() {
-    var infoView = InfoView.create(getWindow());
+    var infoView = InfoView.create(stage);
     infoView.run();
   }
 

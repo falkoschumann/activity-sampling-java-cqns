@@ -6,6 +6,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -13,18 +14,17 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.stage.Stage?>
 
-<?import javafx.scene.control.SeparatorMenuItem?>
-<fx:root minHeight="420.0" minWidth="240.0" title="%main.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainViewController">
+<fx:root fx:id="stage" minHeight="420.0" minWidth="240.0" title="%main.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainViewController">
    <scene>
       <Scene stylesheets="@uwp.css">
          <root>
             <VBox prefHeight="640.0" prefWidth="360.0">
                <children>
-                  <MenuBar useSystemMenuBar="true">
+                  <MenuBar fx:id="menuBar">
                     <menus>
                       <Menu mnemonicParsing="false" text="%main.fileMenu">
                         <items>
-                          <MenuItem mnemonicParsing="false" text="%main.fileMenu.preferences">
+                          <MenuItem mnemonicParsing="false" text="%main.fileMenu.preferences" onAction="#openPreferences">
                             <accelerator>
                               <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                             </accelerator>
