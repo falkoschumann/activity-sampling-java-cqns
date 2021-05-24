@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-public class PeriodCheckerTests {
+public class PeriodCheckTests {
   @Mock private Consumer<Duration> remainingTimeChanged;
   @Mock private Consumer<LocalDateTime> periodEnded;
 

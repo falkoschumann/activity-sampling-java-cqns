@@ -5,35 +5,37 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
-import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
-import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
+import java.net.URL;
+import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 
-public class PreferencesViewController {
-  @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
-  @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
+public class PreferencesViewController implements Initializable {
+  private final ObjectProperty<Duration> periodDuration = new SimpleObjectProperty<>();
+  private final ObjectProperty<Path> activityLogFile = new SimpleObjectProperty<>();
 
   @FXML private Stage stage;
   @FXML private ChoiceBox<Duration> periodDurationChoice;
   @FXML private TextField activityLogFileText;
 
+  private ResourceBundle resources;
+
   @SneakyThrows
   public static PreferencesViewController create(Stage owner) {
-    var location = MainViewController.class.getResource("MainView.fxml");
+    var location = MainViewController.class.getResource("PreferencesView.fxml");
     var resources = ResourceBundle.getBundle("ActivitySampling");
     var loader = new FXMLLoader(location, resources);
     loader.load();
@@ -42,13 +44,38 @@ public class PreferencesViewController {
     return controller;
   }
 
-  public void run() {
-    stage.show();
-    // TODO viewModel.loadPreferences();
+  public final ObjectProperty<Duration> periodDurationProperty() {
+    return periodDuration;
   }
 
-  @FXML
-  private void initialize() {
+  public final Duration getPeriodDuration() {
+    return periodDuration.get();
+  }
+
+  public final void setPeriodDuration(Duration value) {
+    periodDuration.set(value);
+  }
+
+  public final ObjectProperty<Path> activityLogFileProperty() {
+    return activityLogFile;
+  }
+
+  public final Path getActivityLogFile() {
+    return activityLogFile.get();
+  }
+
+  public final void setActivityLogFile(Path value) {
+    activityLogFile.set(value);
+  }
+
+  public void run() {
+    stage.show();
+  }
+
+  public void initialize(URL location, ResourceBundle resources) {
+    this.resources = resources;
+
+    periodDurationChoice.valueProperty().bindBidirectional(periodDuration);
     periodDurationChoice.setConverter(new PeriodStringConverter());
     periodDurationChoice
         .getItems()
@@ -60,22 +87,12 @@ public class PreferencesViewController {
             Duration.ofMinutes(20),
             Duration.ofMinutes(30),
             Duration.ofHours(1));
-  }
 
-  public void display(SettingsQueryResult result) {
-    System.out.println(result);
-    periodDurationChoice.setValue(result.periodDuration());
-    activityLogFileText.setText(result.activityLogFile().toString());
+    activityLogFileText.textProperty().bind(activityLogFile.asString());
   }
 
   @FXML
-  private void handleChangePeriodDuration() {
-    onChangePeriodDurationCommand.accept(
-        new ChangePeriodDurationCommand(periodDurationChoice.getValue()));
-  }
-
-  @FXML
-  private void handleChangeActivityLogFile() {
+  private void changeActivityLogFile() {
     var chooser = new FileChooser();
     chooser.setTitle("Choose Activity Log File");
     chooser.setInitialFileName("activity-log.csv");
@@ -86,17 +103,17 @@ public class PreferencesViewController {
             new ExtensionFilter("All Files", "*.*"));
     var file = chooser.showSaveDialog(stage);
     if (file != null) {
-      onChangeActivityLogFileCommand.accept(new ChangeActivityLogFileCommand(file.toPath()));
+      activityLogFile.set(file.toPath());
     }
   }
 
-  private static class PeriodStringConverter extends StringConverter<Duration> {
+  private class PeriodStringConverter extends StringConverter<Duration> {
     @Override
     public String toString(Duration object) {
       if (object.toHoursPart() == 0) {
-        return object.toMinutes() + " minutes";
+        return MessageFormat.format(resources.getString("preferences.minutes"), object.toMinutes());
       } else {
-        return "1 hour";
+        return resources.getString("preferences.hour");
       }
     }
 

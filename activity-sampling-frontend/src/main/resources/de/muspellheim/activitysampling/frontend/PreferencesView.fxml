@@ -1,36 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.Scene?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.stage.Stage?>
 
-<Stage fx:id="stage" minHeight="120.0" minWidth="400.0" title="%preferences.title" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.PreferencesViewController">
+<Stage fx:id="stage" minHeight="100.0" minWidth="600.0" title="%preferences.title" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.PreferencesViewController">
    <scene>
-      <Scene stylesheets="@uwp.css">
+      <Scene stylesheets="@style.css">
          <root>
-            <VBox prefWidth="640.0" styleClass="screen-medium">
+            <VBox>
                <children>
-                  <VBox styleClass="form">
+                  <GridPane hgap="12.0" vgap="8.0">
+                     <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" />
+                        <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+                        <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+                     </rowConstraints>
                      <children>
-                        <VBox styleClass="control">
+                        <Label text="%preferences.label.periodDuration" />
+                        <ChoiceBox fx:id="periodDurationChoice" GridPane.columnIndex="1" />
+                        <Label text="%preferences.label.saveActivityLogToFile" GridPane.rowIndex="1" />
+                        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                            <children>
-                              <Label text="%preferences.label.periodDuration" />
-                              <ChoiceBox fx:id="periodDurationChoice" onAction="#handleChangePeriodDuration" />
+                              <TextField fx:id="activityLogFileText" editable="false" promptText="activity-log.csv" HBox.hgrow="ALWAYS" />
+                              <Button mnemonicParsing="false" onAction="#changeActivityLogFile" text="%preferences.button.change" />
                            </children>
-                        </VBox>
-                        <VBox styleClass="control">
-                           <children>
-                              <Label text="%preferences.label.saveActivityLogToFile" />
-                              <TextField fx:id="activityLogFileText" editable="false" promptText="activity-log.csv" />
-                              <Button mnemonicParsing="false" onAction="#handleChangeActivityLogFile" text="%preferences.button.change" />
-                           </children>
-                        </VBox>
+                        </HBox>
                      </children>
-                  </VBox>
+                     <padding>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                     </padding>
+                  </GridPane>
                </children>
             </VBox>
          </root>

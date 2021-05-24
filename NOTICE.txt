@@ -1,6 +1,0 @@
-Activity Sampling
-Copyright (c) 2020 Falko Schumann <falko.schumann@muspellheim.de>
-
-The Inter font in
-activity-sampling-frontend/src/main/resources/de/muspellheim/activitysampling/frontend/fonts
-was designed by Rasmus Andersson (https://fonts.google.com/specimen/Inter).

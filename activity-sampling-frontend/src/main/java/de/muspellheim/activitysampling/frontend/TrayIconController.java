@@ -30,8 +30,7 @@ class TrayIconController {
       return;
     }
 
-    // TODO Tray-Icon explizit verwenden, statt App-Icon wiederzuverwenden
-    var url = getClass().getResource("app.png");
+    var url = getClass().getResource("tray-icon.png");
     var image = Toolkit.getDefaultToolkit().getImage(url);
     trayIcon = new TrayIcon(image);
   }

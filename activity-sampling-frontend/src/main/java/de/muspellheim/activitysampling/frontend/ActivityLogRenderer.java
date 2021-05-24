@@ -11,18 +11,18 @@ import java.time.format.FormatStyle;
 import java.util.List;
 
 class ActivityLogRenderer {
-  String toString(List<Activity> log) {
+  String render(List<Activity> activities) {
     var stringConverter = new ActivityStringConverter();
     var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
     var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
     var logBuilder = new StringBuilder();
-    for (int i = 0; i < log.size(); i++) {
-      var activity = log.get(i);
+    for (int i = 0; i < activities.size(); i++) {
+      var activity = activities.get(i);
       if (i == 0) {
         logBuilder.append(dateFormatter.format(activity.timestamp()));
         logBuilder.append("\n");
       } else {
-        var lastActivity = log.get(i - 1);
+        var lastActivity = activities.get(i - 1);
         if (!lastActivity.timestamp().toLocalDate().equals(activity.timestamp().toLocalDate())) {
           logBuilder.append(dateFormatter.format(activity.timestamp()));
           logBuilder.append("\n");

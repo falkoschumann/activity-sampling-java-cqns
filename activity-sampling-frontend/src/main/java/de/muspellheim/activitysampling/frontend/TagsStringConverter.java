@@ -5,6 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javafx.util.StringConverter;
@@ -17,6 +18,10 @@ public class TagsStringConverter extends StringConverter<List<String>> {
 
   @Override
   public List<String> fromString(String string) {
+    if (string.isBlank()) {
+      return Collections.emptyList();
+    }
+
     return List.of(string.split(",")).stream().map(it -> it.strip()).collect(Collectors.toList());
   }
 }

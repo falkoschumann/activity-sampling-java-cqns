@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.Scene?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
@@ -16,7 +17,7 @@
 
 <fx:root fx:id="stage" minHeight="420.0" minWidth="240.0" title="%main.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainViewController">
    <scene>
-      <Scene stylesheets="@uwp.css">
+      <Scene stylesheets="@style.css">
          <root>
             <VBox prefHeight="640.0" prefWidth="360.0">
                <children>
@@ -24,13 +25,13 @@
                     <menus>
                       <Menu mnemonicParsing="false" text="%main.fileMenu">
                         <items>
-                          <MenuItem mnemonicParsing="false" text="%main.fileMenu.preferences" onAction="#openPreferences">
+                          <MenuItem mnemonicParsing="false" onAction="#openPreferences" text="%main.fileMenu.preferences">
                             <accelerator>
                               <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                             </accelerator>
                           </MenuItem>
                           <SeparatorMenuItem fx:id="quitSeparatorMenuItem" />
-                          <MenuItem fx:id="quitMenuItem" mnemonicParsing="false" text="%main.fileMenu.quit">
+                          <MenuItem fx:id="quitMenuItem" mnemonicParsing="false" onAction="#quit" text="%main.fileMenu.quit">
                             <accelerator>
                               <KeyCodeCombination alt="UP" code="Q" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                             </accelerator>
@@ -39,43 +40,42 @@
                       </Menu>
                       <Menu mnemonicParsing="false" text="%main.helpMenu">
                         <items>
-                          <MenuItem mnemonicParsing="false" text="%main.helpMenu.about" />
+                          <MenuItem mnemonicParsing="false" onAction="#openInfo" text="%main.helpMenu.about" />
                         </items>
                       </Menu>
                     </menus>
                   </MenuBar>
-                  <VBox styleClass="screen-small" VBox.vgrow="ALWAYS">
+                  <VBox spacing="12.0" VBox.vgrow="ALWAYS">
                      <children>
-                        <VBox styleClass="form" VBox.vgrow="ALWAYS">
+                        <VBox spacing="4.0">
                            <children>
-                              <VBox styleClass="control">
-                                 <children>
-                                    <Label text="%main.activityLabel" />
-                                    <TextField fx:id="activityText" onAction="#logActivity" promptText="%main.activityText.promptText" />
-                                 </children>
-                              </VBox>
-                              <VBox styleClass="control">
-                                 <children>
-                                    <Label text="%main.tagsLabel" />
-                                    <TextField fx:id="tagsText" onAction="#logActivity" promptText="%main.tagsText.promptText" />
-                                 </children>
-                              </VBox>
-                              <SplitMenuButton fx:id="logButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#logActivity" text="%main.logButton">
-                                <items>
-                                  <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />
-                                  <MenuItem mnemonicParsing="false" text="[Foo, Bar] Lorem ipsum" />
-                                </items>
-                              </SplitMenuButton>
-                              <VBox styleClass="control">
-                                 <children>
-                                    <Label fx:id="remainingTimeLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" />
-                                    <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" progress="0.0" />
-                                 </children>
-                              </VBox>
-                              <TextArea fx:id="activityLogText" editable="false" VBox.vgrow="ALWAYS" />
+                              <Label text="%main.activityLabel" />
+                              <TextField fx:id="activityText" onAction="#logActivity" promptText="%main.activityText.promptText" />
                            </children>
                         </VBox>
+                        <VBox spacing="4.0">
+                           <children>
+                              <Label text="%main.tagsLabel" />
+                              <TextField fx:id="tagsText" onAction="#logActivity" promptText="%main.tagsText.promptText" />
+                           </children>
+                        </VBox>
+                        <SplitMenuButton fx:id="logButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#logActivity" text="%main.logButton">
+                          <items>
+                            <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />
+                            <MenuItem mnemonicParsing="false" text="[Foo, Bar] Lorem ipsum" />
+                          </items>
+                        </SplitMenuButton>
+                        <VBox spacing="4.0">
+                           <children>
+                              <Label fx:id="remainingTimeLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" text="00:20:00" />
+                              <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                           </children>
+                        </VBox>
+                        <TextArea fx:id="activityLogText" editable="false" VBox.vgrow="ALWAYS" />
                      </children>
+                     <padding>
+                        <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                     </padding>
                   </VBox>
                </children>
             </VBox>
