@@ -64,8 +64,13 @@ public class App extends Application {
     frontend.setOnLogActivityCommand(
         cmd -> {
           logActivityCommandHandler.handle(cmd);
-          var result = activityLogQueryHandler.handle(new ActivityLogQuery());
-          frontend.display(result);
+
+          var activityLogQueryResult = activityLogQueryHandler.handle(new ActivityLogQuery());
+          frontend.display(activityLogQueryResult);
+
+          var recentActivitiesQueryResult =
+              recentActivitiesQueryHandler.handle(new RecentActivitiesQuery());
+          frontend.display(recentActivitiesQueryResult);
         });
 
     frontend.setOnChangePeriodDurationCommand(

@@ -17,6 +17,7 @@ import de.muspellheim.activitysampling.contract.messages.queries.SettingsQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.SettingsQueryResult;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -132,6 +133,7 @@ public class MainViewController {
 
   private void bindTrayIconController() {
     stage.setOnCloseRequest(e -> trayIconController.hide());
+    trayIconController.setOnLogActivitySelected(this::logActivity);
   }
 
   private void handleRemainingTimeChanged(Duration remaining) {
@@ -194,14 +196,12 @@ public class MainViewController {
             tagsText.setText(tagsStringConverter.toString(lastActivity.tags()));
           }
         });
+    trayIconController.setRecentActivities(result.activities());
   }
 
   private MenuItem createActivityMenuItem(Activity it) {
     var menuItem = new MenuItem(new ActivityStringConverter().toString(it));
-    menuItem.setOnAction(
-        e ->
-            onLogActivityCommand.accept(
-                new LogActivityCommand(it.timestamp(), it.period(), it.activity(), it.tags())));
+    menuItem.setOnAction(e -> handleLogActivity(it.activity(), it.tags()));
     return menuItem;
   }
 
@@ -234,8 +234,16 @@ public class MainViewController {
   @FXML
   private void logActivity() {
     var tags = new TagsStringConverter().fromString(tagsText.getText());
+    handleLogActivity(activityText.getText(), tags);
+  }
+
+  private void logActivity(Activity activity) {
+    handleLogActivity(activity.activity(), activity.tags());
+  }
+
+  private void handleLogActivity(String activity, List<String> tags) {
     onLogActivityCommand.accept(
-        new LogActivityCommand(timestamp, periodCheck.getPeriod(), activityText.getText(), tags));
+        new LogActivityCommand(timestamp, periodCheck.getPeriod(), activity, tags));
     activityFormDisabled.set(true);
     trayIconController.hide();
   }
