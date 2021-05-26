@@ -1,28 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Scene?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.stage.Stage?>
 
-<VBox alignment="CENTER" spacing="8.0" stylesheets="@app.css" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.InfoView">
-   <children>
-      <ImageView fx:id="icon" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@app.png" />
-         </image>
-      </ImageView>
-      <Label fx:id="title" styleClass="base" text="Activity Sampling" />
-      <Label fx:id="version" styleClass="caption" text="Version 1.0.0" />
-      <VBox alignment="CENTER">
-         <children>
-            <Label fx:id="copyright" styleClass="caption" text="Copyright © 2021 Falko Schumann" />
-            <Label styleClass="caption" text="All rights reserved." />
-         </children>
-      </VBox>
-   </children>
-   <padding>
-      <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
-   </padding>
-</VBox>
+<Stage fx:id="stage" title="Info" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.InfoViewController">
+   <scene>
+      <Scene stylesheets="@style.css">
+         <root>
+            <VBox alignment="CENTER" spacing="8.0">
+               <children>
+                  <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@app-icon.png" />
+                     </image>
+                  </ImageView>
+                  <Label styleClass="headline" text="Activity Sampling" />
+                  <HBox alignment="CENTER">
+                     <children>
+                        <Label styleClass="caption" text="Version " />
+                        <Label fx:id="version" styleClass="caption" text="1.0.0" />
+                     </children>
+                  </HBox>
+                  <VBox alignment="CENTER">
+                     <children>
+                        <Label fx:id="copyright" styleClass="caption" text="Copyright © 2020 Falko Schumann" />
+                        <Label styleClass="caption" text="All rights reserved." />
+                     </children>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="24.0" left="48.0" right="48.0" top="24.0" />
+               </padding>
+            </VBox>
+         </root>
+      </Scene>
+   </scene>
+</Stage>

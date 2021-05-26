@@ -35,7 +35,7 @@ public class PreferencesViewController implements Initializable {
 
   @SneakyThrows
   public static PreferencesViewController create(Stage owner) {
-    var location = MainViewController.class.getResource("PreferencesView.fxml");
+    var location = PreferencesViewController.class.getResource("PreferencesView.fxml");
     var resources = ResourceBundle.getBundle("ActivitySampling");
     var loader = new FXMLLoader(location, resources);
     loader.load();

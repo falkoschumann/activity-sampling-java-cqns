@@ -21,7 +21,7 @@ def copyright = "Copyright (c) ${year} Falko Schumann"
 
 processResources {
   filesMatching('**/*.properties') {
-    expand(title: 'Todos', version: rootProject.version, copyright: copyright)
+    expand(version: rootProject.version, copyright: copyright)
   }
 }
 
@@ -56,12 +56,12 @@ if (Os.isFamily(Os.FAMILY_WINDOWS)) {
       installerName = 'Activity Sampling'
       installerType = 'msi'
       installerOptions = [
-        '--copyright', "Copyright (c) ${year} Falko Schumann",
+        '--copyright', copyright,
         '--license-file', '../LICENSE.txt',
         '--win-dir-chooser',
         '--win-menu',
         '--win-menu-group', 'Muspellheim',
-        '--win-upgrade-uuid', 'cce3747c-06dc-466c-8c49-4aebe528da61'
+        '--win-upgrade-uuid', project.findProperty('win.upgradeUuid')
       ]
     }
   }

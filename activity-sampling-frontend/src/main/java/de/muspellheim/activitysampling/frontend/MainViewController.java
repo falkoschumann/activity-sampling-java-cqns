@@ -227,8 +227,8 @@ public class MainViewController {
 
   @FXML
   private void openInfo() {
-    var infoView = InfoView.create(stage);
-    infoView.run();
+    var infoViewController = InfoViewController.create(stage);
+    infoViewController.run();
   }
 
   @FXML
