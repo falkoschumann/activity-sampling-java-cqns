@@ -6,7 +6,6 @@
 package de.muspellheim.activitysampling.backend.adapters;
 
 import de.muspellheim.activitysampling.backend.Event;
-import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import java.io.Closeable;
 import java.io.IOException;
@@ -22,15 +21,11 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import org.apache.commons.csv.CSVFormat;
@@ -39,7 +34,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
 @Log
-public class CsvEventStore implements EventStore {
+public class CsvEventStore extends AbstractEventStore {
   private static final CSVFormat CSV_FORMAT = CSVFormat.RFC4180;
   private static final DateTimeFormatter TIMESTAMP_FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -53,15 +48,12 @@ public class CsvEventStore implements EventStore {
     Tags
   }
 
-  @Getter @Setter private String uri;
-  @Getter @Setter Consumer<Event> onRecorded;
-
   public CsvEventStore(String uri) {
     setUri(uri);
   }
 
   private Path getFile() {
-    return Paths.get(uri);
+    return Paths.get(getUri());
   }
 
   @Override
@@ -71,7 +63,7 @@ public class CsvEventStore implements EventStore {
       createFile();
     }
     writeActivity((ActivityLoggedEvent) event);
-    publishRecorded(event);
+    notifyRecordedObservers(event);
   }
 
   private void createFile() throws IOException {
@@ -102,10 +94,6 @@ public class CsvEventStore implements EventStore {
       String formattedTags = String.join(", ", e.tags());
       printer.printRecord(e.id(), formattedTimestamp, formattedPeriod, e.activity(), formattedTags);
     }
-  }
-
-  private void publishRecorded(Event event) {
-    Optional.ofNullable(onRecorded).ifPresent(it -> it.accept(event));
   }
 
   @Override

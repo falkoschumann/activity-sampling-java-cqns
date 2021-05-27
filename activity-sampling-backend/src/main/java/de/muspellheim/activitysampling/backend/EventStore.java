@@ -14,9 +14,9 @@ public interface EventStore {
 
   void setUri(String uri);
 
-  Consumer<Event> getOnRecorded();
+  void addRecordedObserver(Consumer<Event> handler);
 
-  void setOnRecorded(Consumer<Event> consumer);
+  void removeRecordedObserver(Consumer<Event> handler);
 
   void record(Event event);
 
