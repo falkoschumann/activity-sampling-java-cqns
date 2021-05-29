@@ -1,4 +1,4 @@
-= TodoMVC
+= Activity Sampling
 
 Lorem ipsum.
 

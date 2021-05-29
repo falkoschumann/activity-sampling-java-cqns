@@ -3,8 +3,8 @@ import org.apache.tools.ant.taskdefs.condition.Os
 import java.time.LocalDate
 
 plugins {
-  id 'todomvc.java-application-conventions'
-  id 'todomvc.java-openjfx-conventions'
+  id 'activity-sampling.java-application-conventions'
+  id 'activity-sampling.java-openjfx-conventions'
   id 'com.gluonhq.client-gradle-plugin'
   id 'org.beryx.jlink'
 }

@@ -1,4 +1,0 @@
-plugins {
-  id 'todomvc.java-common-conventions'
-  id 'java-library'
-}

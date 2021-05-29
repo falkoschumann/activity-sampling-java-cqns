@@ -1,5 +1,5 @@
 plugins {
-  id 'todomvc.java-library-conventions'
+  id 'activity-sampling.java-library-conventions'
 }
 
 dependencies {
