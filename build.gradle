@@ -5,3 +5,5 @@ plugins {
   id 'org.beryx.jlink' version '2.24.0' apply false
   id 'org.openjfx.javafxplugin' version '0.0.10' apply false
 }
+
+version = '1.0.0'

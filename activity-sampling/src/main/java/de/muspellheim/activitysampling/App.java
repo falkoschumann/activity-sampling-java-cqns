@@ -21,6 +21,8 @@ import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuer
 import de.muspellheim.activitysampling.frontend.AboutViewController;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingViewController;
 import de.muspellheim.activitysampling.frontend.PreferencesViewController;
+import java.io.InputStream;
+import java.util.Properties;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -34,7 +36,7 @@ public class App extends Application {
   }
 
   @Override
-  public void init() {
+  public void init() throws Exception {
     if (getParameters().getUnnamed().contains("--demo")) {
       System.out.println("Run in demo mode...");
       eventStore = new MemoryEventStore();
@@ -50,6 +52,12 @@ public class App extends Application {
     if (getParameters().getUnnamed().contains("--noSystemMenuBar")) {
       useSystemMenuBar = false;
     }
+
+    var properties = new Properties();
+    try (InputStream in = getClass().getResourceAsStream("/app.properties")) {
+      properties.load(in);
+    }
+    System.getProperties().putAll(properties);
   }
 
   @Override

@@ -6,20 +6,10 @@ plugins {
   id 'extra-java-module-info'
 }
 
+version = rootProject.version
+
 repositories {
   mavenCentral()
-}
-
-sourceCompatibility = 11
-targetCompatibility = 11
-
-compileJava {
-  options.encoding = 'UTF-8'
-  options.compilerArgs << '-parameters'
-}
-
-compileTestJava {
-  options.encoding = 'UTF-8'
 }
 
 dependencies {
@@ -27,8 +17,19 @@ dependencies {
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
+compileJava {
+  options.encoding = 'UTF-8'
+  options.compilerArgs << '-parameters'
+}
+
 java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
   modularity.inferModulePath = true
+}
+
+compileTestJava {
+  options.encoding = 'UTF-8'
 }
 
 test {
