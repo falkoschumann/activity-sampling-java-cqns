@@ -1,6 +1,6 @@
 plugins {
   id 'java'
-  //id 'jacoco' // TODO Java 15 wird derzeit nicht unterstützt
+  id 'jacoco'
   id 'com.diffplug.spotless'
   id 'io.freefair.lombok'
   id 'extra-java-module-info'
@@ -23,7 +23,7 @@ compileTestJava {
 }
 
 dependencies {
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
@@ -36,13 +36,13 @@ test {
   testLogging {
     events("passed", "skipped", "failed")
   }
-  //finalizedBy jacocoTestReport
+  finalizedBy jacocoTestReport
 }
-/*
+
 jacocoTestReport {
     dependsOn test
 }
-*/
+
 spotless {
   java {
     googleJavaFormat()

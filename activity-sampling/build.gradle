@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 plugins {
   id 'todomvc.java-application-conventions'
+  id 'todomvc.java-openjfx-conventions'
   id 'com.gluonhq.client-gradle-plugin'
   id 'org.beryx.jlink'
 }
@@ -19,10 +20,10 @@ dependencies {
 
 application {
   mainModule = 'de.muspellheim.activitysampling'
-  mainClassName = 'de.muspellheim.activitysampling.App'
+  mainClass = 'de.muspellheim.activitysampling.App'
   applicationDefaultJvmArgs = [
-    "-Dapp.version=${project.version}",
-    "-Dapp.copyright=${year} Falko Schumann"
+    "-Dapp.version=${project.version}".toString(),
+    "-Dapp.copyright=${year} Falko Schumann".toString()
   ]
 }
 

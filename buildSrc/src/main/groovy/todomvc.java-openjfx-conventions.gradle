@@ -1,16 +1,9 @@
-import org.apache.tools.ant.taskdefs.condition.Os
-
 plugins {
   id 'todomvc.java-common-conventions'
+  id 'org.openjfx.javafxplugin'
 }
 
-def openjfxGroup = 'org.openjfx'
-def openjfxVersion = '15.0.1'
-def openjfxPlatform = Os.isFamily(Os.FAMILY_MAC) ? 'mac' : Os.isFamily(Os.FAMILY_WINDOWS) ? 'win' : Os.isFamily(Os.FAMILY_UNIX) ? 'linux' : null
-
-dependencies {
-  api(group: openjfxGroup, name: 'javafx-base', version: openjfxVersion, classifier: openjfxPlatform)
-  api(group: openjfxGroup, name: 'javafx-graphics', version: openjfxVersion, classifier: openjfxPlatform)
-  api(group: openjfxGroup, name: 'javafx-controls', version: openjfxVersion, classifier: openjfxPlatform)
-  api(group: openjfxGroup, name: 'javafx-fxml', version: openjfxVersion, classifier: openjfxPlatform)
+javafx {
+  version = "16"
+  modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
