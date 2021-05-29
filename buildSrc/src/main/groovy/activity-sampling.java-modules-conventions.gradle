@@ -1,0 +1,10 @@
+plugins {
+  id("extra-java-module-info")
+}
+
+extraJavaModuleInfo {
+  module("commons-csv-1.8.jar", "org.apache.commons.csv", "1.8") {
+    exports("org.apache.commons.csv")
+    requiresStatic("java.sql")
+  }
+}

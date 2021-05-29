@@ -1,4 +1,0 @@
-plugins {
-  id 'activity-sampling.java-common-conventions'
-  id 'java-library'
-}

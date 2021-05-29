@@ -1,9 +1,0 @@
-plugins {
-  id 'activity-sampling.java-common-conventions'
-  id 'application'
-  id 'org.beryx.jlink'
-}
-
-jlink {
-  options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages', '--include-locales', 'en,de']
-}

@@ -1,6 +1,0 @@
-rootProject.name = 'activity-sampling-root'
-
-include 'activity-sampling-contract'
-include 'activity-sampling-backend'
-include 'activity-sampling-frontend'
-include 'activity-sampling'

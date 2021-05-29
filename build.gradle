@@ -1,9 +1,0 @@
-plugins {
-  id 'com.diffplug.spotless' version '5.12.5' apply false
-  id 'com.gluonhq.client-gradle-plugin' version '0.1.41' apply false
-  id 'io.freefair.lombok' version '6.0.0-m2' apply false
-  id 'org.beryx.jlink' version '2.24.0' apply false
-  id 'org.openjfx.javafxplugin' version '0.0.10' apply false
-}
-
-version = '1.0.0'
