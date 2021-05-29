@@ -5,8 +5,7 @@
 
 package de.muspellheim.activitysampling.contract.messages.queries;
 
-import de.muspellheim.messages.Query;
 import lombok.Value;
 
 @Value
-public class ActivityLogQuery implements Query {}
+public class ActivityLogQuery {}

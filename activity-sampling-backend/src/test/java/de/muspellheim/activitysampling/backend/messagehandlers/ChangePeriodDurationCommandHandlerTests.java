@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesStore;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
-import de.muspellheim.messages.Success;
+import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 

@@ -7,17 +7,16 @@ package de.muspellheim.activitysampling.backend.messagehandlers;
 
 import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
+import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
+import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
-import de.muspellheim.messages.CommandHandling;
-import de.muspellheim.messages.CommandStatus;
-import de.muspellheim.messages.Failure;
-import de.muspellheim.messages.Success;
+import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import java.time.ZoneId;
 import java.util.logging.Level;
 import lombok.extern.java.Log;
 
 @Log
-public class LogActivityCommandHandler implements CommandHandling<LogActivityCommand> {
+public class LogActivityCommandHandler {
   private final EventStore eventStore;
 
   public LogActivityCommandHandler(EventStore eventStore) {

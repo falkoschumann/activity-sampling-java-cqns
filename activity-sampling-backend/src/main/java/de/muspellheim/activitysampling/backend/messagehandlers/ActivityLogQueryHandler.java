@@ -10,7 +10,6 @@ import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
-import de.muspellheim.messages.QueryHandling;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
@@ -22,15 +21,13 @@ import java.util.stream.Collectors;
 import lombok.extern.java.Log;
 
 @Log
-public class ActivityLogQueryHandler
-    implements QueryHandling<ActivityLogQuery, ActivityLogQueryResult> {
+public class ActivityLogQueryHandler {
   private final EventStore eventStore;
 
   public ActivityLogQueryHandler(EventStore eventStore) {
     this.eventStore = eventStore;
   }
 
-  @Override
   public ActivityLogQueryResult handle(ActivityLogQuery query) {
     try {
       var log =

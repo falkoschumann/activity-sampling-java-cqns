@@ -1,7 +1,3 @@
 plugins {
   id 'todomvc.java-library-conventions'
 }
-
-dependencies {
-  api 'de.muspellheim:muspellheim-messages:1.0.0'
-}
