@@ -19,13 +19,13 @@
           <Menu mnemonicParsing="false" text="File">
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#handlePreferences" text="Preferences" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
+                  <SeparatorMenuItem fx:id="quitSeparator" mnemonicParsing="false" />
+              <MenuItem fx:id="quit" mnemonicParsing="false" onAction="#handleQuit" text="Quit" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="About" />
+              <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="About Activity Sampling" />
             </items>
           </Menu>
         </menus>

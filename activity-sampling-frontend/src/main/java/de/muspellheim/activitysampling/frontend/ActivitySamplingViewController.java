@@ -27,6 +27,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -42,6 +43,8 @@ public class ActivitySamplingViewController {
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
 
   @FXML private MenuBar menuBar;
+  @FXML private SeparatorMenuItem quitSeparator;
+  @FXML private MenuItem quit;
   @FXML private TextField activity;
   @FXML private TextField tags;
   @FXML private SplitMenuButton log;
@@ -58,7 +61,7 @@ public class ActivitySamplingViewController {
   private Duration period;
   private LocalDateTime timestamp;
 
-  public static ActivitySamplingViewController create(Stage stage, boolean useSystemMenuBar) {
+  public static ActivitySamplingViewController create(Stage stage) {
     var factory = new ViewControllerFactory(ActivitySamplingViewController.class);
 
     var scene = new Scene(factory.getView());
@@ -67,9 +70,7 @@ public class ActivitySamplingViewController {
     stage.setMinWidth(240);
     stage.setMinHeight(420);
 
-    ActivitySamplingViewController controller = factory.getController();
-    controller.menuBar.setUseSystemMenuBar(useSystemMenuBar);
-    return controller;
+    return factory.getController();
   }
 
   public final ReadOnlyBooleanProperty formDisabledProperty() {
@@ -157,8 +158,17 @@ public class ActivitySamplingViewController {
 
   @FXML
   private void initialize() {
+    initializeMac();
     initializePeriodProgress();
     initializeTrayIcon();
+  }
+
+  private void initializeMac() {
+    if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+      menuBar.setUseSystemMenuBar(true);
+      quitSeparator.setVisible(false);
+      quit.setVisible(false);
+    }
   }
 
   private void initializePeriodProgress() {
@@ -207,7 +217,7 @@ public class ActivitySamplingViewController {
   }
 
   @FXML
-  private void handleExit() {
+  private void handleQuit() {
     Platform.exit();
   }
 

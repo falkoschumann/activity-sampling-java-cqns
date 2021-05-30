@@ -8,15 +8,11 @@ package de.muspellheim.activitysampling.frontend;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 public class AboutViewController {
-  @FXML private ImageView icon;
-  @FXML private Label appName;
   @FXML private Label version;
   @FXML private Label copyright;
 
@@ -26,28 +22,14 @@ public class AboutViewController {
     stage.setScene(scene);
     stage.initModality(Modality.APPLICATION_MODAL);
     stage.initStyle(StageStyle.UTILITY);
+    stage.setTitle("About Activity Sampling");
     stage.setResizable(false);
     return factory.getController();
   }
 
-  public void initAppIcon(String url) {
-    icon.setImage(new Image(url, true));
-  }
-
-  public void initAppName(String name) {
-    getWindow().setTitle("About " + name);
-    appName.setText(name);
-  }
-
-  public void initVersion(String version) {
-    this.version.setText("Version " + version);
-  }
-
-  public void initCopyright(String copyright) {
-    this.copyright.setText("Copyright © " + copyright);
-  }
-
-  private Stage getWindow() {
-    return (Stage) icon.getScene().getWindow();
+  @FXML
+  private void initialize() {
+    version.setText(System.getProperty("app.version"));
+    copyright.setText(System.getProperty("app.copyright").replace("(c)", "©"));
   }
 }

@@ -29,7 +29,6 @@ import javafx.stage.Stage;
 public class App extends Application {
   private EventStore eventStore;
   private PreferencesStore preferencesStore;
-  private boolean useSystemMenuBar = true;
 
   public static void main(String[] args) {
     Application.launch(args);
@@ -47,10 +46,6 @@ public class App extends Application {
       var activityLogFile = preferencesStore.loadActivityLogFile();
       System.out.println("Save activity log in: " + activityLogFile.toAbsolutePath());
       eventStore = new CsvEventStore(activityLogFile.toString());
-    }
-
-    if (getParameters().getUnnamed().contains("--noSystemMenuBar")) {
-      useSystemMenuBar = false;
     }
 
     var properties = new Properties();
@@ -74,8 +69,7 @@ public class App extends Application {
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
 
-    var activitySamplingViewController =
-        ActivitySamplingViewController.create(primaryStage, useSystemMenuBar);
+    var activitySamplingViewController = ActivitySamplingViewController.create(primaryStage);
 
     var preferencesStage = new Stage();
     preferencesStage.initOwner(primaryStage);
@@ -84,8 +78,6 @@ public class App extends Application {
     var aboutStage = new Stage();
     aboutStage.initOwner(primaryStage);
     var aboutViewController = AboutViewController.create(aboutStage);
-    aboutViewController.initVersion(System.getProperty("app.version"));
-    aboutViewController.initCopyright(System.getProperty("app.copyright"));
 
     //
     // Bind

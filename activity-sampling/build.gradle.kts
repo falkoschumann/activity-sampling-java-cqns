@@ -21,7 +21,7 @@ application {
 }
 
 val year = LocalDate.now().year
-val copyright = "Copyright (c) ${year} Falko Schumann"
+val copyright = "Copyright (c) 2020-${year} Falko Schumann"
 
 tasks {
   processResources {
