@@ -14,26 +14,26 @@ public interface EventStore {
 
   void setUri(String uri);
 
-  Consumer<Event> getOnRecorded();
+  void addRecordedObserver(Consumer<Event> handler);
 
-  void setOnRecorded(Consumer<Event> consumer);
+  void removeRecordedObserver(Consumer<Event> handler);
 
-  void record(Event event) throws Exception;
+  void record(Event event);
 
-  default void record(Iterable<? extends Event> events) throws Exception {
+  default void record(Iterable<? extends Event> events) {
     for (Event event : events) {
       record(event);
     }
   }
 
-  Stream<? extends Event> replay() throws Exception;
+  Stream<? extends Event> replay();
 
   @SuppressWarnings("unchecked")
-  default <E extends Event> Stream<E> replay(Class<E> eventType) throws Exception {
+  default <E extends Event> Stream<E> replay(Class<E> eventType) {
     return (Stream<E>) replay().filter(it -> it.getClass().equals(eventType));
   }
 
-  default Stream<? extends Event> replay(List<Class<? extends Event>> eventTypes) throws Exception {
+  default Stream<? extends Event> replay(List<Class<? extends Event>> eventTypes) {
     return replay().filter(it -> eventTypes.contains(it.getClass()));
   }
 }

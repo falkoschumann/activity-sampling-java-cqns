@@ -6,7 +6,6 @@
 package de.muspellheim.activitysampling.backend.adapters;
 
 import de.muspellheim.activitysampling.backend.Event;
-import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import java.io.Closeable;
 import java.io.IOException;
@@ -25,18 +24,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
-public class CsvEventStore implements EventStore {
+public class CsvEventStore extends AbstractEventStore {
   private static final CSVFormat CSV_FORMAT = CSVFormat.RFC4180;
   private static final DateTimeFormatter TIMESTAMP_FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -50,28 +46,30 @@ public class CsvEventStore implements EventStore {
     Tags
   }
 
-  @Getter @Setter private String uri;
-  @Getter @Setter Consumer<Event> onRecorded;
-
   public CsvEventStore(String uri) {
     setUri(uri);
   }
 
   private Path getFile() {
-    return Paths.get(uri);
+    return Paths.get(getUri());
   }
 
   @Override
-  public void record(Event event) throws Exception {
+  public void record(Event event) {
     if (Files.notExists(getFile())) {
       createFile();
     }
     writeActivity((ActivityLoggedEvent) event);
-    publishRecorded(event);
+    notifyRecordedObservers(event);
   }
 
-  private void createFile() throws IOException {
-    Files.createDirectories(getFile().getParent());
+  private void createFile() {
+    try {
+      Files.createDirectories(getFile().getParent());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
     try (var out =
         Files.newBufferedWriter(
             getFile(),
@@ -79,10 +77,12 @@ public class CsvEventStore implements EventStore {
             StandardOpenOption.CREATE,
             StandardOpenOption.WRITE)) {
       CSV_FORMAT.withHeader(Headers.class).print(out);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
   }
 
-  private void writeActivity(ActivityLoggedEvent e) throws IOException {
+  private void writeActivity(ActivityLoggedEvent event) {
     try (var out =
         Files.newBufferedWriter(
             getFile(),
@@ -90,26 +90,21 @@ public class CsvEventStore implements EventStore {
             StandardOpenOption.APPEND,
             StandardOpenOption.WRITE)) {
       var formattedTimestamp =
-          LocalDateTime.ofInstant(e.timestamp(), ZoneId.systemDefault())
+          LocalDateTime.ofInstant(event.timestamp(), ZoneId.systemDefault())
               .format(TIMESTAMP_FORMATTER);
       var formattedPeriod =
-          LocalTime.ofSecondOfDay(e.period().toSeconds()).format(PERIOD_FORMATTER);
+          LocalTime.ofSecondOfDay(event.period().toSeconds()).format(PERIOD_FORMATTER);
       var printer = new CSVPrinter(out, CSV_FORMAT);
-      String formattedTags = String.join(", ", e.tags());
-      printer.printRecord(e.id(), formattedTimestamp, formattedPeriod, e.activity(), formattedTags);
+      String formattedTags = String.join(", ", event.tags());
+      printer.printRecord(
+          event.id(), formattedTimestamp, formattedPeriod, event.activity(), formattedTags);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
-  }
-
-  private void publishRecorded(Event event) {
-    if (onRecorded == null) {
-      return;
-    }
-
-    onRecorded.accept(event);
   }
 
   @Override
-  public Stream<? extends Event> replay() throws Exception {
+  public Stream<? extends Event> replay() {
     try {
       var reader = Files.newBufferedReader(getFile(), StandardCharsets.UTF_8);
       var parser =
@@ -122,6 +117,8 @@ public class CsvEventStore implements EventStore {
           .onClose(() -> closeUnchecked(reader));
     } catch (NoSuchFileException e) {
       return Stream.empty();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
   }
 
