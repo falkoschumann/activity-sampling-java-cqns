@@ -9,10 +9,12 @@ import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivity
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.function.Consumer;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
@@ -28,17 +30,21 @@ public class PreferencesViewController {
   @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
 
+  @FXML private Stage stage;
   @FXML private ChoiceBox<Duration> periodDuration;
   @FXML private TextField activityLogFile;
 
-  public static PreferencesViewController create(Stage stage) {
-    var factory = new ViewControllerFactory(PreferencesViewController.class);
-    var scene = new Scene(factory.getView());
-    stage.setScene(scene);
-    stage.setTitle("Preferences");
-    stage.setMinWidth(400);
-    stage.setMinHeight(120);
-    return factory.getController();
+  public static PreferencesViewController create(Stage owner) {
+    try {
+      var location = PreferencesViewController.class.getResource("PreferencesView.fxml");
+      var loader = new FXMLLoader(location);
+      loader.load();
+      PreferencesViewController controller = loader.getController();
+      controller.stage.initOwner(owner);
+      return controller;
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   private Window getWindow() {
@@ -46,6 +52,7 @@ public class PreferencesViewController {
   }
 
   public void run() {
+    stage.show();
     onPreferencesQuery.accept(new PreferencesQuery());
   }
 

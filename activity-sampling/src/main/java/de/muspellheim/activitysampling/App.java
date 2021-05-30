@@ -71,24 +71,16 @@ public class App extends Application {
 
     var activitySamplingViewController = ActivitySamplingViewController.create(primaryStage);
 
-    var preferencesStage = new Stage();
-    preferencesStage.initOwner(primaryStage);
-    var preferencesViewController = PreferencesViewController.create(preferencesStage);
+    var preferencesViewController = PreferencesViewController.create(primaryStage);
 
-    var aboutStage = new Stage();
-    aboutStage.initOwner(primaryStage);
-    var aboutViewController = AboutViewController.create(aboutStage);
+    var aboutViewController = AboutViewController.create(primaryStage);
 
     //
     // Bind
     //
 
-    activitySamplingViewController.setOnOpenPreferences(
-        () -> {
-          preferencesStage.show();
-          preferencesViewController.run();
-        });
-    activitySamplingViewController.setOnOpenAbout(aboutStage::show);
+    activitySamplingViewController.setOnOpenPreferences(preferencesViewController::run);
+    activitySamplingViewController.setOnOpenAbout(aboutViewController::run);
     activitySamplingViewController.setOnLogActivityCommand(
         cmd -> {
           logActivityCommandHandler.handle(cmd);

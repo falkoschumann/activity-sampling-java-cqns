@@ -11,18 +11,18 @@ import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuer
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -42,6 +42,7 @@ public class ActivitySamplingViewController {
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
 
+  @FXML private Stage stage;
   @FXML private MenuBar menuBar;
   @FXML private SeparatorMenuItem quitSeparator;
   @FXML private MenuItem quit;
@@ -52,7 +53,7 @@ public class ActivitySamplingViewController {
   @FXML private ProgressBar progressBar;
   @FXML private TextArea activityLog;
 
-  private final ReadOnlyBooleanWrapper formDisabled = new ReadOnlyBooleanWrapper(true);
+  private final BooleanProperty formDisabled = new SimpleBooleanProperty(true);
 
   private final SystemClock clock = new SystemClock();
   private final PeriodCheck periodCheck = new PeriodCheck();
@@ -62,31 +63,19 @@ public class ActivitySamplingViewController {
   private LocalDateTime timestamp;
 
   public static ActivitySamplingViewController create(Stage stage) {
-    var factory = new ViewControllerFactory(ActivitySamplingViewController.class);
-
-    var scene = new Scene(factory.getView());
-    stage.setScene(scene);
-    stage.setTitle("Activity Sampling");
-    stage.setMinWidth(240);
-    stage.setMinHeight(420);
-
-    return factory.getController();
-  }
-
-  public final ReadOnlyBooleanProperty formDisabledProperty() {
-    return formDisabled.getReadOnlyProperty();
-  }
-
-  public final boolean isFormDisabled() {
-    return formDisabled.get();
-  }
-
-  private Stage getWindow() {
-    return (Stage) activity.getScene().getWindow();
+    try {
+      var location = ActivitySamplingViewController.class.getResource("ActivitySamplingView.fxml");
+      var loader = new FXMLLoader(location);
+      loader.setRoot(stage);
+      loader.load();
+      return loader.getController();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   public void run() {
-    getWindow().show();
+    stage.show();
     onPreferencesQuery.accept(new PreferencesQuery());
     onActivityLogQuery.accept(new ActivityLogQuery());
     clock.run();
@@ -126,30 +115,10 @@ public class ActivitySamplingViewController {
   }
 
   private void updateActivityLog(List<Activity> log) {
-    var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
-    var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
-    var stringConverter = new ActivityStringConverter();
-    var logBuilder = new StringBuilder();
-    for (int i = 0; i < log.size(); i++) {
-      Activity activity = log.get(i);
-      if (i == 0) {
-        logBuilder.append(dateFormatter.format(activity.timestamp()));
-        logBuilder.append("\n");
-      } else {
-        Activity lastActivity = log.get(i - 1);
-        if (!lastActivity.timestamp().toLocalDate().equals(activity.timestamp().toLocalDate())) {
-          logBuilder.append(dateFormatter.format(activity.timestamp()));
-          logBuilder.append("\n");
-        }
-      }
-
-      logBuilder.append(timeFormatter.format(activity.timestamp()));
-      logBuilder.append(" - ");
-      logBuilder.append(stringConverter.toString(activity));
-      logBuilder.append("\n");
-    }
-    activityLog.setText(logBuilder.toString());
-    Platform.runLater(() -> activityLog.setScrollTop(Double.MAX_VALUE));
+    var activityLogRenderer = new ActivityLogRenderer();
+    var logText = activityLogRenderer.render(log);
+    activityLog.setText(logText);
+    activityLog.setScrollTop(Double.MAX_VALUE);
   }
 
   private void updateTrayIcon(List<Activity> recent) {
@@ -158,12 +127,12 @@ public class ActivitySamplingViewController {
 
   @FXML
   private void initialize() {
-    initializeMac();
-    initializePeriodProgress();
-    initializeTrayIcon();
+    initMac();
+    bindActivityForm();
+    bindTrayIcon();
   }
 
-  private void initializeMac() {
+  private void initMac() {
     if (System.getProperty("os.name").toLowerCase().contains("mac")) {
       menuBar.setUseSystemMenuBar(true);
       quitSeparator.setVisible(false);
@@ -171,7 +140,11 @@ public class ActivitySamplingViewController {
     }
   }
 
-  private void initializePeriodProgress() {
+  private void bindActivityForm() {
+    activity.disableProperty().bind(formDisabled);
+    tags.disableProperty().bind(formDisabled);
+    log.disableProperty().bind(formDisabled.or(activity.textProperty().isEmpty()));
+
     var durationStringConverter = new DurationStringConverter();
     periodCheck.setOnPeriodStarted(
         it -> {
@@ -206,9 +179,9 @@ public class ActivitySamplingViewController {
     clock.setOnTick(periodCheck::check);
   }
 
-  private void initializeTrayIcon() {
+  private void bindTrayIcon() {
     trayIcon.setOnActivitySelected(this::logActivity);
-    Platform.runLater(() -> getWindow().setOnHiding(e -> trayIcon.hide()));
+    Platform.runLater(() -> stage.setOnHiding(e -> trayIcon.hide()));
   }
 
   @FXML
@@ -228,13 +201,8 @@ public class ActivitySamplingViewController {
 
   @FXML
   private void handleLogActivity() {
-    var a =
-        new Activity(
-            "",
-            LocalDateTime.now(),
-            Duration.ZERO,
-            activity.getText(),
-            List.of(tags.getText().split(",")));
+    var tagList = new TagsStringConverter().fromString(tags.getText());
+    var a = new Activity("", LocalDateTime.now(), Duration.ZERO, activity.getText(), tagList);
     logActivity(a);
   }
 
