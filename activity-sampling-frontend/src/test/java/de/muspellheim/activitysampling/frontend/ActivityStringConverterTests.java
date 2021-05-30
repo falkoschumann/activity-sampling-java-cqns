@@ -36,8 +36,8 @@ public class ActivityStringConverterTests {
     var activity = converter.fromString("Lorem ipsum");
 
     assertAll(
-        () -> assertEquals("Lorem ipsum", activity.getActivity()),
-        () -> assertEquals(List.of(), activity.getTags()));
+        () -> assertEquals("Lorem ipsum", activity.activity()),
+        () -> assertEquals(List.of(), activity.tags()));
   }
 
   @Test
@@ -47,8 +47,8 @@ public class ActivityStringConverterTests {
     var activity = converter.fromString("[Foo, Bar] Lorem ipsum");
 
     assertAll(
-        () -> assertEquals("Lorem ipsum", activity.getActivity()),
-        () -> assertEquals(List.of("Foo", "Bar"), activity.getTags()));
+        () -> assertEquals("Lorem ipsum", activity.activity()),
+        () -> assertEquals(List.of("Foo", "Bar"), activity.tags()));
   }
 
   private static Activity createA() {

@@ -5,7 +5,4 @@
 
 package de.muspellheim.activitysampling.contract.messages.commands;
 
-import lombok.Value;
-
-@Value
-public class Success implements CommandStatus {}
+public record Success() implements CommandStatus {}

@@ -12,10 +12,7 @@ import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import java.time.ZoneId;
-import java.util.logging.Level;
-import lombok.extern.java.Log;
 
-@Log
 public class LogActivityCommandHandler {
   private final EventStore eventStore;
 
@@ -27,13 +24,12 @@ public class LogActivityCommandHandler {
     try {
       eventStore.record(
           new ActivityLoggedEvent(
-              command.getTimestamp().atZone(ZoneId.systemDefault()).toInstant(),
-              command.getPeriod(),
-              command.getActivity(),
-              command.getTags()));
+              command.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
+              command.period(),
+              command.activity(),
+              command.tags()));
       return new Success();
     } catch (Exception e) {
-      log.log(Level.WARNING, "Can not handle command: " + command, e);
       return new Failure(e.toString());
     }
   }

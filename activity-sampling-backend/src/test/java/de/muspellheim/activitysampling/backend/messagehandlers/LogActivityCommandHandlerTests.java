@@ -40,26 +40,24 @@ class LogActivityCommandHandlerTests {
     assertAll(
         () -> assertEquals(new Success(), status, "Command status"),
         () -> assertEquals(1, events.size(), "Number of events"),
-        () -> assertNotNull(events.get(0).getId(), "Event id"),
+        () -> assertNotNull(events.get(0).id(), "Event id"),
         () ->
             assertEquals(
                 LocalDateTime.of(2020, 11, 22, 17, 47, 17)
                     .atZone(ZoneId.systemDefault())
                     .toInstant(),
-                events.get(0).getTimestamp(),
+                events.get(0).timestamp(),
                 "Event timestamp"),
         () ->
             assertEquals(
                 Duration.ofMinutes(20),
-                ((ActivityLoggedEvent) events.get(0)).getPeriod(),
+                ((ActivityLoggedEvent) events.get(0)).period(),
                 "Event period"),
         () ->
             assertEquals(
-                "Lorem ipsum",
-                ((ActivityLoggedEvent) events.get(0)).getActivity(),
-                "Event activity"),
+                "Lorem ipsum", ((ActivityLoggedEvent) events.get(0)).activity(), "Event activity"),
         () ->
             assertEquals(
-                List.of("Foobar"), ((ActivityLoggedEvent) events.get(0)).getTags(), "Event tags"));
+                List.of("Foobar"), ((ActivityLoggedEvent) events.get(0)).tags(), "Event tags"));
   }
 }

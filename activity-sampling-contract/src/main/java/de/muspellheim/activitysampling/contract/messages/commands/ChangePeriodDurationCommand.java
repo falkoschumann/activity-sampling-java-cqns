@@ -6,10 +6,10 @@
 package de.muspellheim.activitysampling.contract.messages.commands;
 
 import java.time.Duration;
-import lombok.NonNull;
-import lombok.Value;
+import java.util.Objects;
 
-@Value
-public class ChangePeriodDurationCommand {
-  @NonNull Duration periodDuration;
+public record ChangePeriodDurationCommand(Duration periodDuration) {
+  public ChangePeriodDurationCommand {
+    Objects.requireNonNull(periodDuration, "periodDuration");
+  }
 }

@@ -16,9 +16,9 @@ import javafx.util.StringConverter;
 public class ActivityStringConverter extends StringConverter<Activity> {
   @Override
   public String toString(Activity object) {
-    String string = object.getActivity();
-    if (!object.getTags().isEmpty()) {
-      string = "[" + String.join(", ", object.getTags()) + "] " + string;
+    String string = object.activity();
+    if (!object.tags().isEmpty()) {
+      string = "[" + String.join(", ", object.tags()) + "] " + string;
     }
     return string;
   }
@@ -34,9 +34,7 @@ public class ActivityStringConverter extends StringConverter<Activity> {
       var tagsString = matcher.group(2);
       if (tagsString != null) {
         tags =
-            List.of(tagsString.split(",")).stream()
-                .map(it -> it.strip())
-                .collect(Collectors.toList());
+            List.of(tagsString.split(",")).stream().map(String::strip).collect(Collectors.toList());
       }
     } else {
       activity = string;

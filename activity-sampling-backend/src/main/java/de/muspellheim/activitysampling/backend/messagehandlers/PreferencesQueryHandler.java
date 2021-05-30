@@ -16,7 +16,7 @@ public class PreferencesQueryHandler {
     this.preferencesStore = preferencesStore;
   }
 
-  public PreferencesQueryResult handle(PreferencesQuery query) {
+  public PreferencesQueryResult handle(@SuppressWarnings("unused") PreferencesQuery query) {
     var periodDuration = preferencesStore.loadPeriodDuration();
     var activityLogFile = preferencesStore.loadActivityLogFile();
     return new PreferencesQueryResult(periodDuration, activityLogFile);

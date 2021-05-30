@@ -96,7 +96,7 @@ public class App extends Application {
           preferencesStage.show();
           preferencesViewController.run();
         });
-    activitySamplingViewController.setOnOpenAbout(() -> aboutStage.show());
+    activitySamplingViewController.setOnOpenAbout(aboutStage::show);
     activitySamplingViewController.setOnLogActivityCommand(
         cmd -> {
           logActivityCommandHandler.handle(cmd);

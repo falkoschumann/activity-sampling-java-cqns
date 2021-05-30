@@ -50,8 +50,8 @@ public class PreferencesViewController {
   }
 
   public void display(PreferencesQueryResult result) {
-    periodDuration.setValue(result.getPeriodDuration());
-    activityLogFile.setText(result.getActivityLogFile().toString());
+    periodDuration.setValue(result.periodDuration());
+    activityLogFile.setText(result.activityLogFile().toString());
   }
 
   @FXML

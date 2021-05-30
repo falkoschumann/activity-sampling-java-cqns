@@ -10,6 +10,7 @@ import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -25,18 +26,16 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.java.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 
-@Log
 public class CsvEventStore implements EventStore {
   private static final CSVFormat CSV_FORMAT = CSVFormat.RFC4180;
   private static final DateTimeFormatter TIMESTAMP_FORMATTER =
@@ -91,14 +90,13 @@ public class CsvEventStore implements EventStore {
             StandardOpenOption.APPEND,
             StandardOpenOption.WRITE)) {
       var formattedTimestamp =
-          LocalDateTime.ofInstant(e.getTimestamp(), ZoneId.systemDefault())
+          LocalDateTime.ofInstant(e.timestamp(), ZoneId.systemDefault())
               .format(TIMESTAMP_FORMATTER);
       var formattedPeriod =
-          LocalTime.ofSecondOfDay(e.getPeriod().toSeconds()).format(PERIOD_FORMATTER);
+          LocalTime.ofSecondOfDay(e.period().toSeconds()).format(PERIOD_FORMATTER);
       var printer = new CSVPrinter(out, CSV_FORMAT);
-      String formattedTags = String.join(", ", e.getTags());
-      printer.printRecord(
-          e.getId(), formattedTimestamp, formattedPeriod, e.getActivity(), formattedTags);
+      String formattedTags = String.join(", ", e.tags());
+      printer.printRecord(e.id(), formattedTimestamp, formattedPeriod, e.activity(), formattedTags);
     }
   }
 
@@ -120,14 +118,22 @@ public class CsvEventStore implements EventStore {
       var spliterator =
           Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED | Spliterator.NONNULL);
       return StreamSupport.stream(spliterator, false)
-          .map(record -> createEvent(record))
-          .onClose(() -> close(reader));
+          .map(this::createEvent)
+          .onClose(() -> closeUnchecked(reader));
     } catch (NoSuchFileException e) {
       return Stream.empty();
     }
   }
 
-  private ActivityLoggedEvent createEvent(org.apache.commons.csv.CSVRecord record) {
+  private void closeUnchecked(Closeable closeable) {
+    try {
+      closeable.close();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  private ActivityLoggedEvent createEvent(CSVRecord record) {
     var id = record.get(Headers.ID);
     var timestamp =
         LocalDateTime.parse(record.get(Headers.Timestamp), TIMESTAMP_FORMATTER)
@@ -146,14 +152,6 @@ public class CsvEventStore implements EventStore {
       return List.of();
     }
 
-    return List.of(tags.split(",")).stream().map(it -> it.strip()).collect(Collectors.toList());
-  }
-
-  private void close(Closeable closeable) {
-    try {
-      closeable.close();
-    } catch (IOException e) {
-      log.log(Level.WARNING, "Exception ignored", e);
-    }
+    return List.of(tags.split(",")).stream().map(String::strip).collect(Collectors.toList());
   }
 }

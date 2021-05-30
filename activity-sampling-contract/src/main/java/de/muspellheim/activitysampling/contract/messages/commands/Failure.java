@@ -5,10 +5,10 @@
 
 package de.muspellheim.activitysampling.contract.messages.commands;
 
-import lombok.NonNull;
-import lombok.Value;
+import java.util.Objects;
 
-@Value
-public class Failure implements CommandStatus {
-  @NonNull String errorMessage;
+public record Failure(String errorMessage) implements CommandStatus {
+  public Failure {
+    Objects.requireNonNull(errorMessage, "errorMessage");
+  }
 }

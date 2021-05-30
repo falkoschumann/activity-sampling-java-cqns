@@ -6,10 +6,10 @@
 package de.muspellheim.activitysampling.contract.messages.commands;
 
 import java.nio.file.Path;
-import lombok.NonNull;
-import lombok.Value;
+import java.util.Objects;
 
-@Value
-public class ChangeActivityLogFileCommand {
-  @NonNull Path activityLogFile;
+public record ChangeActivityLogFileCommand(Path activityLogFile) {
+  public ChangeActivityLogFileCommand {
+    Objects.requireNonNull(activityLogFile, "activityLogFile");
+  }
 }

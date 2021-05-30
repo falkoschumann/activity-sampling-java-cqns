@@ -16,11 +16,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
-import lombok.extern.java.Log;
 
-@Log
 public class ActivityLogQueryHandler {
   private final EventStore eventStore;
 
@@ -28,7 +24,7 @@ public class ActivityLogQueryHandler {
     this.eventStore = eventStore;
   }
 
-  public ActivityLogQueryResult handle(ActivityLogQuery query) {
+  public ActivityLogQueryResult handle(@SuppressWarnings("unused") ActivityLogQuery query) {
     try {
       var log =
           eventStore
@@ -36,12 +32,12 @@ public class ActivityLogQueryHandler {
               .map(
                   it ->
                       new Activity(
-                          it.getId(),
-                          LocalDateTime.ofInstant(it.getTimestamp(), ZoneId.systemDefault()),
-                          it.getPeriod(),
-                          it.getActivity(),
-                          it.getTags()))
-              .collect(Collectors.toUnmodifiableList());
+                          it.id(),
+                          LocalDateTime.ofInstant(it.timestamp(), ZoneId.systemDefault()),
+                          it.period(),
+                          it.activity(),
+                          it.tags()))
+              .toList();
 
       var recent = new LinkedList<Activity>();
       log.forEach(
@@ -49,10 +45,10 @@ public class ActivityLogQueryHandler {
             recent.stream()
                 .filter(
                     other ->
-                        Objects.equals(it.getActivity(), other.getActivity())
-                            && Objects.equals(it.getTags(), other.getTags()))
+                        Objects.equals(it.activity(), other.activity())
+                            && Objects.equals(it.tags(), other.tags()))
                 .findFirst()
-                .ifPresent(same -> recent.remove(same));
+                .ifPresent(recent::remove);
             recent.add(it);
             if (recent.size() > 10) {
               recent.remove(0);
@@ -61,7 +57,6 @@ public class ActivityLogQueryHandler {
       Collections.reverse(recent);
       return new ActivityLogQueryResult(log, recent);
     } catch (Exception e) {
-      log.log(Level.WARNING, "Can not handle query: " + query, e);
       return new ActivityLogQueryResult(List.of(), List.of());
     }
   }

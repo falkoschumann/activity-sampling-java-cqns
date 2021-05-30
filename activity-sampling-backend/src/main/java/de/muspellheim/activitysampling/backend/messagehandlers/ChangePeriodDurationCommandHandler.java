@@ -18,7 +18,7 @@ public class ChangePeriodDurationCommandHandler {
   }
 
   public CommandStatus handle(ChangePeriodDurationCommand command) {
-    preferencesStore.savePeriodDuration(command.getPeriodDuration());
+    preferencesStore.savePeriodDuration(command.periodDuration());
     return new Success();
   }
 }

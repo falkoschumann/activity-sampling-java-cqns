@@ -8,18 +8,17 @@ package de.muspellheim.activitysampling.contract.data;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import lombok.Value;
+import java.util.Objects;
 
-@Value
-@AllArgsConstructor
-public class Activity {
-  @NonNull String id;
-  @NonNull LocalDateTime timestamp;
-  @NonNull Duration period;
-  @NonNull String activity;
-  @NonNull List<String> tags;
+public record Activity(
+    String id, LocalDateTime timestamp, Duration period, String activity, List<String> tags) {
+  public Activity {
+    Objects.requireNonNull(id, "id");
+    Objects.requireNonNull(timestamp, "timestamp");
+    Objects.requireNonNull(period, "period");
+    Objects.requireNonNull(activity, "activity");
+    Objects.requireNonNull(tags, "tags");
+  }
 
   public Activity(String id, LocalDateTime timestamp, Duration period, String activity) {
     this(id, timestamp, period, activity, List.of());

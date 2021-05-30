@@ -5,7 +5,4 @@
 
 package de.muspellheim.activitysampling.contract.messages.queries;
 
-import lombok.Value;
-
-@Value
-public class PreferencesQuery {}
+public record PreferencesQuery() {}

@@ -40,8 +40,7 @@ unter macOS und der Taskleiste unter Windows zur Auswahl.
 - Code formatieren: `./gradlew spotlessApply`
 - Release erstellen: `./gradlew jpackage`
 - [Project Lombok][2] wird verwendet, um Boilerplate Code zu reduzieren, es
-  werden nur stabile Features verwendet, zum Beispiel: `@NonNull`, `@Data`,
-  `@Value` oder `@Builder`.
+  werden nur stabile Features verwendet, zum Beispiel: `@Getter` oder `@Setter`.
 
 ### Distribute for macOS
 

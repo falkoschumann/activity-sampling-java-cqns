@@ -92,13 +92,13 @@ public class ActivitySamplingViewController {
   }
 
   public void display(PreferencesQueryResult result) {
-    periodCheck.setPeriod(result.getPeriodDuration());
+    periodCheck.setPeriod(result.periodDuration());
   }
 
   public void display(ActivityLogQueryResult result) {
-    updateForm(result.getRecent());
-    updateActivityLog(result.getLog());
-    updateTrayIcon(result.getRecent());
+    updateForm(result.recent());
+    updateActivityLog(result.log());
+    updateTrayIcon(result.recent());
   }
 
   private void updateForm(List<Activity> recentActivities) {
@@ -118,8 +118,8 @@ public class ActivitySamplingViewController {
 
           if (!recentActivities.isEmpty()) {
             var lastActivity = recentActivities.get(0);
-            activity.setText(lastActivity.getActivity());
-            tags.setText(String.join(", ", lastActivity.getTags()));
+            activity.setText(lastActivity.activity());
+            tags.setText(String.join(", ", lastActivity.tags()));
           }
         });
   }
@@ -132,20 +132,17 @@ public class ActivitySamplingViewController {
     for (int i = 0; i < log.size(); i++) {
       Activity activity = log.get(i);
       if (i == 0) {
-        logBuilder.append(dateFormatter.format(activity.getTimestamp()));
+        logBuilder.append(dateFormatter.format(activity.timestamp()));
         logBuilder.append("\n");
       } else {
         Activity lastActivity = log.get(i - 1);
-        if (!lastActivity
-            .getTimestamp()
-            .toLocalDate()
-            .equals(activity.getTimestamp().toLocalDate())) {
-          logBuilder.append(dateFormatter.format(activity.getTimestamp()));
+        if (!lastActivity.timestamp().toLocalDate().equals(activity.timestamp().toLocalDate())) {
+          logBuilder.append(dateFormatter.format(activity.timestamp()));
           logBuilder.append("\n");
         }
       }
 
-      logBuilder.append(timeFormatter.format(activity.getTimestamp()));
+      logBuilder.append(timeFormatter.format(activity.timestamp()));
       logBuilder.append(" - ");
       logBuilder.append(stringConverter.toString(activity));
       logBuilder.append("\n");
@@ -196,11 +193,11 @@ public class ActivitySamplingViewController {
           trayIcon.show();
         });
 
-    clock.setOnTick(it -> periodCheck.check(it));
+    clock.setOnTick(periodCheck::check);
   }
 
   private void initializeTrayIcon() {
-    trayIcon.setOnActivitySelected(it -> logActivity(it));
+    trayIcon.setOnActivitySelected(this::logActivity);
     Platform.runLater(() -> getWindow().setOnHiding(e -> trayIcon.hide()));
   }
 
@@ -235,8 +232,7 @@ public class ActivitySamplingViewController {
     formDisabled.set(true);
     trayIcon.hide();
 
-    var command =
-        new LogActivityCommand(timestamp, period, activity.getActivity(), activity.getTags());
+    var command = new LogActivityCommand(timestamp, period, activity.activity(), activity.tags());
     onLogActivityCommand.accept(command);
   }
 }

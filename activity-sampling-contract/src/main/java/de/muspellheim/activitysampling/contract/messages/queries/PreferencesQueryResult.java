@@ -7,11 +7,11 @@ package de.muspellheim.activitysampling.contract.messages.queries;
 
 import java.nio.file.Path;
 import java.time.Duration;
-import lombok.NonNull;
-import lombok.Value;
+import java.util.Objects;
 
-@Value
-public class PreferencesQueryResult {
-  @NonNull Duration periodDuration;
-  @NonNull Path activityLogFile;
+public record PreferencesQueryResult(Duration periodDuration, Path activityLogFile) {
+  public PreferencesQueryResult {
+    Objects.requireNonNull(periodDuration, "periodDuration");
+    Objects.requireNonNull(activityLogFile, "activityLogFile");
+  }
 }
