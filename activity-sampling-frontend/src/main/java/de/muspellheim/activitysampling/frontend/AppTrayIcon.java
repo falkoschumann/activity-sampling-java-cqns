@@ -30,7 +30,7 @@ class AppTrayIcon {
       return;
     }
 
-    var url = getClass().getResource("app.png");
+    var url = getClass().getResource("tray-icon.png");
     var image = Toolkit.getDefaultToolkit().getImage(url);
     trayIcon = new TrayIcon(image);
   }

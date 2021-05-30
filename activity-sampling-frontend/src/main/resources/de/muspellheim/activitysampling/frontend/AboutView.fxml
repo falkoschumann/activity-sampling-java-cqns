@@ -10,7 +10,7 @@
    <children>
       <ImageView fx:id="icon" fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@app.png" />
+            <Image url="@app-icon.png" />
          </image>
       </ImageView>
       <Label fx:id="appName" styleClass="base" text="Activity Sampling" />
