@@ -1,0 +1,14 @@
+.root {
+  -fx-font-family: Verdana;
+  -fx-font-weight: normal;
+  -fx-font-style: normal;
+  -fx-font-size: 13px;
+}
+
+.headline {
+  -fx-font-weight: bold;
+}
+
+.caption {
+  -fx-font-size: 10px;
+}
