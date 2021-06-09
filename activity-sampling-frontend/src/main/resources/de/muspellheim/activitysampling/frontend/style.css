@@ -2,13 +2,34 @@
   -fx-font-family: Verdana;
   -fx-font-weight: normal;
   -fx-font-style: normal;
-  -fx-font-size: 13px;
+  -fx-font-size: 14px;
 }
 
-.headline {
-  -fx-font-weight: bold;
+.header {
+  -fx-font-size: 46px;
+}
+
+.subheader {
+  -fx-font-size: 34px;
+}
+
+.title {
+  -fx-font-size: 24px;
+}
+
+.subtitle {
+  -fx-font-size: 20px;
+}
+
+.base {
+  -fx-font-size: 14px;
+  -fx-font-weight: bold
+}
+
+.body {
+  -fx-font-size: 14px;
 }
 
 .caption {
-  -fx-font-size: 10px;
+  -fx-font-size: 12px;
 }

@@ -21,8 +21,6 @@ import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuer
 import de.muspellheim.activitysampling.frontend.AboutViewController;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingViewController;
 import de.muspellheim.activitysampling.frontend.PreferencesViewController;
-import java.io.InputStream;
-import java.util.Properties;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -47,12 +45,6 @@ public class App extends Application {
       System.out.println("Save activity log in: " + activityLogFile.toAbsolutePath());
       eventStore = new CsvEventStore(activityLogFile.toString());
     }
-
-    var properties = new Properties();
-    try (InputStream in = getClass().getResourceAsStream("/app.properties")) {
-      properties.load(in);
-    }
-    System.getProperties().putAll(properties);
   }
 
   @Override

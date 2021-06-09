@@ -1,7 +1,5 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
-import java.time.LocalDate
-
 plugins {
   id("activity-sampling.java-application-conventions")
   id("activity-sampling.java-openjfx-conventions")
@@ -18,17 +16,6 @@ dependencies {
 application {
   mainModule.set("de.muspellheim.activitysampling")
   mainClass.set("de.muspellheim.activitysampling.App")
-}
-
-val year = LocalDate.now().year
-val copyright = "Copyright (c) 2020-${year} Falko Schumann"
-
-tasks {
-  processResources {
-    filesMatching("**/*.properties") {
-      expand("version" to rootProject.version, "copyright" to copyright)
-    }
-  }
 }
 
 jlink {
@@ -50,7 +37,7 @@ if (Os.isFamily(Os.FAMILY_MAC)) {
       imageName = "Activity Sampling"
       installerType = "dmg"
       imageOptions = listOf(
-        "--copyright", copyright,
+        "--copyright", "Copyright © 2020-${extra["copyrightYear"]} Falko Schumann",
         "--mac-sign",
         "--mac-signing-key-user-name", "Falko Schumann (QC6EN37P56)"
       )
@@ -64,12 +51,12 @@ if (Os.isFamily(Os.FAMILY_WINDOWS)) {
       icon = "src/main/win/app.ico"
       imageName = "Activity Sampling"
       imageOptions = listOf(
-        "--copyright", copyright,
+        "--copyright", "Copyright (c) 2020-${extra["copyrightYear"]} Falko Schumann",
       )
       installerName = "Activity Sampling"
       installerType = "msi"
       installerOptions = listOf(
-        "--copyright", copyright,
+        "--copyright", "Copyright (c) 2020-${extra["copyrightYear"]} Falko Schumann",
         "--license-file", "../LICENSE.txt",
         "--win-dir-chooser",
         "--win-menu",

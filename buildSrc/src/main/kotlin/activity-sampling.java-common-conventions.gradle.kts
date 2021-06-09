@@ -1,3 +1,5 @@
+import java.time.LocalDate
+
 plugins {
   java
   jacoco
@@ -5,7 +7,7 @@ plugins {
   id("io.freefair.lombok")
 }
 
-version = rootProject.version
+val copyrightYear by extra(LocalDate.now().year)
 
 repositories {
   mavenCentral()
@@ -25,6 +27,14 @@ java {
   sourceCompatibility = JavaVersion.VERSION_16
   targetCompatibility = JavaVersion.VERSION_16
   modularity.inferModulePath.set(true)
+}
+
+tasks {
+  processResources {
+    filesMatching("**/*.properties") {
+      expand("version" to rootProject.version, "copyrightYear" to copyrightYear)
+    }
+  }
 }
 
 tasks.compileTestJava {
