@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.stage.Stage?>
 
-<fx:root fx:id="stage" minHeight="420.0" minWidth="240.0" title="Activity Sampling" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.ActivitySamplingViewController">
+<fx:root fx:id="stage" minHeight="420.0" minWidth="240.0" title="%mainView.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainViewController">
    <scene>
       <Scene stylesheets="@uwp.css">
          <root>
@@ -23,24 +23,24 @@
                <children>
                   <MenuBar fx:id="menuBar">
                     <menus>
-                      <Menu mnemonicParsing="false" text="File">
+                      <Menu mnemonicParsing="false" text="%mainView.fileMenu">
                         <items>
-                              <MenuItem mnemonicParsing="false" onAction="#handlePreferences" text="Preferences">
+                              <MenuItem mnemonicParsing="false" onAction="#handlePreferences" text="%mainView.fileMenu.preferences">
                                  <accelerator>
                                     <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                                  </accelerator>
                               </MenuItem>
                               <SeparatorMenuItem fx:id="quitSeparator" mnemonicParsing="false" />
-                          <MenuItem fx:id="quit" mnemonicParsing="false" onAction="#handleQuit" text="Quit">
+                          <MenuItem fx:id="quit" mnemonicParsing="false" onAction="#handleQuit" text="%mainView.fileMenu.quit">
                                  <accelerator>
                                     <KeyCodeCombination alt="UP" code="Q" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                                  </accelerator>
                               </MenuItem>
                         </items>
                       </Menu>
-                      <Menu mnemonicParsing="false" text="Help">
+                      <Menu mnemonicParsing="false" text="%mainView.helpMenu">
                         <items>
-                          <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="About Activity Sampling" />
+                          <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="%mainView.helpMenu.about" />
                         </items>
                       </Menu>
                     </menus>
@@ -49,17 +49,17 @@
                      <children>
                         <VBox styleClass="base">
                            <children>
-                              <Label styleClass="base" text="Activity*" />
-                              <TextField fx:id="activity" onAction="#handleLogActivity" promptText="What are you working on?" />
+                              <Label styleClass="base" text="%mainView.activityLabel.text" />
+                              <TextField fx:id="activity" onAction="#handleLogActivity" promptText="%mainView.activityText.promptText" />
                            </children>
                         </VBox>
                         <VBox styleClass="base">
                            <children>
-                              <Label styleClass="base" text="Tags" />
-                              <TextField fx:id="tags" onAction="#handleLogActivity" promptText="Customer, Project, Product" />
+                              <Label styleClass="base" text="%mainView.tagsLabel.text" />
+                              <TextField fx:id="tags" onAction="#handleLogActivity" promptText="%mainView.tagsText.promptText" />
                            </children>
                         </VBox>
-                        <SplitMenuButton fx:id="log" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogActivity" text="Log">
+                        <SplitMenuButton fx:id="log" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogActivity" text="%mainView.logButton.text">
                           <items>
                             <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />
                             <MenuItem mnemonicParsing="false" text="[Foo, Bar] Lorem ipsum" />

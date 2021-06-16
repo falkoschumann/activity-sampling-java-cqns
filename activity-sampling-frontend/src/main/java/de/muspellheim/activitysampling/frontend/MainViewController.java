@@ -16,6 +16,7 @@ import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
@@ -35,7 +36,7 @@ import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 
-public class ActivitySamplingViewController {
+public class MainViewController {
   @Getter @Setter private Runnable onOpenPreferences;
   @Getter @Setter private Runnable onOpenAbout;
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
@@ -62,12 +63,14 @@ public class ActivitySamplingViewController {
   private Duration period;
   private LocalDateTime timestamp;
 
-  public static ActivitySamplingViewController create(Stage stage) {
+  public static MainViewController create(Stage stage) {
     try {
-      var location = ActivitySamplingViewController.class.getResource("ActivitySamplingView.fxml");
-      var loader = new FXMLLoader(location);
+      var location = MainViewController.class.getResource("MainView.fxml");
+      var resources = ResourceBundle.getBundle("ActivitySampling");
+      var loader = new FXMLLoader(location, resources);
       loader.setRoot(stage);
       loader.load();
+
       return loader.getController();
     } catch (IOException e) {
       throw new UncheckedIOException(e);

@@ -11,35 +11,43 @@ import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuer
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import javafx.util.StringConverter;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PreferencesViewController {
+public class PreferencesViewController implements Initializable {
   @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
   @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
 
   @FXML private Stage stage;
-  @FXML private ChoiceBox<Duration> periodDuration;
-  @FXML private TextField activityLogFile;
+  @FXML private ChoiceBox<Duration> periodDurationChoice;
+  @FXML private TextField activityLogText;
+  private ResourceBundle resources;
 
   public static PreferencesViewController create(Stage owner) {
     try {
       var location = PreferencesViewController.class.getResource("PreferencesView.fxml");
-      var loader = new FXMLLoader(location);
+      var resources = ResourceBundle.getBundle("ActivitySampling");
+      var loader = new FXMLLoader(location, resources);
       loader.load();
-      PreferencesViewController controller = loader.getController();
+
+      var controller = (PreferencesViewController) loader.getController();
       controller.stage.initOwner(owner);
       return controller;
     } catch (IOException e) {
@@ -47,77 +55,78 @@ public class PreferencesViewController {
     }
   }
 
-  private Window getWindow() {
-    return periodDuration.getScene().getWindow();
-  }
-
   public void run() {
-    stage.show();
     onPreferencesQuery.accept(new PreferencesQuery());
+    stage.show();
   }
 
   public void display(PreferencesQueryResult result) {
-    periodDuration.setValue(result.periodDuration());
-    activityLogFile.setText(result.activityLogFile().toString());
+    periodDurationChoice.setValue(result.periodDuration());
+    activityLogText.setText(result.activityLogFile().toString());
   }
 
-  @FXML
-  private void initialize() {
+  @Override
+  public void initialize(URL location, ResourceBundle resources) {
+    this.resources = resources;
     initializePeriodDuration();
   }
 
   private void initializePeriodDuration() {
-    periodDuration.setConverter(
-        new StringConverter<>() {
-          @Override
-          public String toString(Duration object) {
-            if (object.toHoursPart() == 1) {
-              return "1 hour";
-            } else {
-              return object.toMinutes() + " minutes";
-            }
-          }
-
-          @Override
-          public Duration fromString(String string) {
-            throw new UnsupportedOperationException();
-          }
-        });
-    periodDuration.setValue(Duration.ofMinutes(20));
-    periodDuration
+    periodDurationChoice.setConverter(new PeriodStringConverter());
+    periodDurationChoice.setValue(Duration.ofMinutes(20));
+    periodDurationChoice
         .getItems()
         .setAll(
-            Duration.ofMinutes(1),
-            Duration.ofMinutes(10),
-            Duration.ofMinutes(15),
-            Duration.ofMinutes(20),
-            Duration.ofMinutes(30),
-            Duration.ofHours(1));
-    periodDuration
-        .valueProperty()
-        .addListener(
-            (observable, oldValue, newValue) -> {
-              var command = new ChangePeriodDurationCommand(newValue);
-              onChangePeriodDurationCommand.accept(command);
-            });
+            List.of(
+                Duration.ofMinutes(15),
+                Duration.ofMinutes(20),
+                Duration.ofMinutes(30),
+                Duration.ofHours(1)));
+    periodDurationChoice.valueProperty().addListener(o -> handlePeriodDureationChanged());
+  }
+
+  private void handlePeriodDureationChanged() {
+    var command = new ChangePeriodDurationCommand(periodDurationChoice.getValue());
+    onChangePeriodDurationCommand.accept(command);
   }
 
   @FXML
-  private void handleChangeActivityLogFile() {
+  private void changeActivityLog() {
     var chooser = new FileChooser();
-    chooser.setTitle("Choose Activity Log File");
-    chooser.setInitialFileName("activity-log.csv");
+    chooser.setTitle(resources.getString("activityLogChooser.title"));
+    var activityLog = Paths.get(activityLogText.getText());
+    chooser.setInitialDirectory(activityLog.getParent().toAbsolutePath().toFile());
+    chooser.setInitialFileName(activityLog.getFileName().toString());
     chooser
         .getExtensionFilters()
         .addAll(
-            new ExtensionFilter("Comma-Separated Values (CSV) File", "*.csv"),
-            new ExtensionFilter("All Files", "*.*"));
-    var file = chooser.showSaveDialog(getWindow());
-    if (file == null) {
-      return;
+            new ExtensionFilter(
+                resources.getString("activityLogChooser.csvFileExtensionFilter"), "*.csv"),
+            new ExtensionFilter(
+                resources.getString("activityLogChooser.allFilesExtensionFilter"), "*.*"));
+
+    var file = chooser.showSaveDialog(stage);
+    if (file != null) {
+      var command = new ChangeActivityLogFileCommand(file.toPath());
+      onChangeActivityLogFileCommand.accept(command);
+    }
+  }
+
+  private class PeriodStringConverter extends StringConverter<Duration> {
+    @Override
+    public String toString(Duration object) {
+      if (object.toHoursPart() == 0) {
+        return MessageFormat.format(
+            resources.getString("preferencesView.periodDurationChoice.item.minutes"),
+            object.toMinutes());
+      } else {
+        return resources.getString("preferencesView.periodDurationChoice.item.hour");
+      }
     }
 
-    var command = new ChangeActivityLogFileCommand(file.toPath());
-    onChangeActivityLogFileCommand.accept(command);
+    @Override
+    public Duration fromString(String string) {
+      throw new UnsupportedOperationException();
+    }
   }
 }

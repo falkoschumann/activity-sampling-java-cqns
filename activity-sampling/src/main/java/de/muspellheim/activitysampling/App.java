@@ -19,7 +19,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryH
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.frontend.AboutViewController;
-import de.muspellheim.activitysampling.frontend.ActivitySamplingViewController;
+import de.muspellheim.activitysampling.frontend.MainViewController;
 import de.muspellheim.activitysampling.frontend.PreferencesViewController;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -61,7 +61,7 @@ public class App extends Application {
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
 
-    var activitySamplingViewController = ActivitySamplingViewController.create(primaryStage);
+    var activitySamplingViewController = MainViewController.create(primaryStage);
 
     var preferencesViewController = PreferencesViewController.create(primaryStage);
 
