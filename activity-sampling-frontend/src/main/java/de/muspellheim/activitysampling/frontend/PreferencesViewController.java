@@ -74,14 +74,20 @@ public class PreferencesViewController implements Initializable {
   private void initializePeriodDuration() {
     periodDurationChoice.setConverter(new PeriodStringConverter());
     periodDurationChoice.setValue(Duration.ofMinutes(20));
-    periodDurationChoice
-        .getItems()
-        .setAll(
-            List.of(
+    var periodDurations =
+        Boolean.parseBoolean(System.getProperty("demoMode"))
+            ? List.of(
+                Duration.ofMinutes(2),
                 Duration.ofMinutes(15),
                 Duration.ofMinutes(20),
                 Duration.ofMinutes(30),
-                Duration.ofHours(1)));
+                Duration.ofHours(1))
+            : List.of(
+                Duration.ofMinutes(15),
+                Duration.ofMinutes(20),
+                Duration.ofMinutes(30),
+                Duration.ofHours(1));
+    periodDurationChoice.getItems().setAll(periodDurations);
     periodDurationChoice.valueProperty().addListener(o -> handlePeriodDureationChanged());
   }
 

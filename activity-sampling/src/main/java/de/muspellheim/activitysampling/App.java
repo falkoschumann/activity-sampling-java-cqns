@@ -36,6 +36,7 @@ public class App extends Application {
   public void init() throws Exception {
     if (getParameters().getUnnamed().contains("--demo")) {
       System.out.println("Run in demo mode...");
+      System.setProperty("demoMode", "true");
       eventStore = new MemoryEventStore();
       eventStore.addRecordedObserver(it -> System.out.println("Logged event: " + it));
       preferencesStore = new MemoryPreferencesStore();
