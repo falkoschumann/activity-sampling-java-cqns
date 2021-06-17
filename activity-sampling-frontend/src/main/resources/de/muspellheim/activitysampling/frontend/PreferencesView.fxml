@@ -32,7 +32,7 @@
           <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <children>
               <TextField fx:id="activityLogText" editable="false" promptText="%preferencesView.activityLogText.promptText" HBox.hgrow="ALWAYS" />
-              <Button mnemonicParsing="false" onAction="#changeActivityLog" text="%preferencesView.changeActivityLogButton.text" />
+              <Button mnemonicParsing="false" onAction="#handleChangeActivityLog" text="%preferencesView.changeActivityLogButton.text" />
             </children>
           </HBox>
         </children>

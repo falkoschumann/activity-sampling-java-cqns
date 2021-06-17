@@ -25,13 +25,13 @@
                     <menus>
                       <Menu mnemonicParsing="false" text="%mainView.fileMenu">
                         <items>
-                              <MenuItem mnemonicParsing="false" onAction="#handlePreferences" text="%mainView.fileMenu.preferences">
+                              <MenuItem mnemonicParsing="false" onAction="#handleOpenPreferences" text="%mainView.fileMenu.preferences">
                                  <accelerator>
                                     <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                                  </accelerator>
                               </MenuItem>
-                              <SeparatorMenuItem fx:id="quitSeparator" mnemonicParsing="false" />
-                          <MenuItem fx:id="quit" mnemonicParsing="false" onAction="#handleQuit" text="%mainView.fileMenu.quit">
+                              <SeparatorMenuItem fx:id="quitSeparatorMenuItem" mnemonicParsing="false" />
+                          <MenuItem fx:id="quitMenuItem" mnemonicParsing="false" onAction="#handleQuit" text="%mainView.fileMenu.quit">
                                  <accelerator>
                                     <KeyCodeCombination alt="UP" code="Q" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                                  </accelerator>
@@ -40,7 +40,7 @@
                       </Menu>
                       <Menu mnemonicParsing="false" text="%mainView.helpMenu">
                         <items>
-                          <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="%mainView.helpMenu.about" />
+                          <MenuItem mnemonicParsing="false" onAction="#handleOpenAbout" text="%mainView.helpMenu.about" />
                         </items>
                       </Menu>
                     </menus>
@@ -50,16 +50,16 @@
                         <VBox spacing="4.0">
                            <children>
                               <Label text="%mainView.activityLabel.text" />
-                              <TextField fx:id="activity" onAction="#handleLogActivity" promptText="%mainView.activityText.promptText" />
+                              <TextField fx:id="activityText" onAction="#handleLogActivity" promptText="%mainView.activityText.promptText" />
                            </children>
                         </VBox>
                         <VBox spacing="4.0">
                            <children>
                               <Label text="%mainView.tagsLabel.text" />
-                              <TextField fx:id="tags" onAction="#handleLogActivity" promptText="%mainView.tagsText.promptText" />
+                              <TextField fx:id="tagsText" onAction="#handleLogActivity" promptText="%mainView.tagsText.promptText" />
                            </children>
                         </VBox>
-                        <SplitMenuButton fx:id="log" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogActivity" text="%mainView.logButton.text">
+                        <SplitMenuButton fx:id="logButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogActivity" text="%mainView.logButton.text">
                           <items>
                             <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />
                             <MenuItem mnemonicParsing="false" text="[Foo, Bar] Lorem ipsum" />
@@ -67,11 +67,11 @@
                         </SplitMenuButton>
                         <VBox spacing="4.0">
                            <children>
-                              <Label fx:id="progressText" alignment="CENTER" maxWidth="1.7976931348623157E308" text="00:20:00" />
+                              <Label fx:id="progressLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" text="00:20:00" />
                               <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                            </children>
                         </VBox>
-                        <TextArea fx:id="activityLog" editable="false" VBox.vgrow="ALWAYS" />
+                        <TextArea fx:id="activityLogText" editable="false" VBox.vgrow="ALWAYS" />
                      </children>
                      <VBox.margin>
                         <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />

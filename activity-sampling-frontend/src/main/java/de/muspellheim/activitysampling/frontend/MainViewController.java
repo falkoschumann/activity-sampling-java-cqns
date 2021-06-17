@@ -6,6 +6,8 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
+import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
+import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
@@ -37,28 +39,36 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class MainViewController {
-  @Getter @Setter private Runnable onOpenPreferences;
-  @Getter @Setter private Runnable onOpenAbout;
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
+  @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
 
   @FXML private Stage stage;
   @FXML private MenuBar menuBar;
-  @FXML private SeparatorMenuItem quitSeparator;
-  @FXML private MenuItem quit;
-  @FXML private TextField activity;
-  @FXML private TextField tags;
-  @FXML private SplitMenuButton log;
-  @FXML private Label progressText;
+  @FXML private SeparatorMenuItem quitSeparatorMenuItem;
+  @FXML private MenuItem quitMenuItem;
+  @FXML private TextField activityText;
+  @FXML private TextField tagsText;
+  @FXML private SplitMenuButton logButton;
+  @FXML private Label progressLabel;
   @FXML private ProgressBar progressBar;
-  @FXML private TextArea activityLog;
+  @FXML private TextArea activityLogText;
 
-  private final BooleanProperty formDisabled = new SimpleBooleanProperty(true);
+  private final BooleanProperty formDisabled = new SimpleBooleanProperty(true){
+    @Override
+    protected void invalidated() {
+      if (!getValue()) {
+        activityText.requestFocus();
+      }
+    }
+  };
 
   private final SystemClock clock = new SystemClock();
   private final PeriodCheck periodCheck = new PeriodCheck();
   private final AppTrayIcon trayIcon = new AppTrayIcon();
+  private PreferencesViewController preferencesViewController;
 
   private Duration period;
   private LocalDateTime timestamp;
@@ -86,6 +96,8 @@ public class MainViewController {
 
   public void display(PreferencesQueryResult result) {
     periodCheck.setPeriod(result.periodDuration());
+    preferencesViewController.setPeriodDuration(result.periodDuration());
+    preferencesViewController.setActivityLogFile(result.activityLogFile());
   }
 
   public void display(ActivityLogQueryResult result) {
@@ -101,18 +113,18 @@ public class MainViewController {
             .map(
                 it -> {
                   var menuItem = new MenuItem(activityStringConverter.toString(it));
-                  menuItem.setOnAction(e -> logActivity(it));
+                  menuItem.setOnAction(e -> handleLogActivity(it));
                   return menuItem;
                 })
             .collect(Collectors.toList());
     Platform.runLater(
         () -> {
-          log.getItems().setAll(menuItems);
+          logButton.getItems().setAll(menuItems);
 
           if (!recentActivities.isEmpty()) {
             var lastActivity = recentActivities.get(0);
-            activity.setText(lastActivity.activity());
-            tags.setText(String.join(", ", lastActivity.tags()));
+            activityText.setText(lastActivity.activity());
+            tagsText.setText(String.join(", ", lastActivity.tags()));
           }
         });
   }
@@ -120,8 +132,8 @@ public class MainViewController {
   private void updateActivityLog(List<Activity> log) {
     var activityLogRenderer = new ActivityLogRenderer();
     var logText = activityLogRenderer.render(log);
-    activityLog.setText(logText);
-    activityLog.setScrollTop(Double.MAX_VALUE);
+    activityLogText.setText(logText);
+    activityLogText.setScrollTop(Double.MAX_VALUE);
   }
 
   private void updateTrayIcon(List<Activity> recent) {
@@ -130,23 +142,42 @@ public class MainViewController {
 
   @FXML
   private void initialize() {
-    initMac();
-    bindActivityForm();
-    bindTrayIcon();
+    initMacOS();
+    initPreferenceViewController();
+    initActivityForm();
+    initTrayIcon();
   }
 
-  private void initMac() {
+  private void initMacOS() {
     if (System.getProperty("os.name").toLowerCase().contains("mac")) {
       menuBar.setUseSystemMenuBar(true);
-      quitSeparator.setVisible(false);
-      quit.setVisible(false);
+      quitSeparatorMenuItem.setVisible(false);
+      quitMenuItem.setVisible(false);
     }
   }
 
-  private void bindActivityForm() {
-    activity.disableProperty().bind(formDisabled);
-    tags.disableProperty().bind(formDisabled);
-    log.disableProperty().bind(formDisabled.or(activity.textProperty().isEmpty()));
+  private void initPreferenceViewController(){
+    preferencesViewController = PreferencesViewController.create(stage);
+    preferencesViewController
+      .periodDurationProperty()
+      .addListener(
+        observable ->
+          onChangePeriodDurationCommand.accept(
+            new ChangePeriodDurationCommand(
+              preferencesViewController.getPeriodDuration())));
+    preferencesViewController
+      .activityLogFileProperty()
+      .addListener(
+        observable ->
+          onChangeActivityLogFileCommand.accept(
+            new ChangeActivityLogFileCommand(
+              preferencesViewController.getActivityLogFile())));
+  }
+
+  private void initActivityForm() {
+    activityText.disableProperty().bind(formDisabled);
+    tagsText.disableProperty().bind(formDisabled);
+    logButton.disableProperty().bind(formDisabled.or(activityText.textProperty().isEmpty()));
 
     var durationStringConverter = new DurationStringConverter();
     periodCheck.setOnPeriodStarted(
@@ -154,7 +185,7 @@ public class MainViewController {
           period = it;
           Platform.runLater(
               () -> {
-                progressText.setText(durationStringConverter.toString(period));
+                progressLabel.setText(durationStringConverter.toString(period));
                 progressBar.setProgress(0.0);
               });
         });
@@ -163,7 +194,7 @@ public class MainViewController {
             Platform.runLater(
                 () -> {
                   var remainingTime = period.minus(it);
-                  progressText.setText(durationStringConverter.toString(remainingTime));
+                  progressLabel.setText(durationStringConverter.toString(remainingTime));
                   var progress = (double) it.getSeconds() / period.getSeconds();
                   progressBar.setProgress(progress);
                 }));
@@ -173,7 +204,7 @@ public class MainViewController {
           Platform.runLater(
               () -> {
                 formDisabled.set(false);
-                progressText.setText(durationStringConverter.toString(Duration.ZERO));
+                progressLabel.setText(durationStringConverter.toString(Duration.ZERO));
                 progressBar.setProgress(1.0);
               });
           trayIcon.show();
@@ -182,14 +213,14 @@ public class MainViewController {
     clock.setOnTick(periodCheck::check);
   }
 
-  private void bindTrayIcon() {
-    trayIcon.setOnActivitySelected(this::logActivity);
+  private void initTrayIcon() {
+    trayIcon.setOnActivitySelected(this::handleLogActivity);
     Platform.runLater(() -> stage.setOnHiding(e -> trayIcon.hide()));
   }
 
   @FXML
-  private void handlePreferences() {
-    onOpenPreferences.run();
+  private void handleOpenPreferences() {
+    preferencesViewController.run();
   }
 
   @FXML
@@ -198,18 +229,19 @@ public class MainViewController {
   }
 
   @FXML
-  private void handleAbout() {
-    onOpenAbout.run();
+  private void handleOpenAbout() {
+    var aboutViewController = AboutViewController.create(stage);
+    aboutViewController.run();
   }
 
   @FXML
   private void handleLogActivity() {
-    var tagList = new TagsStringConverter().fromString(tags.getText());
-    var a = new Activity("", LocalDateTime.now(), Duration.ZERO, activity.getText(), tagList);
-    logActivity(a);
+    var tagList = new TagsStringConverter().fromString(tagsText.getText());
+    var a = new Activity("", LocalDateTime.now(), Duration.ZERO, activityText.getText(), tagList);
+    handleLogActivity(a);
   }
 
-  private void logActivity(Activity activity) {
+  private void handleLogActivity(Activity activity) {
     formDisabled.set(true);
     trayIcon.hide();
 

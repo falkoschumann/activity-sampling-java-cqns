@@ -26,7 +26,6 @@ public class AboutViewController {
 
       var controller = (AboutViewController) loader.getController();
       controller.stage.initOwner(owner);
-      controller.stage.initModality(Modality.APPLICATION_MODAL);
       controller.stage.initStyle(StageStyle.UTILITY);
       return controller;
     } catch (IOException e) {

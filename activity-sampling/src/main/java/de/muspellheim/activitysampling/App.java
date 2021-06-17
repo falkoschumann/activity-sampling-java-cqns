@@ -18,9 +18,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityComman
 import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.frontend.AboutViewController;
 import de.muspellheim.activitysampling.frontend.MainViewController;
-import de.muspellheim.activitysampling.frontend.PreferencesViewController;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -33,7 +31,7 @@ public class App extends Application {
   }
 
   @Override
-  public void init() throws Exception {
+  public void init() {
     if (getParameters().getUnnamed().contains("--demo")) {
       System.out.println("Run in demo mode...");
       System.setProperty("demoMode", "true");
@@ -62,60 +60,54 @@ public class App extends Application {
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
 
-    var activitySamplingViewController = MainViewController.create(primaryStage);
-
-    var preferencesViewController = PreferencesViewController.create(primaryStage);
-
-    var aboutViewController = AboutViewController.create(primaryStage);
+    var frontend = MainViewController.create(primaryStage);
 
     //
     // Bind
     //
 
-    activitySamplingViewController.setOnOpenPreferences(preferencesViewController::run);
-    activitySamplingViewController.setOnOpenAbout(aboutViewController::run);
-    activitySamplingViewController.setOnLogActivityCommand(
+    frontend.setOnLogActivityCommand(
         cmd -> {
           logActivityCommandHandler.handle(cmd);
           var result = activityLogQueryHandler.handle(new ActivityLogQuery());
-          activitySamplingViewController.display(result);
+          frontend.display(result);
         });
-    activitySamplingViewController.setOnPreferencesQuery(
+    frontend.setOnPreferencesQuery(
         qry -> {
           var result = preferencesQueryHandler.handle(new PreferencesQuery());
-          activitySamplingViewController.display(result);
+          frontend.display(result);
         });
-    activitySamplingViewController.setOnActivityLogQuery(
+    frontend.setOnActivityLogQuery(
         qry -> {
           var result = activityLogQueryHandler.handle(qry);
-          activitySamplingViewController.display(result);
+          frontend.display(result);
         });
 
-    preferencesViewController.setOnChangePeriodDurationCommand(
+    frontend.setOnChangePeriodDurationCommand(
         cmd -> {
           changePeriodDurationCommandHandler.handle(cmd);
           var result = preferencesQueryHandler.handle(new PreferencesQuery());
-          activitySamplingViewController.display(result);
-          preferencesViewController.display(result);
+          frontend.display(result);
+          frontend.display(result);
         });
-    preferencesViewController.setOnChangeActivityLogFileCommand(
+    frontend.setOnChangeActivityLogFileCommand(
         cmd -> {
           changeActivityLogFileCommandHandler.handle(cmd);
           var preferencesQueryResult = preferencesQueryHandler.handle(new PreferencesQuery());
-          preferencesViewController.display(preferencesQueryResult);
+          frontend.display(preferencesQueryResult);
           var activityLogQueryResult = activityLogQueryHandler.handle(new ActivityLogQuery());
-          activitySamplingViewController.display(activityLogQueryResult);
+          frontend.display(activityLogQueryResult);
         });
-    preferencesViewController.setOnPreferencesQuery(
+    frontend.setOnPreferencesQuery(
         qry -> {
           var result = preferencesQueryHandler.handle(new PreferencesQuery());
-          preferencesViewController.display(result);
+          frontend.display(result);
         });
 
     //
     // Run
     //
 
-    activitySamplingViewController.run();
+    frontend.run();
   }
 }
