@@ -5,4 +5,5 @@ plugins {
 
 dependencies {
   api(project(":activity-sampling-contract"))
+  testImplementation("org.mockito:mockito-core:3.11.1")
 }

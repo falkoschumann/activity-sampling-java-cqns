@@ -5,7 +5,6 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.data.Activity;
 import java.awt.AWTException;
 import java.awt.EventQueue;
 import java.awt.MenuItem;
@@ -19,12 +18,12 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-class AppTrayIcon {
-  @Getter @Setter private Consumer<Activity> onActivitySelected;
+class TrayIconViewController {
+  @Getter @Setter private Consumer<String> onActivitySelected;
 
   private TrayIcon trayIcon;
 
-  AppTrayIcon() {
+  TrayIconViewController() {
     if (!SystemTray.isSupported()) {
       System.out.println("System tray is not supported on this platform");
       return;
@@ -67,14 +66,13 @@ class AppTrayIcon {
         });
   }
 
-  void display(List<Activity> recentActivities) {
+  void display(List<String> recentActivities) {
     EventQueue.invokeLater(
         () -> {
           var menu = new PopupMenu();
-          var stringConverter = new ActivityStringConverter();
           recentActivities.forEach(
               it -> {
-                MenuItem item = new MenuItem(stringConverter.toString(it));
+                MenuItem item = new MenuItem(it);
                 item.addActionListener(e -> onActivitySelected.accept(it));
                 menu.add(item);
               });

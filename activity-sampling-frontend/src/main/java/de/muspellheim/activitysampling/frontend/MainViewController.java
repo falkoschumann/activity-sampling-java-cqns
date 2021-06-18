@@ -17,9 +17,13 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -52,25 +56,17 @@ public class MainViewController {
   @FXML private TextField activityText;
   @FXML private TextField tagsText;
   @FXML private SplitMenuButton logButton;
-  @FXML private Label progressLabel;
+  @FXML private Label remainingTimeLabel;
   @FXML private ProgressBar progressBar;
   @FXML private TextArea activityLogText;
 
-  private final BooleanProperty formDisabled = new SimpleBooleanProperty(true){
-    @Override
-    protected void invalidated() {
-      if (!getValue()) {
-        activityText.requestFocus();
-      }
-    }
-  };
+  private final BooleanProperty activityFormDisabled = new SimpleBooleanProperty(true);
 
   private final SystemClock clock = new SystemClock();
   private final PeriodCheck periodCheck = new PeriodCheck();
-  private final AppTrayIcon trayIcon = new AppTrayIcon();
+  private TrayIconViewController trayIconViewController;
   private PreferencesViewController preferencesViewController;
 
-  private Duration period;
   private LocalDateTime timestamp;
 
   public static MainViewController create(Stage stage) {
@@ -107,12 +103,11 @@ public class MainViewController {
   }
 
   private void updateForm(List<Activity> recentActivities) {
-    var activityStringConverter = new ActivityStringConverter();
     var menuItems =
         recentActivities.stream()
             .map(
                 it -> {
-                  var menuItem = new MenuItem(activityStringConverter.toString(it));
+                  var menuItem = new MenuItem(activityToString(it));
                   menuItem.setOnAction(e -> handleLogActivity(it));
                   return menuItem;
                 })
@@ -124,20 +119,56 @@ public class MainViewController {
           if (!recentActivities.isEmpty()) {
             var lastActivity = recentActivities.get(0);
             activityText.setText(lastActivity.activity());
-            tagsText.setText(String.join(", ", lastActivity.tags()));
+            tagsText.setText(tagListToString(lastActivity.tags()));
           }
         });
   }
 
   private void updateActivityLog(List<Activity> log) {
-    var activityLogRenderer = new ActivityLogRenderer();
-    var logText = activityLogRenderer.render(log);
-    activityLogText.setText(logText);
+    activityLogText.setText(activityLogToString(log));
     activityLogText.setScrollTop(Double.MAX_VALUE);
   }
 
+  static String activityLogToString(List<Activity> activities) {
+    var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
+    var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
+    var logBuilder = new StringBuilder();
+    for (int i = 0; i < activities.size(); i++) {
+      var activity = activities.get(i);
+      if (i == 0) {
+        logBuilder.append(dateFormatter.format(activity.timestamp()));
+        logBuilder.append("\n");
+      } else {
+        var lastActivity = activities.get(i - 1);
+        if (!lastActivity.timestamp().toLocalDate().equals(activity.timestamp().toLocalDate())) {
+          logBuilder.append(dateFormatter.format(activity.timestamp()));
+          logBuilder.append("\n");
+        }
+      }
+
+      logBuilder.append(timeFormatter.format(activity.timestamp()));
+      logBuilder.append(" - ");
+      logBuilder.append(activityToString(activity));
+      logBuilder.append("\n");
+    }
+    return logBuilder.toString();
+  }
+
   private void updateTrayIcon(List<Activity> recent) {
-    trayIcon.display(recent);
+    trayIconViewController.display(
+        recent.stream().map(MainViewController::activityToString).toList());
+  }
+
+  static String activityToString(Activity activity) {
+    String string = activity.activity();
+    if (!activity.tags().isEmpty()) {
+      string = "[" + tagListToString(activity.tags()) + "] " + string;
+    }
+    return string;
+  }
+
+  static String tagListToString(List<String> tagList) {
+    return String.join(", ", tagList);
   }
 
   @FXML
@@ -156,46 +187,41 @@ public class MainViewController {
     }
   }
 
-  private void initPreferenceViewController(){
+  private void initPreferenceViewController() {
     preferencesViewController = PreferencesViewController.create(stage);
     preferencesViewController
-      .periodDurationProperty()
-      .addListener(
-        observable ->
-          onChangePeriodDurationCommand.accept(
-            new ChangePeriodDurationCommand(
-              preferencesViewController.getPeriodDuration())));
+        .periodDurationProperty()
+        .addListener(
+            observable ->
+                onChangePeriodDurationCommand.accept(
+                    new ChangePeriodDurationCommand(
+                        preferencesViewController.getPeriodDuration())));
     preferencesViewController
-      .activityLogFileProperty()
-      .addListener(
-        observable ->
-          onChangeActivityLogFileCommand.accept(
-            new ChangeActivityLogFileCommand(
-              preferencesViewController.getActivityLogFile())));
+        .activityLogFileProperty()
+        .addListener(
+            observable ->
+                onChangeActivityLogFileCommand.accept(
+                    new ChangeActivityLogFileCommand(
+                        preferencesViewController.getActivityLogFile())));
   }
 
   private void initActivityForm() {
-    activityText.disableProperty().bind(formDisabled);
-    tagsText.disableProperty().bind(formDisabled);
-    logButton.disableProperty().bind(formDisabled.or(activityText.textProperty().isEmpty()));
+    activityText.disableProperty().bind(activityFormDisabled);
+    tagsText.disableProperty().bind(activityFormDisabled);
+    logButton
+        .disableProperty()
+        .bind(activityFormDisabled.or(activityText.textProperty().isEmpty()));
 
-    var durationStringConverter = new DurationStringConverter();
-    periodCheck.setOnPeriodStarted(
-        it -> {
-          period = it;
-          Platform.runLater(
-              () -> {
-                progressLabel.setText(durationStringConverter.toString(period));
-                progressBar.setProgress(0.0);
-              });
-        });
-    periodCheck.setOnPeriodProgressed(
+    periodCheck.setOnRemainingTimeChanged(
         it ->
             Platform.runLater(
                 () -> {
-                  var remainingTime = period.minus(it);
-                  progressLabel.setText(durationStringConverter.toString(remainingTime));
-                  var progress = (double) it.getSeconds() / period.getSeconds();
+                  remainingTimeLabel.setText(durationToString(it));
+
+                  // TODO Move progress calculation to PeriodCheck
+                  var remainingSeconds = (double) it.getSeconds();
+                  var totalSeconds = (double) periodCheck.getPeriod().getSeconds();
+                  var progress = 1 - remainingSeconds / totalSeconds;
                   progressBar.setProgress(progress);
                 }));
     periodCheck.setOnPeriodEnded(
@@ -203,19 +229,43 @@ public class MainViewController {
           timestamp = it;
           Platform.runLater(
               () -> {
-                formDisabled.set(false);
-                progressLabel.setText(durationStringConverter.toString(Duration.ZERO));
-                progressBar.setProgress(1.0);
+                activityFormDisabled.set(false);
+                activityText.requestFocus();
               });
-          trayIcon.show();
+          trayIconViewController.show();
         });
 
     clock.setOnTick(periodCheck::check);
   }
 
+  static String durationToString(Duration object) {
+    return String.format(
+        "%1$02d:%2$02d:%3$02d",
+        object.toHoursPart(), object.toMinutesPart(), object.toSecondsPart());
+  }
+
   private void initTrayIcon() {
-    trayIcon.setOnActivitySelected(this::handleLogActivity);
-    Platform.runLater(() -> stage.setOnHiding(e -> trayIcon.hide()));
+    trayIconViewController = new TrayIconViewController();
+
+    trayIconViewController.setOnActivitySelected(it -> handleLogActivity(parseActivity(it)));
+    Platform.runLater(() -> stage.setOnHiding(e -> trayIconViewController.hide()));
+  }
+
+  static Activity parseActivity(String string) {
+    var pattern = Pattern.compile("(\\[(.+)])?\\s*(.+)");
+    var matcher = pattern.matcher(string);
+    String activity;
+    List<String> tags = List.of();
+    if (matcher.find()) {
+      activity = matcher.group(3);
+      var tagsString = matcher.group(2);
+      if (tagsString != null) {
+        tags = parseTagList(tagsString);
+      }
+    } else {
+      activity = string;
+    }
+    return new Activity("", LocalDateTime.now(), Duration.ZERO, activity, tags);
   }
 
   @FXML
@@ -236,16 +286,60 @@ public class MainViewController {
 
   @FXML
   private void handleLogActivity() {
-    var tagList = new TagsStringConverter().fromString(tagsText.getText());
-    var a = new Activity("", LocalDateTime.now(), Duration.ZERO, activityText.getText(), tagList);
-    handleLogActivity(a);
+    handleLogActivity(
+        new Activity(
+            "",
+            LocalDateTime.now(),
+            Duration.ZERO,
+            activityText.getText(),
+            parseTagList(tagsText.getText())));
+  }
+
+  static List<String> parseTagList(String string) {
+    if (string.isBlank()) {
+      return Collections.emptyList();
+    }
+
+    return List.of(string.split(",")).stream().map(String::strip).collect(Collectors.toList());
   }
 
   private void handleLogActivity(Activity activity) {
-    formDisabled.set(true);
-    trayIcon.hide();
+    activityFormDisabled.set(true);
+    trayIconViewController.hide();
 
-    var command = new LogActivityCommand(timestamp, period, activity.activity(), activity.tags());
-    onLogActivityCommand.accept(command);
+    onLogActivityCommand.accept(
+        new LogActivityCommand(
+            timestamp, periodCheck.getPeriod(), activity.activity(), activity.tags()));
+  }
+
+  static class PeriodCheck {
+    @Getter private Duration period = Duration.ofMinutes(20);
+    @Getter @Setter Consumer<Duration> onRemainingTimeChanged;
+    @Getter @Setter Consumer<LocalDateTime> onPeriodEnded;
+
+    private LocalDateTime start;
+
+    public void setPeriod(Duration period) {
+      this.period = period;
+      start = null;
+    }
+
+    public void check(LocalDateTime timestamp) {
+      if (start == null) {
+        start = timestamp;
+        onRemainingTimeChanged.accept(period);
+        return;
+      }
+
+      var elapsed = Duration.between(start, timestamp);
+      var remaining = period.minus(elapsed);
+      if (remaining.toSeconds() <= 0) {
+        onRemainingTimeChanged.accept(Duration.ZERO);
+        onPeriodEnded.accept(timestamp);
+        start = null;
+      } else {
+        onRemainingTimeChanged.accept(remaining);
+      }
+    }
   }
 }

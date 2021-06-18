@@ -67,7 +67,7 @@
                         </SplitMenuButton>
                         <VBox spacing="4.0">
                            <children>
-                              <Label fx:id="progressLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" text="00:20:00" />
+                              <Label fx:id="remainingTimeLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" text="00:20:00" />
                               <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                            </children>
                         </VBox>
