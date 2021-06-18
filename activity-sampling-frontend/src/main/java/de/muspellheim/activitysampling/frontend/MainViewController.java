@@ -19,9 +19,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -339,6 +342,24 @@ public class MainViewController {
         start = null;
       } else {
         onRemainingTimeChanged.accept(remaining);
+      }
+    }
+  }
+
+  static class SystemClock {
+    private final Timer timer = new Timer(true);
+
+    @Getter @Setter private Consumer<LocalDateTime> onTick;
+
+    void run() {
+      timer.schedule(new SystemClockTask(), 0, 1000);
+    }
+
+    private class SystemClockTask extends TimerTask {
+      @Override
+      public void run() {
+        var timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        onTick.accept(timestamp);
       }
     }
   }
