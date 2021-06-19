@@ -63,13 +63,13 @@ public class MainViewController {
   @FXML private ProgressBar progressBar;
   @FXML private TextArea activityLogText;
 
-  private final BooleanProperty activityFormDisabled = new SimpleBooleanProperty(true);
-
-  private final SystemClock clock = new SystemClock();
-  private final PeriodCheck periodCheck = new PeriodCheck();
   private TrayIconViewController trayIconViewController;
   private PreferencesViewController preferencesViewController;
 
+  private final BooleanProperty activityFormDisabled = new SimpleBooleanProperty(true);
+  private final Timer timer = new Timer(true);
+  private Duration period = Duration.ofMinutes(20);
+  private LocalDateTime start;
   private LocalDateTime timestamp;
 
   public static MainViewController create(Stage stage) {
@@ -90,11 +90,21 @@ public class MainViewController {
     stage.show();
     onPreferencesQuery.accept(new PreferencesQuery());
     onActivityLogQuery.accept(new ActivityLogQuery());
-    clock.run();
+    timer.schedule(
+        new TimerTask() {
+          @Override
+          public void run() {
+            var timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+            check(timestamp);
+          }
+        },
+        0,
+        1000);
   }
 
   public void display(PreferencesQueryResult result) {
-    periodCheck.setPeriod(result.periodDuration());
+    period = result.periodDuration();
+    start = null;
     preferencesViewController.setPeriodDuration(result.periodDuration());
     preferencesViewController.setActivityLogFile(result.activityLogFile());
   }
@@ -103,6 +113,46 @@ public class MainViewController {
     updateForm(result.recent());
     updateActivityLog(result.log());
     updateTrayIcon(result.recent());
+  }
+
+  public void check(LocalDateTime timestamp) {
+    if (start == null) {
+      start = timestamp;
+      remainingTimeChanged(period);
+      return;
+    }
+
+    var elapsed = Duration.between(start, timestamp);
+    var remaining = period.minus(elapsed);
+    if (remaining.toSeconds() <= 0) {
+      remainingTimeChanged(Duration.ZERO);
+      periodEnded(timestamp);
+      start = null;
+    } else {
+      remainingTimeChanged(remaining);
+    }
+  }
+
+  private void remainingTimeChanged(Duration remaining) {
+    Platform.runLater(
+        () -> {
+          remainingTimeLabel.setText(durationToString(remaining));
+
+          var remainingSeconds = (double) remaining.getSeconds();
+          var totalSeconds = (double) period.getSeconds();
+          var progress = 1 - remainingSeconds / totalSeconds;
+          progressBar.setProgress(progress);
+        });
+  }
+
+  private void periodEnded(LocalDateTime timestamp) {
+    this.timestamp = timestamp;
+    Platform.runLater(
+        () -> {
+          activityFormDisabled.set(false);
+          activityText.requestFocus();
+        });
+    trayIconViewController.show();
   }
 
   private void updateForm(List<Activity> recentActivities) {
@@ -214,31 +264,6 @@ public class MainViewController {
     logButton
         .disableProperty()
         .bind(activityFormDisabled.or(activityText.textProperty().isEmpty()));
-
-    periodCheck.setOnRemainingTimeChanged(
-        it ->
-            Platform.runLater(
-                () -> {
-                  remainingTimeLabel.setText(durationToString(it));
-
-                  // TODO Move progress calculation to PeriodCheck
-                  var remainingSeconds = (double) it.getSeconds();
-                  var totalSeconds = (double) periodCheck.getPeriod().getSeconds();
-                  var progress = 1 - remainingSeconds / totalSeconds;
-                  progressBar.setProgress(progress);
-                }));
-    periodCheck.setOnPeriodEnded(
-        it -> {
-          timestamp = it;
-          Platform.runLater(
-              () -> {
-                activityFormDisabled.set(false);
-                activityText.requestFocus();
-              });
-          trayIconViewController.show();
-        });
-
-    clock.setOnTick(periodCheck::check);
   }
 
   static String durationToString(Duration object) {
@@ -311,56 +336,6 @@ public class MainViewController {
     trayIconViewController.hide();
 
     onLogActivityCommand.accept(
-        new LogActivityCommand(
-            timestamp, periodCheck.getPeriod(), activity.activity(), activity.tags()));
-  }
-
-  static class PeriodCheck {
-    @Getter private Duration period = Duration.ofMinutes(20);
-    @Getter @Setter Consumer<Duration> onRemainingTimeChanged;
-    @Getter @Setter Consumer<LocalDateTime> onPeriodEnded;
-
-    private LocalDateTime start;
-
-    public void setPeriod(Duration period) {
-      this.period = period;
-      start = null;
-    }
-
-    public void check(LocalDateTime timestamp) {
-      if (start == null) {
-        start = timestamp;
-        onRemainingTimeChanged.accept(period);
-        return;
-      }
-
-      var elapsed = Duration.between(start, timestamp);
-      var remaining = period.minus(elapsed);
-      if (remaining.toSeconds() <= 0) {
-        onRemainingTimeChanged.accept(Duration.ZERO);
-        onPeriodEnded.accept(timestamp);
-        start = null;
-      } else {
-        onRemainingTimeChanged.accept(remaining);
-      }
-    }
-  }
-
-  static class SystemClock {
-    private final Timer timer = new Timer(true);
-
-    @Getter @Setter private Consumer<LocalDateTime> onTick;
-
-    void run() {
-      timer.schedule(new SystemClockTask(), 0, 1000);
-    }
-
-    private class SystemClockTask extends TimerTask {
-      @Override
-      public void run() {
-        var timestamp = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        onTick.accept(timestamp);
-      }
-    }
+        new LogActivityCommand(timestamp, period, activity.activity(), activity.tags()));
   }
 }

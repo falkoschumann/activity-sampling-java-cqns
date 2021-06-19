@@ -7,10 +7,6 @@ package de.muspellheim.activitysampling.frontend;
 
 import static de.muspellheim.activitysampling.frontend.MainViewController.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.openMocks;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
 import java.time.Duration;
@@ -18,11 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Consumer;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 class MainViewControllerTests {
   @Test
@@ -164,7 +156,7 @@ class MainViewControllerTests {
     assertEquals("Lorem ipsum", activity.activity());
     assertEquals(List.of("Foo", "Bar"), activity.tags());
   }
-
+  /*
   @Nested
   class PeriodCheckTests {
     @Mock private Consumer<Duration> remainingTimeChanged;
@@ -218,4 +210,5 @@ class MainViewControllerTests {
       verify(periodEnded).accept(currentTime);
     }
   }
+  */
 }
