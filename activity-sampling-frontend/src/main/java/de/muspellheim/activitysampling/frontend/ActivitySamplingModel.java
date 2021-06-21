@@ -24,11 +24,14 @@ class ActivitySamplingModel {
   @Getter @Setter private Path activityLogFile;
   @Setter private List<Activity> log = List.of();
   @Setter private List<Activity> recent = List.of();
+  @Getter @Setter private boolean formActivated;
   @Getter private String activity = "";
   @Getter @Setter private String tags = "";
   private LocalDateTime periodStart;
   @Getter private LocalDateTime periodEnd;
   @Getter private Duration remainingTime = Duration.ofMinutes(20);
+
+  // TODO Methoden ...AsString in Controller verschieben, da UI und nicht Logik
 
   List<String> getRecentAsString() {
     return recent.stream().map(ActivitySamplingModel::activityToString).toList();
@@ -58,6 +61,10 @@ class ActivitySamplingModel {
     return List.of(tags.split(",")).stream().map(String::strip).collect(Collectors.toList());
   }
 
+  boolean isFormInvalid() {
+    return activity.isBlank();
+  }
+
   String getRemainingTimeAsString() {
     return String.format(
         "%1$02d:%2$02d:%3$02d",
@@ -68,10 +75,6 @@ class ActivitySamplingModel {
     var remainingSeconds = (double) remainingTime.getSeconds();
     var totalSeconds = (double) periodDuration.getSeconds();
     return 1 - remainingSeconds / totalSeconds;
-  }
-
-  public boolean isPeriodEnded() {
-    return remainingTime.equals(Duration.ZERO);
   }
 
   String getLogAsString() {
@@ -103,11 +106,11 @@ class ActivitySamplingModel {
     periodStart = null;
   }
 
-  void clockTicked(LocalDateTime timestamp) {
+  boolean progressPeriod(LocalDateTime timestamp) {
     if (periodStart == null) {
       periodStart = timestamp;
       remainingTime = periodDuration;
-      return;
+      return false;
     }
 
     var elapsed = Duration.between(periodStart, timestamp);
@@ -116,9 +119,11 @@ class ActivitySamplingModel {
       remainingTime = Duration.ZERO;
       periodEnd = timestamp;
       periodStart = null;
+      return true;
     } else {
       remainingTime = remaining;
     }
+    return false;
   }
 
   private static String activityToString(Activity activity) {

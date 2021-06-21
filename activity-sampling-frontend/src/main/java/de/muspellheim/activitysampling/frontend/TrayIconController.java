@@ -19,13 +19,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 class TrayIconController {
-  private static final boolean DISABLED = true;
   @Getter @Setter private Consumer<String> onActivitySelected;
 
   private TrayIcon trayIcon;
 
   TrayIconController() {
-    if (DISABLED || !SystemTray.isSupported()) {
+    if (!SystemTray.isSupported()) {
       System.out.println("System tray is not supported on this platform");
       return;
     }
@@ -36,10 +35,6 @@ class TrayIconController {
   }
 
   void setRecent(List<String> value) {
-    if (DISABLED) {
-      System.out.println("TrayIconViewController::setRecent()");
-      return;
-    }
     if (!SystemTray.isSupported()) {
       return;
     }
@@ -58,10 +53,6 @@ class TrayIconController {
   }
 
   void show() {
-    if (DISABLED) {
-      System.out.println("TrayIconViewController::show()");
-      return;
-    }
     if (!SystemTray.isSupported()) {
       return;
     }
@@ -82,10 +73,6 @@ class TrayIconController {
   }
 
   void hide() {
-    if (DISABLED) {
-      System.out.println("TrayIconViewController::hide()");
-      return;
-    }
     if (!SystemTray.isSupported()) {
       return;
     }

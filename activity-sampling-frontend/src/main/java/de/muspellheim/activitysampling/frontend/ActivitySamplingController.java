@@ -80,13 +80,13 @@ public class ActivitySamplingController {
     trayIconViewController = new TrayIconController();
     model = new ActivitySamplingModel();
 
-    // FIXME Endlosschleife!
     activityText
         .textProperty()
         .addListener(
             o -> {
-              System.out.println("activity text changed");
-              loadView();
+              System.out.println("Update activity text");
+              model.setActivity(activityText.getText());
+              logButton.setDisable(model.isFormInvalid());
             });
     trayIconViewController.setOnActivitySelected(this::handleLogActivity);
     Platform.runLater(() -> stage.setOnHiding(e -> trayIconViewController.hide()));
@@ -98,9 +98,24 @@ public class ActivitySamplingController {
         new TimerTask() {
           @Override
           public void run() {
-            var currentTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-            model.clockTicked(currentTime);
-            loadView();
+            Platform.runLater(
+                () -> {
+                  var currentTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+                  if (model.progressPeriod(currentTime)) {
+                    activityText.setDisable(false);
+                    activityText.requestFocus();
+                    tagsText.setDisable(false);
+                    logButton.setDisable(model.isFormInvalid());
+                    trayIconViewController.show();
+                    // } else {
+                    // activityText.setDisable(true);
+                    // tagsText.setDisable(true);
+                    // logButton.setDisable(true);
+                  }
+
+                  remainingTimeLabel.setText(model.getRemainingTimeAsString());
+                  progressBar.setProgress(model.getPeriodProgress());
+                });
           }
         },
         0,
@@ -113,17 +128,34 @@ public class ActivitySamplingController {
   }
 
   public void display(PreferencesQueryResult result) {
-    model.setPeriodDuration(result.periodDuration());
     model.setActivityLogFile(result.activityLogFile());
+    model.setPeriodDuration(result.periodDuration());
     model.resetPeriod();
-    loadView();
   }
 
   public void display(ActivityLogQueryResult result) {
     model.setLog(result.log());
     model.setRecent(result.recent());
     model.setLast(result.last());
-    loadView();
+
+    activityText.setText(model.getActivity());
+    tagsText.setText(model.getTags());
+    logButton
+        .getItems()
+        .setAll(
+            model.getRecentAsString().stream()
+                .map(
+                    it -> {
+                      var menuItem = new MenuItem(it);
+                      menuItem.setOnAction(e -> handleLogActivity(it));
+                      return menuItem;
+                    })
+                .toList());
+
+    activityLogText.setText(model.getLogAsString());
+    activityLogText.setScrollTop(Double.MAX_VALUE);
+
+    trayIconViewController.setRecent(model.getRecentAsString());
   }
 
   @FXML
@@ -164,44 +196,6 @@ public class ActivitySamplingController {
     model.setActivity(activityText.getText());
     model.setTags(tagsText.getText());
     logActivity();
-  }
-
-  private void loadView() {
-    System.out.println("Load View");
-    Platform.runLater(
-        () -> {
-          activityText.setText(model.getActivity());
-          activityText.setDisable(!model.isPeriodEnded());
-          if (model.isPeriodEnded()) {
-            activityText.requestFocus();
-          }
-          tagsText.setText(model.getTags());
-          tagsText.setDisable(!model.isPeriodEnded());
-          logButton
-              .getItems()
-              .setAll(
-                  model.getRecentAsString().stream()
-                      .map(
-                          it -> {
-                            var menuItem = new MenuItem(it);
-                            menuItem.setOnAction(e -> handleLogActivity(it));
-                            return menuItem;
-                          })
-                      .toList());
-          logButton.setDisable(!model.isPeriodEnded() || activityText.getText().isEmpty());
-
-          remainingTimeLabel.setText(model.getRemainingTimeAsString());
-          progressBar.setProgress(model.getPeriodProgress());
-
-          activityLogText.setText(model.getLogAsString());
-          activityLogText.setScrollTop(Double.MAX_VALUE);
-        });
-
-    trayIconViewController.setRecent(model.getRecentAsString());
-    if (model.isPeriodEnded()) {
-      System.out.println("Period finished");
-      trayIconViewController.show();
-    }
   }
 
   private void handleLogActivity(String activity) {
