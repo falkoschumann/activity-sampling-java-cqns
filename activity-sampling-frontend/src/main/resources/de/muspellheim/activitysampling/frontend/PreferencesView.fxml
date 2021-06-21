@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.stage.Stage?>
 
-<Stage fx:id="stage" minHeight="100.0" minWidth="600.0" title="%preferencesView.stage.title" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.PreferencesViewController">
+<Stage fx:id="stage" minHeight="100.0" minWidth="600.0" title="%preferencesView.stage.title" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.PreferencesController">
   <scene>
     <Scene stylesheets="@style.css">
       <root>

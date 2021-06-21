@@ -26,7 +26,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
-public class PreferencesViewController implements Initializable {
+public class PreferencesController implements Initializable {
   private final ObjectProperty<Duration> periodDuration = new SimpleObjectProperty<>();
   private final ObjectProperty<Path> activityLogFile = new SimpleObjectProperty<>();
 
@@ -36,14 +36,14 @@ public class PreferencesViewController implements Initializable {
 
   private ResourceBundle resources;
 
-  public static PreferencesViewController create(Stage owner) {
+  public static PreferencesController create(Stage owner) {
     try {
-      var location = PreferencesViewController.class.getResource("PreferencesView.fxml");
+      var location = PreferencesController.class.getResource("PreferencesView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
       var loader = new FXMLLoader(location, resources);
       loader.load();
 
-      var controller = (PreferencesViewController) loader.getController();
+      var controller = (PreferencesController) loader.getController();
       controller.stage.initOwner(owner);
       return controller;
     } catch (IOException e) {

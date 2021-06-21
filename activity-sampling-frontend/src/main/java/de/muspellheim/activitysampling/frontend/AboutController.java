@@ -13,17 +13,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class AboutViewController {
+public class AboutController {
   @FXML private Stage stage;
 
-  public static AboutViewController create(Stage owner) {
+  public static AboutController create(Stage owner) {
     try {
-      var location = AboutViewController.class.getResource("AboutView.fxml");
+      var location = AboutController.class.getResource("AboutView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
       var loader = new FXMLLoader(location, resources);
       loader.load();
 
-      var controller = (AboutViewController) loader.getController();
+      var controller = (AboutController) loader.getController();
       controller.stage.initOwner(owner);
       controller.stage.initStyle(StageStyle.UTILITY);
       return controller;

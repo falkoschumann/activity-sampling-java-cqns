@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.stage.Stage?>
 
-<fx:root fx:id="stage" minHeight="420.0" minWidth="240.0" title="%mainView.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainViewController">
+<fx:root fx:id="stage" minHeight="420.0" minWidth="240.0" title="%mainView.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.ActivitySamplingController">
    <scene>
       <Scene stylesheets="@style.css">
          <root>
@@ -50,16 +50,16 @@
                         <VBox spacing="4.0">
                            <children>
                               <Label text="%mainView.activityLabel.text" />
-                              <TextField fx:id="activityText" onAction="#handleLogActivity" promptText="%mainView.activityText.promptText" />
+                              <TextField fx:id="activityText" disable="true" onAction="#handleLogActivity" promptText="%mainView.activityText.promptText" />
                            </children>
                         </VBox>
                         <VBox spacing="4.0">
                            <children>
                               <Label text="%mainView.tagsLabel.text" />
-                              <TextField fx:id="tagsText" onAction="#handleLogActivity" promptText="%mainView.tagsText.promptText" />
+                              <TextField fx:id="tagsText" disable="true" onAction="#handleLogActivity" promptText="%mainView.tagsText.promptText" />
                            </children>
                         </VBox>
-                        <SplitMenuButton fx:id="logButton" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogActivity" text="%mainView.logButton.text">
+                        <SplitMenuButton fx:id="logButton" alignment="CENTER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogActivity" text="%mainView.logButton.text">
                           <items>
                             <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />
                             <MenuItem mnemonicParsing="false" text="[Foo, Bar] Lorem ipsum" />

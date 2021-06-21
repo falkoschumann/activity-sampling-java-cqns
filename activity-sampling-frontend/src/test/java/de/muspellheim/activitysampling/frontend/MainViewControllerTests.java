@@ -5,18 +5,8 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import static de.muspellheim.activitysampling.frontend.MainViewController.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import de.muspellheim.activitysampling.contract.data.Activity;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import org.junit.jupiter.api.Test;
-
 class MainViewControllerTests {
+  /*
   @Test
   void testDurationToString() {
     assertEquals("00:20:00", durationToString(Duration.ofMinutes(20)));
@@ -156,7 +146,7 @@ class MainViewControllerTests {
     assertEquals("Lorem ipsum", activity.activity());
     assertEquals(List.of("Foo", "Bar"), activity.tags());
   }
-  /*
+
   @Nested
   class PeriodCheckTests {
     @Mock private Consumer<Duration> remainingTimeChanged;

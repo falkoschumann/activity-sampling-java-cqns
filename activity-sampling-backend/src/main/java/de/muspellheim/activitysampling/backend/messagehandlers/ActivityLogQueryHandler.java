@@ -20,6 +20,7 @@ import java.util.Objects;
 public class ActivityLogQueryHandler {
   private final LinkedList<Activity> log = new LinkedList<>();
   private final LinkedList<Activity> recent = new LinkedList<>();
+  private Activity last = Activity.NULL;
 
   public ActivityLogQueryHandler(EventStore eventStore) {
     eventStore.replay(ActivityLoggedEvent.class).forEach(this::apply);
@@ -28,24 +29,30 @@ public class ActivityLogQueryHandler {
 
   private void apply(Event event) {
     if (event instanceof ActivityLoggedEvent e) {
-      var activity =
-          new Activity(
-              e.id(),
-              LocalDateTime.ofInstant(e.timestamp(), ZoneId.systemDefault()),
-              e.period(),
-              e.activity(),
-              e.tags());
-      log.add(activity);
-
-      recent.removeIf(
-          it ->
-              Objects.equals(it.activity(), activity.activity())
-                  && Objects.equals(it.tags(), activity.tags()));
-      recent.offerFirst(activity);
+      apply(e);
     }
   }
 
+  private void apply(ActivityLoggedEvent event) {
+    var activity =
+        new Activity(
+            event.id(),
+            LocalDateTime.ofInstant(event.timestamp(), ZoneId.systemDefault()),
+            event.period(),
+            event.activity(),
+            event.tags());
+    log.add(activity);
+
+    recent.removeIf(
+        it ->
+            Objects.equals(it.activity(), activity.activity())
+                && Objects.equals(it.tags(), activity.tags()));
+    recent.offerFirst(activity);
+
+    last = activity;
+  }
+
   public ActivityLogQueryResult handle(@SuppressWarnings("unused") ActivityLogQuery query) {
-    return new ActivityLogQueryResult(List.copyOf(log), List.copyOf(recent));
+    return new ActivityLogQueryResult(List.copyOf(log), List.copyOf(recent), last);
   }
 }

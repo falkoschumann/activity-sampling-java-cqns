@@ -18,13 +18,14 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
-class TrayIconViewController {
+class TrayIconController {
+  private static final boolean DISABLED = true;
   @Getter @Setter private Consumer<String> onActivitySelected;
 
   private TrayIcon trayIcon;
 
-  TrayIconViewController() {
-    if (!SystemTray.isSupported()) {
+  TrayIconController() {
+    if (DISABLED || !SystemTray.isSupported()) {
       System.out.println("System tray is not supported on this platform");
       return;
     }
@@ -34,7 +35,33 @@ class TrayIconViewController {
     trayIcon = new TrayIcon(image);
   }
 
+  void setRecent(List<String> value) {
+    if (DISABLED) {
+      System.out.println("TrayIconViewController::setRecent()");
+      return;
+    }
+    if (!SystemTray.isSupported()) {
+      return;
+    }
+
+    EventQueue.invokeLater(
+        () -> {
+          var menu = new PopupMenu();
+          value.forEach(
+              it -> {
+                MenuItem menuItem = new MenuItem(it);
+                menuItem.addActionListener(e -> onActivitySelected.accept(it));
+                menu.add(menuItem);
+              });
+          trayIcon.setPopupMenu(menu);
+        });
+  }
+
   void show() {
+    if (DISABLED) {
+      System.out.println("TrayIconViewController::show()");
+      return;
+    }
     if (!SystemTray.isSupported()) {
       return;
     }
@@ -42,19 +69,23 @@ class TrayIconViewController {
     EventQueue.invokeLater(
         () -> {
           var tray = SystemTray.getSystemTray();
-          if (!List.of(tray.getTrayIcons()).contains(trayIcon)) {
+          var missingIconInTray = !List.of(tray.getTrayIcons()).contains(trayIcon);
+          if (missingIconInTray) {
             try {
               tray.add(trayIcon);
             } catch (AWTException e) {
               System.err.println("Can not add icon to system tray: " + e);
             }
           }
-
           trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
         });
   }
 
   void hide() {
+    if (DISABLED) {
+      System.out.println("TrayIconViewController::hide()");
+      return;
+    }
     if (!SystemTray.isSupported()) {
       return;
     }
@@ -63,20 +94,6 @@ class TrayIconViewController {
         () -> {
           var tray = SystemTray.getSystemTray();
           tray.remove(trayIcon);
-        });
-  }
-
-  void display(List<String> recentActivities) {
-    EventQueue.invokeLater(
-        () -> {
-          var menu = new PopupMenu();
-          recentActivities.forEach(
-              it -> {
-                MenuItem item = new MenuItem(it);
-                item.addActionListener(e -> onActivitySelected.accept(it));
-                menu.add(item);
-              });
-          trayIcon.setPopupMenu(menu);
         });
   }
 }

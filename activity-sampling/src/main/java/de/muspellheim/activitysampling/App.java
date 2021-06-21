@@ -18,7 +18,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityComman
 import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.frontend.MainViewController;
+import de.muspellheim.activitysampling.frontend.ActivitySamplingController;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -48,10 +48,6 @@ public class App extends Application {
 
   @Override
   public void start(Stage primaryStage) {
-    //
-    // Build
-    //
-
     var logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
     var changePeriodDurationCommandHandler =
         new ChangePeriodDurationCommandHandler(preferencesStore);
@@ -59,12 +55,7 @@ public class App extends Application {
         new ChangeActivityLogFileCommandHandler(preferencesStore, eventStore);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
-
-    var frontend = MainViewController.create(primaryStage);
-
-    //
-    // Bind
-    //
+    var frontend = ActivitySamplingController.create(primaryStage);
 
     frontend.setOnLogActivityCommand(
         cmd -> {
@@ -72,22 +63,10 @@ public class App extends Application {
           var result = activityLogQueryHandler.handle(new ActivityLogQuery());
           frontend.display(result);
         });
-    frontend.setOnPreferencesQuery(
-        qry -> {
-          var result = preferencesQueryHandler.handle(new PreferencesQuery());
-          frontend.display(result);
-        });
-    frontend.setOnActivityLogQuery(
-        qry -> {
-          var result = activityLogQueryHandler.handle(qry);
-          frontend.display(result);
-        });
-
     frontend.setOnChangePeriodDurationCommand(
         cmd -> {
           changePeriodDurationCommandHandler.handle(cmd);
           var result = preferencesQueryHandler.handle(new PreferencesQuery());
-          frontend.display(result);
           frontend.display(result);
         });
     frontend.setOnChangeActivityLogFileCommand(
@@ -103,10 +82,11 @@ public class App extends Application {
           var result = preferencesQueryHandler.handle(new PreferencesQuery());
           frontend.display(result);
         });
-
-    //
-    // Run
-    //
+    frontend.setOnActivityLogQuery(
+        qry -> {
+          var result = activityLogQueryHandler.handle(qry);
+          frontend.display(result);
+        });
 
     frontend.run();
   }
