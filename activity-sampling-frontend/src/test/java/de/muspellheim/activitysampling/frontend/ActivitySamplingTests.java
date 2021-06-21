@@ -28,7 +28,7 @@ class ActivitySamplingTests {
     fixture.resetPeriod();
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 20);
-    fixture.clockTicked(currentTime);
+    fixture.progressPeriod(currentTime);
 
     assertAll(
         () -> assertEquals(Duration.ofMinutes(20), fixture.getRemainingTime(), "remainingTime"),
@@ -41,10 +41,10 @@ class ActivitySamplingTests {
     fixture.setPeriodDuration(Duration.ofMinutes(20));
     fixture.resetPeriod();
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
-    fixture.clockTicked(startTime);
+    fixture.progressPeriod(startTime);
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 31, 45);
-    fixture.clockTicked(currentTime);
+    fixture.progressPeriod(currentTime);
 
     assertAll(
         () ->
@@ -59,10 +59,10 @@ class ActivitySamplingTests {
     fixture.setPeriodDuration(Duration.ofMinutes(20));
     fixture.resetPeriod();
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
-    fixture.clockTicked(startTime);
+    fixture.progressPeriod(startTime);
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 40);
-    fixture.clockTicked(currentTime);
+    fixture.progressPeriod(currentTime);
 
     assertAll(
         () -> assertEquals(Duration.ZERO, fixture.getRemainingTime(), "remainingTime"),
