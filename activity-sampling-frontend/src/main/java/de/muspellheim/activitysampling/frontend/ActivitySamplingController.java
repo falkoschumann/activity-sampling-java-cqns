@@ -58,7 +58,7 @@ public class ActivitySamplingController {
 
   public static ActivitySamplingController create(Stage stage) {
     try {
-      var location = ActivitySamplingController.class.getResource("MainView.fxml");
+      var location = ActivitySamplingController.class.getResource("ActivitySamplingView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
       var loader = new FXMLLoader(location, resources);
       loader.setRoot(stage);
@@ -71,22 +71,22 @@ public class ActivitySamplingController {
 
   @FXML
   private void initialize() {
-    var runningOnMac = System.getProperty("os.name").toLowerCase().contains("mac");
-    if (runningOnMac) {
+    model = new ActivitySamplingModel();
+    if (model.isRunningOnMac()) {
       menuBar.setUseSystemMenuBar(true);
       quitSeparatorMenuItem.setVisible(false);
       quitMenuItem.setVisible(false);
     }
     trayIconViewController = new TrayIconController();
-    model = new ActivitySamplingModel();
 
+    // TODO Durch Properties im Modell ersetzen?
     activityText
         .textProperty()
         .addListener(
             o -> {
-              System.out.println("Update activity text");
               model.setActivity(activityText.getText());
-              logButton.setDisable(model.isFormInvalid());
+              activityText.setText(model.getActivity());
+              logButton.setDisable(model.isFormSubmittable());
             });
     trayIconViewController.setOnActivitySelected(this::handleLogActivity);
     Platform.runLater(() -> stage.setOnHiding(e -> trayIconViewController.hide()));
@@ -102,17 +102,15 @@ public class ActivitySamplingController {
                 () -> {
                   var currentTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
                   if (model.progressPeriod(currentTime)) {
+                    // TODO Durch Properties im Modell ersetzen?
                     activityText.setDisable(false);
                     activityText.requestFocus();
                     tagsText.setDisable(false);
-                    logButton.setDisable(model.isFormInvalid());
+                    logButton.setDisable(model.isFormSubmittable());
                     trayIconViewController.show();
-                    // } else {
-                    // activityText.setDisable(true);
-                    // tagsText.setDisable(true);
-                    // logButton.setDisable(true);
                   }
 
+                  // TODO Durch Properties im Modell ersetzen?
                   remainingTimeLabel.setText(model.getRemainingTimeAsString());
                   progressBar.setProgress(model.getPeriodProgress());
                 });
@@ -138,21 +136,23 @@ public class ActivitySamplingController {
     model.setRecent(result.recent());
     model.setLast(result.last());
 
+    // TODO Durch Properties im Modell ersetzen?
     activityText.setText(model.getActivity());
-    tagsText.setText(model.getTags());
+    tagsText.setText(model.getTags()); // TODO Nutze TextFormatter
+
     logButton
         .getItems()
         .setAll(
             model.getRecentAsString().stream()
                 .map(
                     it -> {
-                      var menuItem = new MenuItem(it);
+                      var menuItem = new MenuItem(it); // TODO Nutze StringConverter
                       menuItem.setOnAction(e -> handleLogActivity(it));
                       return menuItem;
                     })
                 .toList());
 
-    activityLogText.setText(model.getLogAsString());
+    activityLogText.setText(model.getLogAsString()); // TODO Nutze TextFormatter
     activityLogText.setScrollTop(Double.MAX_VALUE);
 
     trayIconViewController.setRecent(model.getRecentAsString());
@@ -193,20 +193,27 @@ public class ActivitySamplingController {
 
   @FXML
   private void handleLogActivity() {
+    // TODO Durch Properties im Modell ersetzen?
     model.setActivity(activityText.getText());
     model.setTags(tagsText.getText());
+    activityText.setText(model.getActivity());
+    tagsText.setText(model.getTags());
     logActivity();
   }
 
   private void handleLogActivity(String activity) {
+    // TODO Nutze StringConverter
     model.setActivity(activity);
+    activityText.setText(model.getActivity());
+    tagsText.setText(model.getTags());
     logActivity();
   }
 
   private void logActivity() {
-    activityText.setDisable(true);
-    tagsText.setDisable(true);
-    logButton.setDisable(true);
+    model.setFormDisabled(true);
+    activityText.setDisable(model.isFormDisabled());
+    tagsText.setDisable(model.isFormDisabled());
+    logButton.setDisable(model.isFormDisabled());
     trayIconViewController.hide();
     onLogActivityCommand.accept(
         new LogActivityCommand(

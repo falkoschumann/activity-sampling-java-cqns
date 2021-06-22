@@ -5,7 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-class MainViewControllerTests {
+class ActivitySamplingControllerTests {
   /*
   @Test
   void testDurationToString() {

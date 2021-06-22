@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ActivitySamplingTests {
+class ActivitySamplingModelTests {
   private ActivitySamplingModel fixture;
 
   @BeforeEach

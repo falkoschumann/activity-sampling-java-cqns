@@ -24,7 +24,7 @@ class ActivitySamplingModel {
   @Getter @Setter private Path activityLogFile;
   @Setter private List<Activity> log = List.of();
   @Setter private List<Activity> recent = List.of();
-  @Getter @Setter private boolean formActivated;
+  @Getter @Setter private boolean formDisabled;
   @Getter private String activity = "";
   @Getter @Setter private String tags = "";
   private LocalDateTime periodStart;
@@ -32,6 +32,10 @@ class ActivitySamplingModel {
   @Getter private Duration remainingTime = Duration.ofMinutes(20);
 
   // TODO Methoden ...AsString in Controller verschieben, da UI und nicht Logik
+
+  boolean isRunningOnMac() {
+    return System.getProperty("os.name").toLowerCase().contains("mac");
+  }
 
   List<String> getRecentAsString() {
     return recent.stream().map(ActivitySamplingModel::activityToString).toList();
@@ -61,8 +65,8 @@ class ActivitySamplingModel {
     return List.of(tags.split(",")).stream().map(String::strip).collect(Collectors.toList());
   }
 
-  boolean isFormInvalid() {
-    return activity.isBlank();
+  boolean isFormSubmittable() {
+    return formDisabled || activity.isBlank();
   }
 
   String getRemainingTimeAsString() {
