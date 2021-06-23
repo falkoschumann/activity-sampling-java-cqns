@@ -9,6 +9,7 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -63,7 +64,19 @@ class ActivitySamplingModel {
     return log;
   }
 
-  @Setter @Getter private List<Activity> recent = List.of();
+  private final ObjectProperty<List<Activity>> recent = new SimpleObjectProperty<>(List.of());
+
+  final List<Activity> getRecent() {
+    return recent.get();
+  }
+
+  final void setRecent(List<Activity> recent) {
+    this.recent.set(recent);
+  }
+
+  final ObjectProperty<List<Activity>> recentProperty() {
+    return recent;
+  }
 
   private final StringProperty activity = new SimpleStringProperty("");
 
@@ -91,6 +104,20 @@ class ActivitySamplingModel {
 
   final ObjectProperty<List<String>> tagsProperty() {
     return tags;
+  }
+
+  private final ObjectProperty<List<String>> knownTags = new SimpleObjectProperty<>(List.of());
+
+  final List<String> getKnownTags() {
+    return knownTags.get();
+  }
+
+  final void setKnownTags(List<String> value) {
+    knownTags.set(value);
+  }
+
+  final ObjectProperty<List<String>> knownTagsProperty() {
+    return knownTags;
   }
 
   private final BooleanProperty formDisabled = new SimpleBooleanProperty(true);
@@ -125,6 +152,13 @@ class ActivitySamplingModel {
     return remainingTime;
   }
 
+  final BooleanBinding tagNotAddable =
+      formDisabledProperty().or(knownTagsProperty().isEqualTo(List.of()));
+
+  final BooleanBinding tagNotAddableBinding() {
+    return tagNotAddable;
+  }
+
   final BooleanBinding formUnsubmittable = formDisabledProperty().or(activityProperty().isEmpty());
 
   final BooleanBinding formUnsubmittableBinding() {
@@ -142,6 +176,12 @@ class ActivitySamplingModel {
 
   final DoubleBinding periodProgressBinding() {
     return periodProgress;
+  }
+
+  void addTag(String tag) {
+    var tags = new LinkedHashSet<>(getTags());
+    tags.add(tag);
+    setTags(List.copyOf(tags));
   }
 
   void progressPeriod(LocalDateTime timestamp) {

@@ -12,6 +12,8 @@ import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import java.time.ZoneId;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 public class LogActivityCommandHandler {
   private final EventStore eventStore;
@@ -22,12 +24,13 @@ public class LogActivityCommandHandler {
 
   public CommandStatus handle(LogActivityCommand command) {
     try {
+      var tags = new LinkedHashSet<>(command.tags());
       eventStore.record(
           new ActivityLoggedEvent(
               command.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
               command.period(),
               command.activity(),
-              command.tags()));
+              List.copyOf(tags)));
       return new Success();
     } catch (Exception e) {
       return new Failure(e.toString());

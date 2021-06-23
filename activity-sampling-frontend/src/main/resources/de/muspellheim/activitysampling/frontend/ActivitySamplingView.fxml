@@ -5,13 +5,17 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.stage.Stage?>
 
@@ -56,7 +60,24 @@
                         <VBox spacing="4.0">
                            <children>
                               <Label text="%mainView.tagsLabel.text" />
-                              <TextField fx:id="tagsText" disable="true" onAction="#handleLogActivity" promptText="%mainView.tagsText.promptText" />
+                              <HBox spacing="8.0">
+                                 <children>
+                                    <TextField fx:id="tagsText" disable="true" onAction="#handleLogActivity" promptText="%mainView.tagsText.promptText" HBox.hgrow="ALWAYS" />
+                                    <MenuButton fx:id="addTagButton" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" text="MenuButton">
+                                      <items>
+                                        <MenuItem mnemonicParsing="false" text="Foo" />
+                                        <MenuItem mnemonicParsing="false" text="Bar" />
+                                      </items>
+                                       <graphic>
+                                          <ImageView pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@add-black.png" />
+                                             </image>
+                                          </ImageView>
+                                       </graphic>
+                                    </MenuButton>
+                                 </children>
+                              </HBox>
                            </children>
                         </VBox>
                         <SplitMenuButton fx:id="logButton" alignment="CENTER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogActivity" text="%mainView.logButton.text">

@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 public class ChangeActivityLogFileCommandHandlerTests {
   @Test
-  void changeActivityLogFile() {
+  void testHandle() {
     var preferencesStore = new MemoryPreferencesStore();
     var eventStore = new MemoryEventStore();
     var handler = new ChangeActivityLogFileCommandHandler(preferencesStore, eventStore);

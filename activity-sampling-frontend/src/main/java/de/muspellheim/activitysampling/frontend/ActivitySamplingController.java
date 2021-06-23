@@ -30,6 +30,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SeparatorMenuItem;
@@ -54,6 +55,7 @@ public class ActivitySamplingController {
   @FXML private MenuItem quitMenuItem;
   @FXML private TextField activityText;
   @FXML private TextField tagsText;
+  @FXML private MenuButton addTagButton;
   @FXML private SplitMenuButton logButton;
   @FXML private Label remainingTimeLabel;
   @FXML private ProgressBar progressBar;
@@ -89,6 +91,7 @@ public class ActivitySamplingController {
     activityText.disableProperty().bind(model.formDisabledProperty());
     tagsText.textProperty().bindBidirectional(model.tagsProperty(), new TagsStringConverter());
     tagsText.disableProperty().bind(model.formDisabledProperty());
+    addTagButton.disableProperty().bind(model.tagNotAddableBinding());
     logButton.disableProperty().bind(model.formUnsubmittableBinding());
     remainingTimeLabel
         .textProperty()
@@ -108,6 +111,47 @@ public class ActivitySamplingController {
                 trayIconViewController.hide();
               }
             });
+    activityLogText
+        .textProperty()
+        .addListener(
+            observable -> Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE)));
+    model
+        .recentProperty()
+        .addListener(
+            observable -> {
+              var recent =
+                  model.getRecent().stream()
+                      .map(it -> new ActivityTemplate(it.activity(), it.tags()))
+                      .toList();
+              var converter = new ActivityTemplateStringConverter();
+              logButton
+                  .getItems()
+                  .setAll(
+                      recent.stream()
+                          .map(
+                              it -> {
+                                var menuItem = new MenuItem(converter.toString(it));
+                                menuItem.setOnAction(e -> handleLogActivity(it));
+                                return menuItem;
+                              })
+                          .toList());
+              trayIconViewController.setRecent(recent);
+            });
+    model
+        .knownTagsProperty()
+        .addListener(
+            observable ->
+                addTagButton
+                    .getItems()
+                    .setAll(
+                        model.getKnownTags().stream()
+                            .map(
+                                it -> {
+                                  var menuItem = new MenuItem(it);
+                                  menuItem.setOnAction(e -> model.addTag(it));
+                                  return menuItem;
+                                })
+                            .toList()));
   }
 
   public void run() {
@@ -142,25 +186,7 @@ public class ActivitySamplingController {
     model.setRecent(result.recent());
     model.setActivity(result.last().activity());
     model.setTags(result.last().tags());
-
-    var recent =
-        model.getRecent().stream()
-            .map(it -> new ActivityTemplate(it.activity(), it.tags()))
-            .toList();
-    var converter = new ActivityTemplateStringConverter();
-    logButton
-        .getItems()
-        .setAll(
-            recent.stream()
-                .map(
-                    it -> {
-                      var menuItem = new MenuItem(converter.toString(it));
-                      menuItem.setOnAction(e -> handleLogActivity(it));
-                      return menuItem;
-                    })
-                .toList());
-    Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE));
-    trayIconViewController.setRecent(recent);
+    model.setKnownTags(result.tags());
   }
 
   @FXML

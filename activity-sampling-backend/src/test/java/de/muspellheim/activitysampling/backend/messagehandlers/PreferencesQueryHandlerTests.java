@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 public class PreferencesQueryHandlerTests {
   @Test
-  void preferences() {
+  void testHandle() {
     var store = new MemoryPreferencesStore();
     var handler = new PreferencesQueryHandler(store);
 

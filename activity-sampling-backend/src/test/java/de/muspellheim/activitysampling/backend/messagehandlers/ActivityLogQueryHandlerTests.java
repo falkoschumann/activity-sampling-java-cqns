@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 public class ActivityLogQueryHandlerTests {
   @Test
-  void activityLog() {
+  void testHandle() {
     var store = new MemoryEventStore();
     store.record(createEvents());
     var handler = new ActivityLogQueryHandler(store);
@@ -71,7 +71,7 @@ public class ActivityLogQueryHandlerTests {
             Duration.ofMinutes(20),
             "A",
             List.of("Foo", "Bar"));
-    assertEquals(new ActivityLogQueryResult(log, recent, last), result);
+    assertEquals(new ActivityLogQueryResult(log, recent, last, List.of("Bar", "Foo")), result);
   }
 
   private static List<ActivityLoggedEvent> createEvents() {

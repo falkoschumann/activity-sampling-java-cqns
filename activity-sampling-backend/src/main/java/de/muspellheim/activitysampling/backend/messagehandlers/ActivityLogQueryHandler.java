@@ -16,11 +16,14 @@ import java.time.ZoneId;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class ActivityLogQueryHandler {
   private final LinkedList<Activity> log = new LinkedList<>();
   private final LinkedList<Activity> recent = new LinkedList<>();
   private Activity last = Activity.NULL;
+  private final SortedSet<String> tags = new TreeSet<>();
 
   public ActivityLogQueryHandler(EventStore eventStore) {
     eventStore.replay(ActivityLoggedEvent.class).forEach(this::apply);
@@ -50,9 +53,12 @@ public class ActivityLogQueryHandler {
     recent.offerFirst(activity);
 
     last = activity;
+
+    tags.addAll(activity.tags());
   }
 
   public ActivityLogQueryResult handle(@SuppressWarnings("unused") ActivityLogQuery query) {
-    return new ActivityLogQueryResult(List.copyOf(log), List.copyOf(recent), last);
+    return new ActivityLogQueryResult(
+        List.copyOf(log), List.copyOf(recent), last, List.copyOf(tags));
   }
 }

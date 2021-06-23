@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class LogActivityCommandHandlerTests {
 
   @Test
-  void logActivity() {
+  void testHandle() {
     var eventStore = new MemoryEventStore();
     var handler = new LogActivityCommandHandler(eventStore);
 

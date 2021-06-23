@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 public class ChangePeriodDurationCommandHandlerTests {
   @Test
-  void changePeriodDuration() {
+  void testHandle() {
     var store = new MemoryPreferencesStore();
     var handler = new ChangePeriodDurationCommandHandler(store);
 
