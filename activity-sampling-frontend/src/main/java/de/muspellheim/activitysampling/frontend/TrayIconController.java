@@ -19,7 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 class TrayIconController {
-  @Getter @Setter private Consumer<String> onActivitySelected;
+  @Getter @Setter private Consumer<ActivityTemplate> onActivitySelected;
 
   private TrayIcon trayIcon;
 
@@ -34,17 +34,18 @@ class TrayIconController {
     trayIcon = new TrayIcon(image);
   }
 
-  void setRecent(List<String> value) {
+  void setRecent(List<ActivityTemplate> value) {
     if (!SystemTray.isSupported()) {
       return;
     }
 
+    var converter = new ActivityTemplateStringConverter();
     EventQueue.invokeLater(
         () -> {
           var menu = new PopupMenu();
           value.forEach(
               it -> {
-                MenuItem menuItem = new MenuItem(it);
+                MenuItem menuItem = new MenuItem(converter.toString(it));
                 menuItem.addActionListener(e -> onActivitySelected.accept(it));
                 menu.add(menuItem);
               });

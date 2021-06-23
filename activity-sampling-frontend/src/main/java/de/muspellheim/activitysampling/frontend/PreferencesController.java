@@ -111,7 +111,7 @@ public class PreferencesController implements Initializable {
         .setAll(
             Boolean.parseBoolean(System.getProperty("demoMode"))
                 ? List.of(
-                    Duration.ofMinutes(2),
+                    Duration.ofMinutes(1),
                     Duration.ofMinutes(15),
                     Duration.ofMinutes(20),
                     Duration.ofMinutes(30),

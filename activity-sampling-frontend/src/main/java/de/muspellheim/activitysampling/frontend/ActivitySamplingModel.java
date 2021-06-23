@@ -9,132 +9,157 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 class ActivitySamplingModel {
-  @Getter @Setter private Duration periodDuration = Duration.ofMinutes(20);
-  @Getter @Setter private Path activityLogFile;
-  @Setter private List<Activity> log = List.of();
-  @Setter private List<Activity> recent = List.of();
-  @Getter @Setter private boolean formDisabled;
-  @Getter private String activity = "";
-  @Getter @Setter private String tags = "";
-  private LocalDateTime periodStart;
-  @Getter private LocalDateTime periodEnd;
-  @Getter private Duration remainingTime = Duration.ofMinutes(20);
-
-  // TODO Methoden ...AsString in Controller verschieben, da UI und nicht Logik
-
   boolean isRunningOnMac() {
     return System.getProperty("os.name").toLowerCase().contains("mac");
   }
 
-  List<String> getRecentAsString() {
-    return recent.stream().map(ActivitySamplingModel::activityToString).toList();
-  }
-
-  void setLast(Activity value) {
-    setActivity(value.activity());
-    setTags(String.join(", ", value.tags()));
-  }
-
-  void setActivity(String value) {
-    var pattern = Pattern.compile("(\\[(.+)])?\\s*(.+)");
-    var matcher = pattern.matcher(value);
-    if (matcher.find()) {
-      activity = matcher.group(3);
-      tags = Optional.ofNullable(matcher.group(2)).orElse("");
-    } else {
-      activity = value;
-    }
-  }
-
-  List<String> getTagsAsList() {
-    if (tags.isBlank()) {
-      return Collections.emptyList();
-    }
-
-    return List.of(tags.split(",")).stream().map(String::strip).collect(Collectors.toList());
-  }
-
-  boolean isFormSubmittable() {
-    return formDisabled || activity.isBlank();
-  }
-
-  String getRemainingTimeAsString() {
-    return String.format(
-        "%1$02d:%2$02d:%3$02d",
-        remainingTime.toHoursPart(), remainingTime.toMinutesPart(), remainingTime.toSecondsPart());
-  }
-
-  double getPeriodProgress() {
-    var remainingSeconds = (double) remainingTime.getSeconds();
-    var totalSeconds = (double) periodDuration.getSeconds();
-    return 1 - remainingSeconds / totalSeconds;
-  }
-
-  String getLogAsString() {
-    var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
-    var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
-    var logBuilder = new StringBuilder();
-    for (int i = 0; i < log.size(); i++) {
-      var activity = log.get(i);
-      if (i == 0) {
-        logBuilder.append(dateFormatter.format(activity.timestamp()));
-        logBuilder.append("\n");
-      } else {
-        var lastActivity = log.get(i - 1);
-        if (!lastActivity.timestamp().toLocalDate().equals(activity.timestamp().toLocalDate())) {
-          logBuilder.append(dateFormatter.format(activity.timestamp()));
-          logBuilder.append("\n");
+  private final ObjectProperty<Duration> periodDuration =
+      new SimpleObjectProperty<>(Duration.ofMinutes(20)) {
+        @Override
+        protected void invalidated() {
+          periodStart = null;
         }
-      }
+      };
 
-      logBuilder.append(timeFormatter.format(activity.timestamp()));
-      logBuilder.append(" - ");
-      logBuilder.append(activityToString(activity));
-      logBuilder.append("\n");
-    }
-    return logBuilder.toString();
+  final Duration getPeriodDuration() {
+    return periodDuration.get();
   }
 
-  void resetPeriod() {
-    periodStart = null;
+  final void setPeriodDuration(Duration periodDuration) {
+    this.periodDuration.set(periodDuration);
   }
 
-  boolean progressPeriod(LocalDateTime timestamp) {
+  final ObjectProperty<Duration> periodDurationProperty() {
+    return periodDuration;
+  }
+
+  @Getter @Setter private Path activityLogFile;
+
+  private final ObjectProperty<List<Activity>> log = new SimpleObjectProperty<>(List.of());
+
+  final List<Activity> getLog() {
+    return log.get();
+  }
+
+  final void setLog(List<Activity> log) {
+    this.log.set(log);
+  }
+
+  final ObjectProperty<List<Activity>> logProperty() {
+    return log;
+  }
+
+  @Setter @Getter private List<Activity> recent = List.of();
+
+  private final StringProperty activity = new SimpleStringProperty("");
+
+  final String getActivity() {
+    return activity.get();
+  }
+
+  final void setActivity(String value) {
+    activity.set(value);
+  }
+
+  final StringProperty activityProperty() {
+    return activity;
+  }
+
+  private final ObjectProperty<List<String>> tags = new SimpleObjectProperty<>(List.of());
+
+  final List<String> getTags() {
+    return tags.get();
+  }
+
+  final void setTags(List<String> value) {
+    tags.set(value);
+  }
+
+  final ObjectProperty<List<String>> tagsProperty() {
+    return tags;
+  }
+
+  private final BooleanProperty formDisabled = new SimpleBooleanProperty(true);
+
+  final boolean isFormDisabled() {
+    return formDisabled.get();
+  }
+
+  final void setFormDisabled(boolean formDisabled) {
+    this.formDisabled.set(formDisabled);
+  }
+
+  final BooleanProperty formDisabledProperty() {
+    return formDisabled;
+  }
+
+  private LocalDateTime periodStart;
+  @Getter private LocalDateTime periodEnd;
+
+  private final ObjectProperty<Duration> remainingTime =
+      new SimpleObjectProperty<>(Duration.ofMinutes(20));
+
+  final Duration getRemainingTime() {
+    return remainingTime.get();
+  }
+
+  final void setRemainingTime(Duration value) {
+    remainingTime.set(value);
+  }
+
+  final ObjectProperty<Duration> remainingTimeProperty() {
+    return remainingTime;
+  }
+
+  final BooleanBinding formUnsubmittable = formDisabledProperty().or(activityProperty().isEmpty());
+
+  final BooleanBinding formUnsubmittableBinding() {
+    return formUnsubmittable;
+  }
+
+  final DoubleBinding periodProgress =
+      Bindings.createDoubleBinding(
+          () -> {
+            var remainingSeconds = (double) getRemainingTime().getSeconds();
+            var totalSeconds = (double) getPeriodDuration().getSeconds();
+            return 1 - remainingSeconds / totalSeconds;
+          },
+          remainingTimeProperty());
+
+  final DoubleBinding periodProgressBinding() {
+    return periodProgress;
+  }
+
+  void progressPeriod(LocalDateTime timestamp) {
     if (periodStart == null) {
       periodStart = timestamp;
-      remainingTime = periodDuration;
-      return false;
+      setRemainingTime(getPeriodDuration());
+      return;
     }
 
     var elapsed = Duration.between(periodStart, timestamp);
-    var remaining = periodDuration.minus(elapsed);
+    var remaining = getPeriodDuration().minus(elapsed);
     if (remaining.toSeconds() <= 0) {
-      remainingTime = Duration.ZERO;
+      setRemainingTime(Duration.ZERO);
       periodEnd = timestamp;
       periodStart = null;
-      return true;
+      setFormDisabled(false);
     } else {
-      remainingTime = remaining;
+      setRemainingTime(remaining);
     }
-    return false;
-  }
-
-  private static String activityToString(Activity activity) {
-    String string = activity.activity();
-    if (!activity.tags().isEmpty()) {
-      string = "[" + String.join(", ", (activity.tags())) + "] " + string;
-    }
-    return string;
   }
 }

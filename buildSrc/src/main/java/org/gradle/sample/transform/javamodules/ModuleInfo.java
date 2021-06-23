@@ -5,58 +5,59 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data class to hold the information that should be added as module-info.class to an existing Jar file.
+ * Data class to hold the information that should be added as module-info.class to an existing Jar
+ * file.
  */
 public class ModuleInfo implements Serializable {
-    private String moduleName;
-    private String moduleVersion;
-    private List<String> exports = new ArrayList<>();
-    private List<String> requires = new ArrayList<>();
-    private List<String> requiresStatic = new ArrayList<>();
-    private List<String> requiresTransitive = new ArrayList<>();
+  private String moduleName;
+  private String moduleVersion;
+  private List<String> exports = new ArrayList<>();
+  private List<String> requires = new ArrayList<>();
+  private List<String> requiresStatic = new ArrayList<>();
+  private List<String> requiresTransitive = new ArrayList<>();
 
-    ModuleInfo(String moduleName, String moduleVersion) {
-        this.moduleName = moduleName;
-        this.moduleVersion = moduleVersion;
-    }
-
-    public void exports(String exports) {
-        this.exports.add(exports);
-    }
-
-    public void requires(String requires) {
-        this.requires.add(requires);
-    }
-
-    public void requiresStatic(String requiresStatic) {
-    this.requires.add(requiresStatic);
+  ModuleInfo(String moduleName, String moduleVersion) {
+    this.moduleName = moduleName;
+    this.moduleVersion = moduleVersion;
   }
 
-    public void requiresTransitive(String requiresTransitive) {
-        this.requiresTransitive.add(requiresTransitive);
-    }
+  public void exports(String exports) {
+    this.exports.add(exports);
+  }
 
-    public String getModuleName() {
-        return moduleName;
-    }
+  public void requires(String requires) {
+    this.requires.add(requires);
+  }
 
-    protected String getModuleVersion() {
-        return moduleVersion;
-    }
+  public void requiresStatic(String requiresStatic) {
+    this.requiresStatic.add(requiresStatic);
+  }
 
-    protected List<String> getExports() {
-        return exports;
-    }
+  public void requiresTransitive(String requiresTransitive) {
+    this.requiresTransitive.add(requiresTransitive);
+  }
 
-    protected List<String> getRequires() {
-        return requires;
-    }
+  public String getModuleName() {
+    return moduleName;
+  }
 
-    protected List<String> getRequiresStatic() {
+  protected String getModuleVersion() {
+    return moduleVersion;
+  }
+
+  protected List<String> getExports() {
+    return exports;
+  }
+
+  protected List<String> getRequires() {
+    return requires;
+  }
+
+  protected List<String> getRequiresStatic() {
     return requiresStatic;
   }
 
-    protected List<String> getRequiresTransitive() {
-        return requiresTransitive;
-    }
+  protected List<String> getRequiresTransitive() {
+    return requiresTransitive;
+  }
 }

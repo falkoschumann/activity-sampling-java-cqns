@@ -7,7 +7,9 @@ package de.muspellheim.activitysampling.frontend;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -25,7 +27,6 @@ class ActivitySamplingModelTests {
   @Test
   void testClockTicked_periodStarted() {
     fixture.setPeriodDuration(Duration.ofMinutes(20));
-    fixture.resetPeriod();
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 20);
     fixture.progressPeriod(currentTime);
@@ -33,13 +34,14 @@ class ActivitySamplingModelTests {
     assertAll(
         () -> assertEquals(Duration.ofMinutes(20), fixture.getRemainingTime(), "remainingTime"),
         () -> assertNull(fixture.getPeriodEnd(), "periodEnd"),
-        () -> assertEquals(0.0, fixture.getPeriodProgress(), "periodProgress"));
+        () -> assertEquals(0.0, fixture.periodProgressBinding().get(), "periodProgress"),
+        () -> assertTrue(fixture.isFormDisabled(), "formDisabled"),
+        () -> assertTrue(fixture.formUnsubmittable.get(), "formUnsubmittable"));
   }
 
   @Test
   void testClockTicked_periodProgressed() {
     fixture.setPeriodDuration(Duration.ofMinutes(20));
-    fixture.resetPeriod();
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
     fixture.progressPeriod(startTime);
 
@@ -51,13 +53,14 @@ class ActivitySamplingModelTests {
             assertEquals(
                 Duration.ofMinutes(8).plusSeconds(15), fixture.getRemainingTime(), "remainingTime"),
         () -> assertNull(fixture.getPeriodEnd(), "periodEnd"),
-        () -> assertEquals(0.5875, fixture.getPeriodProgress(), "periodProgress"));
+        () -> assertEquals(0.5875, fixture.periodProgressBinding().get(), "periodProgress"),
+        () -> assertTrue(fixture.isFormDisabled(), "formDisabled"),
+        () -> assertTrue(fixture.formUnsubmittable.get(), "formUnsubmittable"));
   }
 
   @Test
   void testClockTicked_periodEnded() {
     fixture.setPeriodDuration(Duration.ofMinutes(20));
-    fixture.resetPeriod();
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
     fixture.progressPeriod(startTime);
 
@@ -67,6 +70,8 @@ class ActivitySamplingModelTests {
     assertAll(
         () -> assertEquals(Duration.ZERO, fixture.getRemainingTime(), "remainingTime"),
         () -> assertEquals(currentTime, fixture.getPeriodEnd(), "periodEnd"),
-        () -> assertEquals(1.0, fixture.getPeriodProgress(), "periodProgress"));
+        () -> assertEquals(1.0, fixture.periodProgressBinding().get(), "periodProgress"),
+        () -> assertFalse(fixture.isFormDisabled(), "formDisabled"),
+        () -> assertTrue(fixture.formUnsubmittable.get(), "formUnsubmittable"));
   }
 }

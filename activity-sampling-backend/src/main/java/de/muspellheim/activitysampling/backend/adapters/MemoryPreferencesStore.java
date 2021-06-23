@@ -13,7 +13,7 @@ import java.time.Duration;
 public class MemoryPreferencesStore implements PreferencesStore {
   private Duration periodDuration =
       Boolean.parseBoolean(System.getProperty("demoMode"))
-          ? Duration.ofMinutes(2)
+          ? Duration.ofMinutes(1)
           : Duration.ofMinutes(20);
   private Path activityLogFile = Paths.get("~/activity-log.csv");
 

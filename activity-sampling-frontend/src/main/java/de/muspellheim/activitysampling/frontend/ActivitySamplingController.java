@@ -5,6 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
@@ -14,8 +15,12 @@ import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuer
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,6 +37,7 @@ import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -79,17 +85,29 @@ public class ActivitySamplingController {
     }
     trayIconViewController = new TrayIconController();
 
-    // TODO Durch Properties im Modell ersetzen?
-    activityText
+    activityText.textProperty().bindBidirectional(model.activityProperty());
+    activityText.disableProperty().bind(model.formDisabledProperty());
+    tagsText.textProperty().bindBidirectional(model.tagsProperty(), new TagsStringConverter());
+    tagsText.disableProperty().bind(model.formDisabledProperty());
+    logButton.disableProperty().bind(model.formUnsubmittableBinding());
+    remainingTimeLabel
         .textProperty()
-        .addListener(
-            o -> {
-              model.setActivity(activityText.getText());
-              activityText.setText(model.getActivity());
-              logButton.setDisable(model.isFormSubmittable());
-            });
+        .bindBidirectional(model.remainingTimeProperty(), new RemainingTimeStringConverter());
+    progressBar.progressProperty().bind(model.periodProgressBinding());
+    activityLogText.textProperty().bindBidirectional(model.logProperty(), new LogStringConverter());
     trayIconViewController.setOnActivitySelected(this::handleLogActivity);
     Platform.runLater(() -> stage.setOnHiding(e -> trayIconViewController.hide()));
+    model
+        .formDisabledProperty()
+        .addListener(
+            (observable, oldValue, newValue) -> {
+              if (oldValue && !newValue) {
+                trayIconViewController.show();
+                Platform.runLater(() -> activityText.requestFocus());
+              } else if (!oldValue && newValue) {
+                trayIconViewController.hide();
+              }
+            });
   }
 
   public void run() {
@@ -101,18 +119,7 @@ public class ActivitySamplingController {
             Platform.runLater(
                 () -> {
                   var currentTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-                  if (model.progressPeriod(currentTime)) {
-                    // TODO Durch Properties im Modell ersetzen?
-                    activityText.setDisable(false);
-                    activityText.requestFocus();
-                    tagsText.setDisable(false);
-                    logButton.setDisable(model.isFormSubmittable());
-                    trayIconViewController.show();
-                  }
-
-                  // TODO Durch Properties im Modell ersetzen?
-                  remainingTimeLabel.setText(model.getRemainingTimeAsString());
-                  progressBar.setProgress(model.getPeriodProgress());
+                  model.progressPeriod(currentTime);
                 });
           }
         },
@@ -128,34 +135,32 @@ public class ActivitySamplingController {
   public void display(PreferencesQueryResult result) {
     model.setActivityLogFile(result.activityLogFile());
     model.setPeriodDuration(result.periodDuration());
-    model.resetPeriod();
   }
 
   public void display(ActivityLogQueryResult result) {
     model.setLog(result.log());
     model.setRecent(result.recent());
-    model.setLast(result.last());
+    model.setActivity(result.last().activity());
+    model.setTags(result.last().tags());
 
-    // TODO Durch Properties im Modell ersetzen?
-    activityText.setText(model.getActivity());
-    tagsText.setText(model.getTags()); // TODO Nutze TextFormatter
-
+    var recent =
+        model.getRecent().stream()
+            .map(it -> new ActivityTemplate(it.activity(), it.tags()))
+            .toList();
+    var converter = new ActivityTemplateStringConverter();
     logButton
         .getItems()
         .setAll(
-            model.getRecentAsString().stream()
+            recent.stream()
                 .map(
                     it -> {
-                      var menuItem = new MenuItem(it); // TODO Nutze StringConverter
+                      var menuItem = new MenuItem(converter.toString(it));
                       menuItem.setOnAction(e -> handleLogActivity(it));
                       return menuItem;
                     })
                 .toList());
-
-    activityLogText.setText(model.getLogAsString()); // TODO Nutze TextFormatter
-    activityLogText.setScrollTop(Double.MAX_VALUE);
-
-    trayIconViewController.setRecent(model.getRecentAsString());
+    Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE));
+    trayIconViewController.setRecent(recent);
   }
 
   @FXML
@@ -193,33 +198,71 @@ public class ActivitySamplingController {
 
   @FXML
   private void handleLogActivity() {
-    // TODO Durch Properties im Modell ersetzen?
-    model.setActivity(activityText.getText());
-    model.setTags(tagsText.getText());
-    activityText.setText(model.getActivity());
-    tagsText.setText(model.getTags());
     logActivity();
   }
 
-  private void handleLogActivity(String activity) {
-    // TODO Nutze StringConverter
-    model.setActivity(activity);
-    activityText.setText(model.getActivity());
-    tagsText.setText(model.getTags());
+  private void handleLogActivity(ActivityTemplate template) {
+    model.setActivity(template.activity());
+    model.setTags(template.tags());
     logActivity();
   }
 
   private void logActivity() {
     model.setFormDisabled(true);
-    activityText.setDisable(model.isFormDisabled());
-    tagsText.setDisable(model.isFormDisabled());
-    logButton.setDisable(model.isFormDisabled());
-    trayIconViewController.hide();
     onLogActivityCommand.accept(
         new LogActivityCommand(
-            model.getPeriodEnd(),
-            model.getPeriodDuration(),
-            model.getActivity(),
-            model.getTagsAsList()));
+            model.getPeriodEnd(), model.getPeriodDuration(), model.getActivity(), model.getTags()));
+  }
+
+  static class RemainingTimeStringConverter extends StringConverter<Duration> {
+    @Override
+    public String toString(Duration object) {
+      return String.format(
+          "%1$02d:%2$02d:%3$02d",
+          object.toHoursPart(), object.toMinutesPart(), object.toSecondsPart());
+    }
+
+    @Override
+    public Duration fromString(String string) {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  static class LogStringConverter extends StringConverter<List<Activity>> {
+    @Override
+    public String toString(List<Activity> object) {
+      var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
+      var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
+      var logBuilder = new StringBuilder();
+      var tagsConverter = new TagsStringConverter();
+      for (int i = 0; i < object.size(); i++) {
+        var activity = object.get(i);
+        if (i == 0) {
+          logBuilder.append(dateFormatter.format(activity.timestamp()));
+          logBuilder.append("\n");
+        } else {
+          var lastActivity = object.get(i - 1);
+          if (!lastActivity.timestamp().toLocalDate().equals(activity.timestamp().toLocalDate())) {
+            logBuilder.append(dateFormatter.format(activity.timestamp()));
+            logBuilder.append("\n");
+          }
+        }
+
+        logBuilder.append(timeFormatter.format(activity.timestamp()));
+        logBuilder.append(" - ");
+        String activityText = activity.activity();
+        if (!activity.tags().isEmpty()) {
+          activityText = "[" + tagsConverter.toString(activity.tags()) + "] " + activityText;
+        }
+        logBuilder.append(activityText);
+        logBuilder.append("\n");
+      }
+      return logBuilder.toString();
+    }
+
+    @Override
+    public List<Activity> fromString(String string) {
+      throw new UnsupportedOperationException();
+    }
   }
 }
