@@ -16,9 +16,13 @@ import de.muspellheim.activitysampling.backend.messagehandlers.ChangeActivityLog
 import de.muspellheim.activitysampling.backend.messagehandlers.ChangePeriodDurationCommandHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
+import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByActivityQueryHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingController;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -44,6 +48,12 @@ public class App extends Application {
       System.out.println("Save activity log in: " + activityLogFile.toAbsolutePath());
       eventStore = new CsvEventStore(activityLogFile.toString());
     }
+
+    if (getParameters().getNamed().containsKey("activityLogFile")) {
+      var activityLogFile = getParameters().getNamed().get("activityLogFile");
+      preferencesStore = new PreferencesStoreWrapper(preferencesStore, activityLogFile);
+      eventStore.setUri(activityLogFile);
+    }
   }
 
   @Override
@@ -55,6 +65,7 @@ public class App extends Application {
         new ChangeActivityLogFileCommandHandler(preferencesStore, eventStore);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
+    var workingHoursByActivityQueryHandler = new WorkingHoursByActivityQueryHandler(eventStore);
     var frontend = ActivitySamplingController.create(primaryStage);
 
     frontend.setOnLogActivityCommand(
@@ -87,7 +98,42 @@ public class App extends Application {
           var result = activityLogQueryHandler.handle(qry);
           frontend.display(result);
         });
+    frontend.setOnWorkingHoursByActivityQuery(
+        qry -> {
+          var result = workingHoursByActivityQueryHandler.handle(qry);
+          frontend.display(result);
+        });
 
     frontend.run();
+  }
+
+  private static class PreferencesStoreWrapper implements PreferencesStore {
+    private final PreferencesStore preferencesStore;
+    private Path activityLogFile;
+
+    public PreferencesStoreWrapper(PreferencesStore preferencesStore, String activityLogFile) {
+      this.preferencesStore = preferencesStore;
+      this.activityLogFile = Paths.get(activityLogFile);
+    }
+
+    @Override
+    public Duration loadPeriodDuration() {
+      return preferencesStore.loadPeriodDuration();
+    }
+
+    @Override
+    public void savePeriodDuration(Duration periodDuration) {
+      preferencesStore.savePeriodDuration(periodDuration);
+    }
+
+    @Override
+    public Path loadActivityLogFile() {
+      return activityLogFile;
+    }
+
+    @Override
+    public void saveActivityLogFile(Path activityLogFile) {
+      this.activityLogFile = activityLogFile;
+    }
   }
 }

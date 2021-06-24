@@ -42,6 +42,11 @@
                               </MenuItem>
                         </items>
                       </Menu>
+                        <Menu mnemonicParsing="false" text="Statistics">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByActivity" text="Working hours by activity" />
+                          </items>
+                        </Menu>
                       <Menu mnemonicParsing="false" text="%mainView.helpMenu">
                         <items>
                           <MenuItem mnemonicParsing="false" onAction="#handleOpenAbout" text="%mainView.helpMenu.about" />

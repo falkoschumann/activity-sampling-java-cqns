@@ -6,6 +6,7 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult.WorkingHours;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -150,6 +151,21 @@ class ActivitySamplingModel {
 
   final ObjectProperty<Duration> remainingTimeProperty() {
     return remainingTime;
+  }
+
+  final ObjectProperty<List<WorkingHours>> workingHoursByActivity =
+      new SimpleObjectProperty<>(List.of());
+
+  final List<WorkingHours> getWorkingHoursByActivity() {
+    return workingHoursByActivity.get();
+  }
+
+  final void setWorkingHoursByActivity(List<WorkingHours> workingHours) {
+    this.workingHoursByActivity.set(workingHours);
+  }
+
+  final ObjectProperty<List<WorkingHours>> workingHoursByActivityProperty() {
+    return workingHoursByActivity;
   }
 
   final BooleanBinding tagNotAddable =

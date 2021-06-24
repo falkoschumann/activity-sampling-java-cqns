@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Scene?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.stage.Stage?>
+
+
+<Stage fx:id="stage" minHeight="400.0" minWidth="600.0" title="Working Hours by Activity" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.WorkingHoursController">
+   <scene>
+      <Scene>
+         <root>
+            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
+               <children>
+                  <TableView fx:id="workingHoursTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                      <TableColumn fx:id="activityColumn" prefWidth="450.0" text="Activity" />
+                      <TableColumn fx:id="workingHoursColumn" prefWidth="120.0" text="Working Hours" />
+                    </columns>
+                  </TableView>
+               </children>
+            </VBox>
+         </root>
+      </Scene>
+   </scene>
+</Stage>

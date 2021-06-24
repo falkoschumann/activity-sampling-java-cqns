@@ -13,6 +13,8 @@ import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuer
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
@@ -48,6 +50,7 @@ public class ActivitySamplingController {
   @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
+  @Getter @Setter private Consumer<WorkingHoursByActivityQuery> onWorkingHoursByActivityQuery;
 
   @FXML private Stage stage;
   @FXML private MenuBar menuBar;
@@ -189,12 +192,17 @@ public class ActivitySamplingController {
     model.setKnownTags(result.tags());
   }
 
+  public void display(WorkingHoursByActivityQueryResult result) {
+    model.setWorkingHoursByActivity(result.workingHours());
+  }
+
   @FXML
   private void handleOpenPreferences() {
     var controller = PreferencesController.create(stage);
     controller.setPeriodDuration(model.getPeriodDuration());
     controller.setActivityLogFile(model.getActivityLogFile());
 
+    // FIXME Listener wieder abmelden oder WeakXxyListener verwenden
     controller
         .periodDurationProperty()
         .addListener(
@@ -214,6 +222,16 @@ public class ActivitySamplingController {
   @FXML
   private void handleQuit() {
     Platform.exit();
+  }
+
+  @FXML
+  private void handleWorkingHoursByActivity() {
+    var controller = WorkingHoursController.create(stage);
+
+    controller.workingHoursProperty().bind(model.workingHoursByActivityProperty());
+
+    controller.run();
+    onWorkingHoursByActivityQuery.accept(new WorkingHoursByActivityQuery());
   }
 
   @FXML

@@ -51,6 +51,31 @@ public class PreferencesController implements Initializable {
     }
   }
 
+  @Override
+  public void initialize(URL location, ResourceBundle resources) {
+    this.resources = resources;
+    periodDurationChoice.setConverter(new PeriodDurationStringConverter());
+    periodDurationChoice.setValue(Duration.ofMinutes(20));
+    periodDurationChoice
+        .getItems()
+        .setAll(
+            Boolean.parseBoolean(System.getProperty("demoMode"))
+                ? List.of(
+                    Duration.ofMinutes(1),
+                    Duration.ofMinutes(15),
+                    Duration.ofMinutes(20),
+                    Duration.ofMinutes(30),
+                    Duration.ofHours(1))
+                : List.of(
+                    Duration.ofMinutes(15),
+                    Duration.ofMinutes(20),
+                    Duration.ofMinutes(30),
+                    Duration.ofHours(1)));
+
+    periodDurationChoice.valueProperty().bindBidirectional(periodDuration);
+    activityLogText.textProperty().bind(activityLogFileProperty().asString());
+  }
+
   public final ObjectProperty<Duration> periodDurationProperty() {
     return periodDuration;
   }
@@ -79,56 +104,6 @@ public class PreferencesController implements Initializable {
     stage.show();
   }
 
-  @Override
-  public void initialize(URL location, ResourceBundle resources) {
-    this.resources = resources;
-    initPeriodDuration();
-    initActivityLog();
-  }
-
-  private void initPeriodDuration() {
-    periodDurationChoice.setConverter(
-        new StringConverter<>() {
-          @Override
-          public String toString(Duration object) {
-            if (object.toHoursPart() == 0) {
-              return MessageFormat.format(
-                  resources.getString("preferencesView.periodDurationChoice.item.minutes"),
-                  object.toMinutes());
-            } else {
-              return resources.getString("preferencesView.periodDurationChoice.item.hour");
-            }
-          }
-
-          @Override
-          public Duration fromString(String string) {
-            throw new UnsupportedOperationException();
-          }
-        });
-    periodDurationChoice.setValue(Duration.ofMinutes(20));
-    periodDurationChoice
-        .getItems()
-        .setAll(
-            Boolean.parseBoolean(System.getProperty("demoMode"))
-                ? List.of(
-                    Duration.ofMinutes(1),
-                    Duration.ofMinutes(15),
-                    Duration.ofMinutes(20),
-                    Duration.ofMinutes(30),
-                    Duration.ofHours(1))
-                : List.of(
-                    Duration.ofMinutes(15),
-                    Duration.ofMinutes(20),
-                    Duration.ofMinutes(30),
-                    Duration.ofHours(1)));
-
-    periodDurationChoice.valueProperty().bindBidirectional(periodDuration);
-  }
-
-  private void initActivityLog() {
-    activityLogText.textProperty().bind(activityLogFileProperty().asString());
-  }
-
   @FXML
   private void handleChangeActivityLog() {
     var chooser = new FileChooser();
@@ -147,6 +122,24 @@ public class PreferencesController implements Initializable {
     var file = chooser.showSaveDialog(stage);
     if (file != null) {
       setActivityLogFile(file.toPath());
+    }
+  }
+
+  private class PeriodDurationStringConverter extends StringConverter<Duration> {
+    @Override
+    public String toString(Duration object) {
+      if (object.toHoursPart() == 0) {
+        return MessageFormat.format(
+            resources.getString("preferencesView.periodDurationChoice.item.minutes"),
+            object.toMinutes());
+      } else {
+        return resources.getString("preferencesView.periodDurationChoice.item.hour");
+      }
+    }
+
+    @Override
+    public Duration fromString(String string) {
+      throw new UnsupportedOperationException();
     }
   }
 }
