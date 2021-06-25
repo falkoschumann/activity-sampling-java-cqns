@@ -11,6 +11,7 @@ import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult.WorkingHours;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -32,12 +33,17 @@ public class WorkingHoursByActivityQueryHandler {
   private void apply(ActivityLoggedEvent event) {
     if (activities.containsKey(event.activity())) {
       var workingHours = this.activities.get(event.activity());
+      var tags = new LinkedHashSet<>(workingHours.tags());
+      tags.addAll(event.tags());
       this.activities.put(
           workingHours.activity(),
           new WorkingHours(
-              workingHours.activity(), event.period().plus(workingHours.workingHours())));
+              workingHours.activity(),
+              List.copyOf(tags),
+              event.period().plus(workingHours.workingHours())));
     } else {
-      activities.put(event.activity(), new WorkingHours(event.activity(), event.period()));
+      activities.put(
+          event.activity(), new WorkingHours(event.activity(), event.tags(), event.period()));
     }
   }
 

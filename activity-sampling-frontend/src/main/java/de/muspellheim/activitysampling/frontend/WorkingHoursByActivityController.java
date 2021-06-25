@@ -21,22 +21,23 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
-public class WorkingHoursController {
+public class WorkingHoursByActivityController {
   @FXML private Stage stage;
   @FXML private TableView<WorkingHours> workingHoursTable;
   @FXML private TableColumn<WorkingHours, String> activityColumn;
+  @FXML private TableColumn<WorkingHours, List<String>> tagsColumn;
   @FXML private TableColumn<WorkingHours, Duration> workingHoursColumn;
 
   // TODO Ersetze Table mit TreeTable und Gruppiere nach Tags
 
-  public static WorkingHoursController create(Stage owner) {
+  public static WorkingHoursByActivityController create(Stage owner) {
     try {
-      var location = PreferencesController.class.getResource("WorkingHoursView.fxml");
+      var location = PreferencesController.class.getResource("WorkingHoursByActivityView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
       var loader = new FXMLLoader(location, resources);
       loader.load();
 
-      var controller = (WorkingHoursController) loader.getController();
+      var controller = (WorkingHoursByActivityController) loader.getController();
       controller.stage.initOwner(owner);
       return controller;
     } catch (IOException e) {
@@ -47,6 +48,7 @@ public class WorkingHoursController {
   @FXML
   private void initialize() {
     activityColumn.setCellValueFactory(it -> new ReadOnlyStringWrapper(it.getValue().activity()));
+    tagsColumn.setCellValueFactory(it -> new ReadOnlyObjectWrapper<>(it.getValue().tags()));
     workingHoursColumn.setCellValueFactory(
         it -> new ReadOnlyObjectWrapper<>(it.getValue().workingHours()));
   }

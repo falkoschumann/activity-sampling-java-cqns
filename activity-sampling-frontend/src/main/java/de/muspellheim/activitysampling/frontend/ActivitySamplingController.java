@@ -226,7 +226,7 @@ public class ActivitySamplingController {
 
   @FXML
   private void handleWorkingHoursByActivity() {
-    var controller = WorkingHoursController.create(stage);
+    var controller = WorkingHoursByActivityController.create(stage);
 
     controller.workingHoursProperty().bind(model.workingHoursByActivityProperty());
 

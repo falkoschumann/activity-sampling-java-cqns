@@ -30,8 +30,8 @@ public class WorkingHoursByActivityQueryHandlerTests {
     assertEquals(
         new WorkingHoursByActivityQueryResult(
             List.of(
-                new WorkingHours("A", Duration.ofMinutes(20)),
-                new WorkingHours("B", Duration.ofMinutes(40)))),
+                new WorkingHours("A", List.of(), Duration.ofMinutes(20)),
+                new WorkingHours("B", List.of("Foo", "Bar"), Duration.ofMinutes(40)))),
         result);
   }
 

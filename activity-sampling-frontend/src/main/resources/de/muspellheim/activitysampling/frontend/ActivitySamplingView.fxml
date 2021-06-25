@@ -42,9 +42,9 @@
                               </MenuItem>
                         </items>
                       </Menu>
-                        <Menu mnemonicParsing="false" text="Statistics">
+                        <Menu mnemonicParsing="false" text="%mainView.statisticsMenu">
                           <items>
-                            <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByActivity" text="Working hours by activity" />
+                            <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByActivity" text="%mainView.statisticsMenu.workingHoursByActivity" />
                           </items>
                         </Menu>
                       <Menu mnemonicParsing="false" text="%mainView.helpMenu">
