@@ -17,6 +17,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.ChangePeriodDurat
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByActivityQueryHandler;
+import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByNumberQueryHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingController;
@@ -66,6 +67,7 @@ public class App extends Application {
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
     var workingHoursByActivityQueryHandler = new WorkingHoursByActivityQueryHandler(eventStore);
+    var workingHoursByNumberQueryHandler = new WorkingHoursByNumberQueryHandler(eventStore);
     var frontend = ActivitySamplingController.create(primaryStage);
 
     frontend.setOnLogActivityCommand(
@@ -101,6 +103,11 @@ public class App extends Application {
     frontend.setOnWorkingHoursByActivityQuery(
         qry -> {
           var result = workingHoursByActivityQueryHandler.handle(qry);
+          frontend.display(result);
+        });
+    frontend.setOnWorkingHoursByNumberQuery(
+        qry -> {
+          var result = workingHoursByNumberQueryHandler.handle(qry);
           frontend.display(result);
         });
 

@@ -6,7 +6,8 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult.WorkingHours;
+import de.muspellheim.activitysampling.contract.data.WorkingHours;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult.WorkingHoursCategory;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -160,12 +161,27 @@ class ActivitySamplingModel {
     return workingHoursByActivity.get();
   }
 
-  final void setWorkingHoursByActivity(List<WorkingHours> workingHours) {
-    this.workingHoursByActivity.set(workingHours);
+  final void setWorkingHoursByActivity(List<WorkingHours> value) {
+    this.workingHoursByActivity.set(value);
   }
 
   final ObjectProperty<List<WorkingHours>> workingHoursByActivityProperty() {
     return workingHoursByActivity;
+  }
+
+  final ObjectProperty<List<WorkingHoursCategory>> workingHoursByNumber =
+      new SimpleObjectProperty<>(List.of());
+
+  final List<WorkingHoursCategory> getWorkingHoursByNumber() {
+    return workingHoursByNumber.get();
+  }
+
+  final void setWorkingHoursByNumber(List<WorkingHoursCategory> value) {
+    this.workingHoursByNumber.set(value);
+  }
+
+  final ObjectProperty<List<WorkingHoursCategory>> workingHoursByNumberProperty() {
+    return workingHoursByNumber;
   }
 
   final BooleanBinding tagNotAddable =

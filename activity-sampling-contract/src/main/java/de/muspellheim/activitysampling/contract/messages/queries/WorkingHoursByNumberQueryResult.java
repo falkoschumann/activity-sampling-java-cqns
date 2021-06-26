@@ -5,7 +5,9 @@
 
 package de.muspellheim.activitysampling.contract.messages.queries;
 
-import de.muspellheim.activitysampling.contract.data.WorkingHours;
+import java.time.Duration;
 import java.util.List;
 
-public record WorkingHoursByActivityQueryResult(List<WorkingHours> workingHours) {}
+public record WorkingHoursByNumberQueryResult(List<WorkingHoursCategory> catogories) {
+  public static record WorkingHoursCategory(Duration workingHours, int number) {}
+}

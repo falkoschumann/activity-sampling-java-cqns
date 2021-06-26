@@ -9,29 +9,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
-import de.muspellheim.activitysampling.contract.data.WorkingHours;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult.WorkingHoursCategory;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class WorkingHoursByActivityQueryHandlerTests {
+public class WorkingHoursByNumberQueryHandlerTests {
   @Test
   void testHandle() {
     var store = new MemoryEventStore();
     store.record(createEvents());
-    var handler = new WorkingHoursByActivityQueryHandler(store);
+    var handler = new WorkingHoursByNumberQueryHandler(store);
 
-    var result = handler.handle(new WorkingHoursByActivityQuery());
+    var result = handler.handle(new WorkingHoursByNumberQuery());
 
     assertEquals(
-        new WorkingHoursByActivityQueryResult(
-            List.of(
-                new WorkingHours("A", List.of(), Duration.ofMinutes(20)),
-                new WorkingHours("B", List.of("Foo", "Bar"), Duration.ofMinutes(40)))),
+        new WorkingHoursByNumberQueryResult(
+            List.of(new WorkingHoursCategory(Duration.ofHours(1), 3))),
         result);
   }
 
@@ -48,6 +46,11 @@ public class WorkingHoursByActivityQueryHandlerTests {
             LocalDateTime.of(2020, 12, 30, 21, 20).atZone(ZoneId.systemDefault()).toInstant(),
             Duration.ofMinutes(20),
             "A"),
+        new ActivityLoggedEvent(
+            "3a3e7c93-16f3-4a25-a43e-f8d28590a26f",
+            LocalDateTime.of(2021, 1, 4, 13, 0).atZone(ZoneId.systemDefault()).toInstant(),
+            Duration.ofMinutes(20),
+            "C"),
         new ActivityLoggedEvent(
             "d36a20db-56ae-48af-9221-0630911cdb8d",
             LocalDateTime.of(2021, 1, 4, 14, 20).atZone(ZoneId.systemDefault()).toInstant(),

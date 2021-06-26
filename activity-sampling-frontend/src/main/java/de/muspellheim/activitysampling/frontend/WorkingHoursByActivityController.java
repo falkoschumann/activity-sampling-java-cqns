@@ -5,7 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult.WorkingHours;
+import de.muspellheim.activitysampling.contract.data.WorkingHours;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
@@ -27,8 +27,6 @@ public class WorkingHoursByActivityController {
   @FXML private TableColumn<WorkingHours, String> activityColumn;
   @FXML private TableColumn<WorkingHours, List<String>> tagsColumn;
   @FXML private TableColumn<WorkingHours, Duration> workingHoursColumn;
-
-  // TODO Ersetze Table mit TreeTable und Gruppiere nach Tags
 
   public static WorkingHoursByActivityController create(Stage owner) {
     try {

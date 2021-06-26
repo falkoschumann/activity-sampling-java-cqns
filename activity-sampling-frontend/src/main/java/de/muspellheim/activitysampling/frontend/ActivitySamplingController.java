@@ -15,6 +15,8 @@ import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuer
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
@@ -51,6 +53,7 @@ public class ActivitySamplingController {
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
   @Getter @Setter private Consumer<WorkingHoursByActivityQuery> onWorkingHoursByActivityQuery;
+  @Getter @Setter private Consumer<WorkingHoursByNumberQuery> onWorkingHoursByNumberQuery;
 
   @FXML private Stage stage;
   @FXML private MenuBar menuBar;
@@ -196,6 +199,10 @@ public class ActivitySamplingController {
     model.setWorkingHoursByActivity(result.workingHours());
   }
 
+  public void display(WorkingHoursByNumberQueryResult result) {
+    model.setWorkingHoursByNumber(result.catogories());
+  }
+
   @FXML
   private void handleOpenPreferences() {
     var controller = PreferencesController.create(stage);
@@ -232,6 +239,16 @@ public class ActivitySamplingController {
 
     controller.run();
     onWorkingHoursByActivityQuery.accept(new WorkingHoursByActivityQuery());
+  }
+
+  @FXML
+  private void handleWorkingHoursByNumber() {
+    var controller = WorkingHoursByNumberController.create(stage);
+
+    controller.workingHoursProperty().bind(model.workingHoursByNumberProperty());
+
+    controller.run();
+    onWorkingHoursByNumberQuery.accept(new WorkingHoursByNumberQuery());
   }
 
   @FXML
