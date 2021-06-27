@@ -71,7 +71,10 @@ public class ActivitySamplingController {
   @FXML private TextArea activityLogText;
 
   private TrayIconController trayIconViewController;
+  private PreferencesController preferencesController;
   private WorkingHoursTodayController workingHoursTodayController;
+  private WorkingHoursByActivityController workingHoursByActivityController;
+  private WorkingHoursByNumberController workingHoursByNumberController;
 
   private ActivitySamplingModel model;
 
@@ -97,7 +100,10 @@ public class ActivitySamplingController {
       quitMenuItem.setVisible(false);
     }
     trayIconViewController = new TrayIconController();
+    preferencesController = PreferencesController.create(stage);
     workingHoursTodayController = WorkingHoursTodayController.create(stage);
+    workingHoursByActivityController = WorkingHoursByActivityController.create(stage);
+    workingHoursByNumberController = WorkingHoursByNumberController.create(stage);
 
     activityText.textProperty().bindBidirectional(model.activityProperty());
     activityText.disableProperty().bind(model.formDisabledProperty());
@@ -127,6 +133,24 @@ public class ActivitySamplingController {
         .textProperty()
         .addListener(
             observable -> Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE)));
+    preferencesController
+        .periodDurationProperty()
+        .bindBidirectional(model.periodDurationProperty());
+    preferencesController
+        .activityLogFileProperty()
+        .bindBidirectional(model.activityLogFileProperty());
+    preferencesController
+        .periodDurationProperty()
+        .addListener(
+            observable ->
+                onChangePeriodDurationCommand.accept(
+                    new ChangePeriodDurationCommand(preferencesController.getPeriodDuration())));
+    preferencesController
+        .activityLogFileProperty()
+        .addListener(
+            observable ->
+                onChangeActivityLogFileCommand.accept(
+                    new ChangeActivityLogFileCommand(preferencesController.getActivityLogFile())));
     model
         .recentProperty()
         .addListener(
@@ -149,21 +173,27 @@ public class ActivitySamplingController {
                           .toList());
               trayIconViewController.setRecent(recent);
             });
-    model
-        .knownTagsProperty()
-        .addListener(
-            observable ->
-                addTagButton
-                    .getItems()
-                    .setAll(
-                        model.getKnownTags().stream()
-                            .map(
-                                it -> {
-                                  var menuItem = new MenuItem(it);
-                                  menuItem.setOnAction(e -> model.addTag(it));
-                                  return menuItem;
-                                })
-                            .toList()));
+    model.knownTagsProperty().addListener(observable -> updateKnownTags());
+    workingHoursTodayController.setOnQuery(
+        () -> onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery()));
+    workingHoursByActivityController.setOnQuery(
+        () -> onWorkingHoursByActivityQuery.accept(new WorkingHoursByActivityQuery()));
+    workingHoursByNumberController.setOnQuery(
+        () -> onWorkingHoursByNumberQuery.accept(new WorkingHoursByNumberQuery()));
+  }
+
+  private boolean updateKnownTags() {
+    return addTagButton
+        .getItems()
+        .setAll(
+            model.getKnownTags().stream()
+                .map(
+                    it -> {
+                      var menuItem = new MenuItem(it);
+                      menuItem.setOnAction(e -> model.addTag(it));
+                      return menuItem;
+                    })
+                .toList());
   }
 
   public void run() {
@@ -202,11 +232,11 @@ public class ActivitySamplingController {
   }
 
   public void display(WorkingHoursByActivityQueryResult result) {
-    model.setWorkingHoursByActivity(result.workingHours());
+    workingHoursByActivityController.setWorkingHours(result.workingHours());
   }
 
   public void display(WorkingHoursByNumberQueryResult result) {
-    model.setWorkingHoursByNumber(result.catogories());
+    workingHoursByNumberController.setWorkingHours(result.catogories());
   }
 
   public void display(WorkingHoursTodayQueryResult result) {
@@ -217,25 +247,7 @@ public class ActivitySamplingController {
 
   @FXML
   private void handleOpenPreferences() {
-    var controller = PreferencesController.create(stage);
-    controller.setPeriodDuration(model.getPeriodDuration());
-    controller.setActivityLogFile(model.getActivityLogFile());
-
-    // FIXME Listener wieder abmelden oder WeakXxyListener verwenden
-    controller
-        .periodDurationProperty()
-        .addListener(
-            observable ->
-                onChangePeriodDurationCommand.accept(
-                    new ChangePeriodDurationCommand(controller.getPeriodDuration())));
-    controller
-        .activityLogFileProperty()
-        .addListener(
-            observable ->
-                onChangeActivityLogFileCommand.accept(
-                    new ChangeActivityLogFileCommand(controller.getActivityLogFile())));
-
-    controller.run();
+    preferencesController.run();
   }
 
   @FXML
@@ -245,31 +257,17 @@ public class ActivitySamplingController {
 
   @FXML
   private void handleWorkingHoursToday() {
-    workingHoursTodayController.setOnQuery(
-        () -> onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery()));
     workingHoursTodayController.run();
   }
 
   @FXML
   private void handleWorkingHoursByActivity() {
-    // TODO Add CSS Stylesheet
-    var controller = WorkingHoursByActivityController.create(stage);
-
-    controller.workingHoursProperty().bind(model.workingHoursByActivityProperty());
-
-    controller.run();
-    onWorkingHoursByActivityQuery.accept(new WorkingHoursByActivityQuery());
+    workingHoursByActivityController.run();
   }
 
   @FXML
   private void handleWorkingHoursByNumber() {
-    // TODO Add CSS Stylesheet
-    var controller = WorkingHoursByNumberController.create(stage);
-
-    controller.workingHoursProperty().bind(model.workingHoursByNumberProperty());
-
-    controller.run();
-    onWorkingHoursByNumberQuery.accept(new WorkingHoursByNumberQuery());
+    workingHoursByNumberController.run();
   }
 
   @FXML

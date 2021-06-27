@@ -6,8 +6,6 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
-import de.muspellheim.activitysampling.contract.data.WorkingHours;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult.WorkingHoursCategory;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -23,11 +21,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import lombok.Getter;
-import lombok.Setter;
 
 class ActivitySamplingModel {
-  // TODO Verschiebe Properties für Statistics in eigenes Model oder in jeweilige Controller
-
   boolean isRunningOnMac() {
     return System.getProperty("os.name").toLowerCase().contains("mac");
   }
@@ -44,15 +39,27 @@ class ActivitySamplingModel {
     return periodDuration.get();
   }
 
-  final void setPeriodDuration(Duration periodDuration) {
-    this.periodDuration.set(periodDuration);
+  final void setPeriodDuration(Duration value) {
+    periodDuration.set(value);
   }
 
   final ObjectProperty<Duration> periodDurationProperty() {
     return periodDuration;
   }
 
-  @Getter @Setter private Path activityLogFile;
+  private final ObjectProperty<Path> activityLogFile = new SimpleObjectProperty<>();
+
+  final Path getActivityLogFile() {
+    return activityLogFile.get();
+  }
+
+  final void setActivityLogFile(Path value) {
+    activityLogFile.set(value);
+  }
+
+  final ObjectProperty<Path> activityLogFileProperty() {
+    return activityLogFile;
+  }
 
   private final ObjectProperty<List<Activity>> log = new SimpleObjectProperty<>(List.of());
 
@@ -60,8 +67,8 @@ class ActivitySamplingModel {
     return log.get();
   }
 
-  final void setLog(List<Activity> log) {
-    this.log.set(log);
+  final void setLog(List<Activity> value) {
+    log.set(value);
   }
 
   final ObjectProperty<List<Activity>> logProperty() {
@@ -74,8 +81,8 @@ class ActivitySamplingModel {
     return recent.get();
   }
 
-  final void setRecent(List<Activity> recent) {
-    this.recent.set(recent);
+  final void setRecent(List<Activity> value) {
+    recent.set(value);
   }
 
   final ObjectProperty<List<Activity>> recentProperty() {
@@ -130,8 +137,8 @@ class ActivitySamplingModel {
     return formDisabled.get();
   }
 
-  final void setFormDisabled(boolean formDisabled) {
-    this.formDisabled.set(formDisabled);
+  final void setFormDisabled(boolean value) {
+    formDisabled.set(value);
   }
 
   final BooleanProperty formDisabledProperty() {
@@ -154,36 +161,6 @@ class ActivitySamplingModel {
 
   final ObjectProperty<Duration> remainingTimeProperty() {
     return remainingTime;
-  }
-
-  final ObjectProperty<List<WorkingHours>> workingHoursByActivity =
-      new SimpleObjectProperty<>(List.of());
-
-  final List<WorkingHours> getWorkingHoursByActivity() {
-    return workingHoursByActivity.get();
-  }
-
-  final void setWorkingHoursByActivity(List<WorkingHours> value) {
-    this.workingHoursByActivity.set(value);
-  }
-
-  final ObjectProperty<List<WorkingHours>> workingHoursByActivityProperty() {
-    return workingHoursByActivity;
-  }
-
-  final ObjectProperty<List<WorkingHoursCategory>> workingHoursByNumber =
-      new SimpleObjectProperty<>(List.of());
-
-  final List<WorkingHoursCategory> getWorkingHoursByNumber() {
-    return workingHoursByNumber.get();
-  }
-
-  final void setWorkingHoursByNumber(List<WorkingHoursCategory> value) {
-    this.workingHoursByNumber.set(value);
-  }
-
-  final ObjectProperty<List<WorkingHoursCategory>> workingHoursByNumberProperty() {
-    return workingHoursByNumber;
   }
 
   final BooleanBinding tagNotAddable =

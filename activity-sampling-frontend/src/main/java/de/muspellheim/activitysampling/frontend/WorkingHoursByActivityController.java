@@ -19,16 +19,22 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import lombok.Getter;
+import lombok.Setter;
 
 public class WorkingHoursByActivityController {
+  @Getter @Setter Runnable onQuery;
+
   @FXML private Stage stage;
   @FXML private TableView<WorkingHours> workingHoursTable;
   @FXML private TableColumn<WorkingHours, String> activityColumn;
   @FXML private TableColumn<WorkingHours, List<String>> tagsColumn;
   @FXML private TableColumn<WorkingHours, Duration> workingHoursColumn;
 
-  public static WorkingHoursByActivityController create(Stage owner) {
+  static WorkingHoursByActivityController create(Stage owner) {
     try {
       var location = PreferencesController.class.getResource("WorkingHoursByActivityView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
@@ -49,6 +55,14 @@ public class WorkingHoursByActivityController {
     tagsColumn.setCellValueFactory(it -> new ReadOnlyObjectWrapper<>(it.getValue().tags()));
     workingHoursColumn.setCellValueFactory(
         it -> new ReadOnlyObjectWrapper<>(it.getValue().workingHours()));
+
+    stage.addEventHandler(
+        KeyEvent.KEY_RELEASED,
+        e -> {
+          if (e.isMetaDown() && KeyCode.W.equals(e.getCode())) {
+            stage.hide();
+          }
+        });
   }
 
   private final ObjectProperty<List<WorkingHours>> workingHours =
@@ -59,19 +73,20 @@ public class WorkingHoursByActivityController {
         }
       };
 
-  public final List<WorkingHours> getWorkingHours() {
+  final List<WorkingHours> getWorkingHours() {
     return workingHours.get();
   }
 
-  public final void setWorkingHours(List<WorkingHours> workingHours) {
+  final void setWorkingHours(List<WorkingHours> workingHours) {
     this.workingHours.set(workingHours);
   }
 
-  public final ObjectProperty<List<WorkingHours>> workingHoursProperty() {
+  final ObjectProperty<List<WorkingHours>> workingHoursProperty() {
     return workingHours;
   }
 
-  public void run() {
+  void run() {
     stage.show();
+    onQuery.run();
   }
 }

@@ -22,6 +22,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,7 +40,7 @@ public class WorkingHoursTodayController {
   @FXML private TableColumn<Activity, List<String>> tagsColumn;
   @FXML private TextField totalWorkingHoursText;
 
-  public static WorkingHoursTodayController create(Stage owner) {
+  static WorkingHoursTodayController create(Stage owner) {
     try {
       var location = PreferencesController.class.getResource("WorkingHoursTodayView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
@@ -60,6 +62,14 @@ public class WorkingHoursTodayController {
     periodColumn.setCellValueFactory(it -> new ReadOnlyObjectWrapper<>(it.getValue().period()));
     activityColumn.setCellValueFactory(it -> new ReadOnlyStringWrapper(it.getValue().activity()));
     tagsColumn.setCellValueFactory(it -> new ReadOnlyObjectWrapper<>(it.getValue().tags()));
+
+    stage.addEventHandler(
+        KeyEvent.KEY_RELEASED,
+        e -> {
+          if (e.isMetaDown() && KeyCode.W.equals(e.getCode())) {
+            stage.hide();
+          }
+        });
   }
 
   private final ObjectProperty<LocalDate> date =
@@ -70,15 +80,15 @@ public class WorkingHoursTodayController {
         }
       };
 
-  public final LocalDate getDate() {
+  final LocalDate getDate() {
     return date.get();
   }
 
-  public final void setDate(LocalDate value) {
+  final void setDate(LocalDate value) {
     this.date.set(value);
   }
 
-  public final ObjectProperty<LocalDate> dateProperty() {
+  final ObjectProperty<LocalDate> dateProperty() {
     return date;
   }
 
@@ -90,15 +100,15 @@ public class WorkingHoursTodayController {
         }
       };
 
-  public final Duration getTotalWorkingHours() {
+  final Duration getTotalWorkingHours() {
     return totalWorkingHours.get();
   }
 
-  public final void setTotalWorkingHours(Duration value) {
+  final void setTotalWorkingHours(Duration value) {
     this.totalWorkingHours.set(value);
   }
 
-  public final ObjectProperty<Duration> totalWorkingHoursProperty() {
+  final ObjectProperty<Duration> totalWorkingHoursProperty() {
     return totalWorkingHours;
   }
 
@@ -110,19 +120,19 @@ public class WorkingHoursTodayController {
         }
       };
 
-  public final List<Activity> getActivities() {
+  final List<Activity> getActivities() {
     return activities.get();
   }
 
-  public final void setActivities(List<Activity> value) {
+  final void setActivities(List<Activity> value) {
     this.activities.set(value);
   }
 
-  public final ObjectProperty<List<Activity>> activitiesProperty() {
+  final ObjectProperty<List<Activity>> activitiesProperty() {
     return activities;
   }
 
-  public void run() {
+  void run() {
     stage.show();
     onQuery.run();
   }

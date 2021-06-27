@@ -76,27 +76,27 @@ public class PreferencesController implements Initializable {
     activityLogText.textProperty().bind(activityLogFileProperty().asString());
   }
 
-  public final ObjectProperty<Duration> periodDurationProperty() {
+  final ObjectProperty<Duration> periodDurationProperty() {
     return periodDuration;
   }
 
-  public final Duration getPeriodDuration() {
+  final Duration getPeriodDuration() {
     return periodDuration.get();
   }
 
-  public final void setPeriodDuration(Duration value) {
+  final void setPeriodDuration(Duration value) {
     periodDuration.set(value);
   }
 
-  public final ObjectProperty<Path> activityLogFileProperty() {
+  final ObjectProperty<Path> activityLogFileProperty() {
     return activityLogFile;
   }
 
-  public final Path getActivityLogFile() {
+  final Path getActivityLogFile() {
     return activityLogFile.get();
   }
 
-  public final void setActivityLogFile(Path value) {
+  final void setActivityLogFile(Path value) {
     activityLogFile.set(value);
   }
 

@@ -8,7 +8,7 @@
 
 <Stage fx:id="stage" minHeight="600.0" minWidth="800.0" title="%workingHoursByActivity.title" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.WorkingHoursByActivityController">
    <scene>
-      <Scene>
+      <Scene stylesheets="@style.css">
          <root>
             <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
                <children>
