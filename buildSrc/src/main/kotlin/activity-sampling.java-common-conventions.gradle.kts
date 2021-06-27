@@ -7,6 +7,7 @@ plugins {
   id("io.freefair.lombok")
 }
 
+version = rootProject.version
 val copyrightYear by extra(LocalDate.now().year)
 
 repositories {
@@ -32,7 +33,7 @@ java {
 tasks {
   processResources {
     filesMatching("**/*.properties") {
-      expand("version" to rootProject.version, "copyrightYear" to copyrightYear)
+      expand("version" to version, "copyrightYear" to copyrightYear)
     }
   }
 }

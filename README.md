@@ -49,7 +49,7 @@ und `{RequestUUID}` passend ersetzt werden.
 
 1. Notarisierung der App-Distribution beantragen:
 
-   `xcrun altool --notarize-app --primary-bundle-id de.muspellheim.storymapping --username $MAC_SIGNING_USERNAME --password $MAC_SIGNING_PASSWORD --file story-mapping/build/jpackage/story-mapping-1.0.0.dmg`
+   `xcrun altool --notarize-app --primary-bundle-id de.muspellheim.activitysampling --username $MAC_SIGNING_USERNAME --password $MAC_SIGNING_PASSWORD --file activity-sampling/build/jpackage/activity-sampling-1.1.0.dmg`
 
 2. Status der Notarisierung prüfen:
 
@@ -58,7 +58,7 @@ und `{RequestUUID}` passend ersetzt werden.
 3. Wenn Notarisierung beglaubigt, App-Distribution um Information zur
    Notarisierung ergänzen:
 
-   `xcrun stapler staple story-mapping/build/jpackage/story-mapping-1.0.0.dmg`
+   `xcrun stapler staple activity-sampling/build/jpackage/activity-sampling-1.1.0.dmg`
 
 
 [1]: https://google.github.io/styleguide/javaguide.html
