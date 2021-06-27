@@ -18,6 +18,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityComman
 import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByActivityQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByNumberQueryHandler;
+import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursTodayQueryHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingController;
@@ -68,6 +69,7 @@ public class App extends Application {
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
     var workingHoursByActivityQueryHandler = new WorkingHoursByActivityQueryHandler(eventStore);
     var workingHoursByNumberQueryHandler = new WorkingHoursByNumberQueryHandler(eventStore);
+    var workingHoursTodayQueryHandler = new WorkingHoursTodayQueryHandler(eventStore);
     var frontend = ActivitySamplingController.create(primaryStage);
 
     frontend.setOnLogActivityCommand(
@@ -108,6 +110,11 @@ public class App extends Application {
     frontend.setOnWorkingHoursByNumberQuery(
         qry -> {
           var result = workingHoursByNumberQueryHandler.handle(qry);
+          frontend.display(result);
+        });
+    frontend.setOnWorkingHoursTodayQuery(
+        qry -> {
+          var result = workingHoursTodayQueryHandler.handle(qry);
           frontend.display(result);
         });
 

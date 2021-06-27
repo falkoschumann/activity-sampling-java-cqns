@@ -17,6 +17,8 @@ import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByA
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
@@ -54,6 +56,7 @@ public class ActivitySamplingController {
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
   @Getter @Setter private Consumer<WorkingHoursByActivityQuery> onWorkingHoursByActivityQuery;
   @Getter @Setter private Consumer<WorkingHoursByNumberQuery> onWorkingHoursByNumberQuery;
+  @Getter @Setter private Consumer<WorkingHoursTodayQuery> onWorkingHoursTodayQuery;
 
   @FXML private Stage stage;
   @FXML private MenuBar menuBar;
@@ -66,7 +69,9 @@ public class ActivitySamplingController {
   @FXML private Label remainingTimeLabel;
   @FXML private ProgressBar progressBar;
   @FXML private TextArea activityLogText;
+
   private TrayIconController trayIconViewController;
+  private WorkingHoursTodayController workingHoursTodayController;
 
   private ActivitySamplingModel model;
 
@@ -92,6 +97,7 @@ public class ActivitySamplingController {
       quitMenuItem.setVisible(false);
     }
     trayIconViewController = new TrayIconController();
+    workingHoursTodayController = WorkingHoursTodayController.create(stage);
 
     activityText.textProperty().bindBidirectional(model.activityProperty());
     activityText.disableProperty().bind(model.formDisabledProperty());
@@ -203,6 +209,12 @@ public class ActivitySamplingController {
     model.setWorkingHoursByNumber(result.catogories());
   }
 
+  public void display(WorkingHoursTodayQueryResult result) {
+    workingHoursTodayController.setDate(result.date());
+    workingHoursTodayController.setTotalWorkingHours(result.totalWorkingHours());
+    workingHoursTodayController.setActivities(result.activities());
+  }
+
   @FXML
   private void handleOpenPreferences() {
     var controller = PreferencesController.create(stage);
@@ -232,7 +244,15 @@ public class ActivitySamplingController {
   }
 
   @FXML
+  private void handleWorkingHoursToday() {
+    workingHoursTodayController.setOnQuery(
+        () -> onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery()));
+    workingHoursTodayController.run();
+  }
+
+  @FXML
   private void handleWorkingHoursByActivity() {
+    // TODO Add CSS Stylesheet
     var controller = WorkingHoursByActivityController.create(stage);
 
     controller.workingHoursProperty().bind(model.workingHoursByActivityProperty());
@@ -243,6 +263,7 @@ public class ActivitySamplingController {
 
   @FXML
   private void handleWorkingHoursByNumber() {
+    // TODO Add CSS Stylesheet
     var controller = WorkingHoursByNumberController.create(stage);
 
     controller.workingHoursProperty().bind(model.workingHoursByNumberProperty());

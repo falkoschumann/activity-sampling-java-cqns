@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Scene?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.stage.Stage?>
+
+<Stage fx:id="stage" minHeight="600.0" minWidth="800.0" title="%workingHoursToday.title" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.WorkingHoursTodayController">
+    <scene>
+        <Scene stylesheets="@style.css">
+         <VBox>
+            <children>
+               <HBox alignment="CENTER_LEFT" spacing="8.0">
+                  <children>
+                     <Label styleClass="base" text="%workingHoursToday.dateText.text" />
+                     <TextField fx:id="dateText" editable="false" focusTraversable="false" prefWidth="100.0" />
+                  </children>
+                  <VBox.margin>
+                     <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                  </VBox.margin>
+               </HBox>
+               <TableView fx:id="activitiesTable" prefHeight="660.0" prefWidth="1000.0" VBox.vgrow="ALWAYS">
+                 <columns>
+                   <TableColumn fx:id="timestampColumn" prefWidth="130.0" text="%workingHoursToday.timestampColumn.text" />
+                   <TableColumn fx:id="periodColumn" prefWidth="100.0" text="%workingHoursToday.periodColumn.text" />
+                     <TableColumn fx:id="activityColumn" prefWidth="440.0" text="%workingHoursToday.activityColumn.text" />
+                     <TableColumn fx:id="tagsColumn" prefWidth="300.0" text="%workingHoursToday.tagsColumn.text" />
+                 </columns>
+               </TableView>
+               <HBox alignment="CENTER_LEFT" spacing="8.0">
+                  <children>
+                     <Label styleClass="base" text="%workingHoursToday.totalWorkingHoursText.text" />
+                     <TextField fx:id="totalWorkingHoursText" editable="false" focusTraversable="false" prefWidth="100.0" />
+                  </children>
+                  <VBox.margin>
+                     <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                  </VBox.margin>
+               </HBox>
+            </children>
+         </VBox>
+        </Scene>
+    </scene>
+</Stage>

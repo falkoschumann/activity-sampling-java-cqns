@@ -44,8 +44,19 @@
                       </Menu>
                         <Menu mnemonicParsing="false" text="%mainView.statisticsMenu">
                           <items>
-                            <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByActivity" text="%mainView.statisticsMenu.workingHoursByActivity" />
-                              <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByNumber" text="%mainView.statisticsMenu.workingHoursByNumber" />
+                              <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursToday" text="%mainView.statisticsMenu.workingHoursToday">
+                                 <accelerator>
+                                    <KeyCodeCombination alt="UP" code="DIGIT1" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                 </accelerator>
+                              </MenuItem>
+                            <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByActivity" text="%mainView.statisticsMenu.workingHoursByActivity">
+                                 <accelerator>
+                                    <KeyCodeCombination alt="UP" code="DIGIT2" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                 </accelerator></MenuItem>
+                              <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByNumber" text="%mainView.statisticsMenu.workingHoursByNumber">
+                                 <accelerator>
+                                    <KeyCodeCombination alt="UP" code="DIGIT3" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                 </accelerator></MenuItem>
                           </items>
                         </Menu>
                       <Menu mnemonicParsing="false" text="%mainView.helpMenu">

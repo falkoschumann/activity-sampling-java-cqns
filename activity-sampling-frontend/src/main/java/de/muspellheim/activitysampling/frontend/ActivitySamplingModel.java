@@ -26,6 +26,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 class ActivitySamplingModel {
+  // TODO Verschiebe Properties für Statistics in eigenes Model oder in jeweilige Controller
+
   boolean isRunningOnMac() {
     return System.getProperty("os.name").toLowerCase().contains("mac");
   }
