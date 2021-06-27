@@ -17,6 +17,8 @@ import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByA
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQueryResult;
 import java.io.IOException;
@@ -54,9 +56,10 @@ public class ActivitySamplingController {
   @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
+  @Getter @Setter private Consumer<WorkingHoursTodayQuery> onWorkingHoursTodayQuery;
+  @Getter @Setter private Consumer<WorkingHoursThisWeekQuery> onWorkingHoursThisWeekQuery;
   @Getter @Setter private Consumer<WorkingHoursByActivityQuery> onWorkingHoursByActivityQuery;
   @Getter @Setter private Consumer<WorkingHoursByNumberQuery> onWorkingHoursByNumberQuery;
-  @Getter @Setter private Consumer<WorkingHoursTodayQuery> onWorkingHoursTodayQuery;
 
   @FXML private Stage stage;
   @FXML private MenuBar menuBar;
@@ -73,6 +76,7 @@ public class ActivitySamplingController {
   private TrayIconController trayIconViewController;
   private PreferencesController preferencesController;
   private WorkingHoursTodayController workingHoursTodayController;
+  private WorkingHoursThisWeekController workingHoursThisWeekController;
   private WorkingHoursByActivityController workingHoursByActivityController;
   private WorkingHoursByNumberController workingHoursByNumberController;
 
@@ -102,6 +106,7 @@ public class ActivitySamplingController {
     trayIconViewController = new TrayIconController();
     preferencesController = PreferencesController.create(stage);
     workingHoursTodayController = WorkingHoursTodayController.create(stage);
+    workingHoursThisWeekController = WorkingHoursThisWeekController.create(stage);
     workingHoursByActivityController = WorkingHoursByActivityController.create(stage);
     workingHoursByNumberController = WorkingHoursByNumberController.create(stage);
 
@@ -173,27 +178,29 @@ public class ActivitySamplingController {
                           .toList());
               trayIconViewController.setRecent(recent);
             });
-    model.knownTagsProperty().addListener(observable -> updateKnownTags());
+    model
+        .knownTagsProperty()
+        .addListener(
+            observable ->
+                addTagButton
+                    .getItems()
+                    .setAll(
+                        model.getKnownTags().stream()
+                            .map(
+                                it -> {
+                                  var menuItem = new MenuItem(it);
+                                  menuItem.setOnAction(e -> model.addTag(it));
+                                  return menuItem;
+                                })
+                            .toList()));
     workingHoursTodayController.setOnQuery(
         () -> onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery()));
+    workingHoursThisWeekController.setOnQuery(
+        () -> onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery()));
     workingHoursByActivityController.setOnQuery(
         () -> onWorkingHoursByActivityQuery.accept(new WorkingHoursByActivityQuery()));
     workingHoursByNumberController.setOnQuery(
         () -> onWorkingHoursByNumberQuery.accept(new WorkingHoursByNumberQuery()));
-  }
-
-  private boolean updateKnownTags() {
-    return addTagButton
-        .getItems()
-        .setAll(
-            model.getKnownTags().stream()
-                .map(
-                    it -> {
-                      var menuItem = new MenuItem(it);
-                      menuItem.setOnAction(e -> model.addTag(it));
-                      return menuItem;
-                    })
-                .toList());
   }
 
   public void run() {
@@ -231,18 +238,24 @@ public class ActivitySamplingController {
     model.setKnownTags(result.tags());
   }
 
+  public void display(WorkingHoursTodayQueryResult result) {
+    workingHoursTodayController.setDate(result.date());
+    workingHoursTodayController.setTotalWorkingHours(result.totalWorkingHours());
+    workingHoursTodayController.setActivities(result.activities());
+  }
+
+  public void display(WorkingHoursThisWeekQueryResult result) {
+    workingHoursThisWeekController.setCalendarWeek(result.calendarWeek());
+    workingHoursThisWeekController.setTotalWorkingHours(result.totalWorkingHours());
+    workingHoursThisWeekController.setActivities(result.activities());
+  }
+
   public void display(WorkingHoursByActivityQueryResult result) {
     workingHoursByActivityController.setWorkingHours(result.workingHours());
   }
 
   public void display(WorkingHoursByNumberQueryResult result) {
     workingHoursByNumberController.setWorkingHours(result.catogories());
-  }
-
-  public void display(WorkingHoursTodayQueryResult result) {
-    workingHoursTodayController.setDate(result.date());
-    workingHoursTodayController.setTotalWorkingHours(result.totalWorkingHours());
-    workingHoursTodayController.setActivities(result.activities());
   }
 
   @FXML
@@ -258,6 +271,11 @@ public class ActivitySamplingController {
   @FXML
   private void handleWorkingHoursToday() {
     workingHoursTodayController.run();
+  }
+
+  @FXML
+  private void handleWorkingHoursThisWeek() {
+    workingHoursThisWeekController.run();
   }
 
   @FXML

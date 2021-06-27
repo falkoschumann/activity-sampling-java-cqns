@@ -49,13 +49,18 @@
                                     <KeyCodeCombination alt="UP" code="DIGIT1" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                                  </accelerator>
                               </MenuItem>
-                            <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByActivity" text="%mainView.statisticsMenu.workingHoursByActivity">
+                              <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursThisWeek" text="%mainView.statisticsMenu.workingHoursThisWeek">
                                  <accelerator>
                                     <KeyCodeCombination alt="UP" code="DIGIT2" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                 </accelerator>
+                              </MenuItem>
+                            <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByActivity" text="%mainView.statisticsMenu.workingHoursByActivity">
+                                 <accelerator>
+                                    <KeyCodeCombination alt="UP" code="DIGIT3" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                                  </accelerator></MenuItem>
                               <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByNumber" text="%mainView.statisticsMenu.workingHoursByNumber">
                                  <accelerator>
-                                    <KeyCodeCombination alt="UP" code="DIGIT3" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                    <KeyCodeCombination alt="UP" code="DIGIT4" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
                                  </accelerator></MenuItem>
                           </items>
                         </Menu>

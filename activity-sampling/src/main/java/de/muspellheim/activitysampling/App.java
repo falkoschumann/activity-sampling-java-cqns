@@ -18,13 +18,17 @@ import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityComman
 import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByActivityQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByNumberQueryHandler;
+import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursThisWeekQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursTodayQueryHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.frontend.ActivitySamplingController;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -67,9 +71,10 @@ public class App extends Application {
         new ChangeActivityLogFileCommandHandler(preferencesStore, eventStore);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
+    var workingHoursTodayQueryHandler = new WorkingHoursTodayQueryHandler(eventStore);
+    var workingHoursThisWeekQueryHandler = new WorkingHoursThisWeekQueryHandler(eventStore);
     var workingHoursByActivityQueryHandler = new WorkingHoursByActivityQueryHandler(eventStore);
     var workingHoursByNumberQueryHandler = new WorkingHoursByNumberQueryHandler(eventStore);
-    var workingHoursTodayQueryHandler = new WorkingHoursTodayQueryHandler(eventStore);
     var frontend = ActivitySamplingController.create(primaryStage);
 
     frontend.setOnLogActivityCommand(
@@ -102,6 +107,16 @@ public class App extends Application {
           var result = activityLogQueryHandler.handle(qry);
           frontend.display(result);
         });
+    frontend.setOnWorkingHoursTodayQuery(
+        qry -> {
+          var result = workingHoursTodayQueryHandler.handle(qry);
+          frontend.display(result);
+        });
+    frontend.setOnWorkingHoursThisWeekQuery(
+        qry -> {
+          var result = workingHoursThisWeekQueryHandler.handle(qry);
+          frontend.display(result);
+        });
     frontend.setOnWorkingHoursByActivityQuery(
         qry -> {
           var result = workingHoursByActivityQueryHandler.handle(qry);
@@ -110,11 +125,6 @@ public class App extends Application {
     frontend.setOnWorkingHoursByNumberQuery(
         qry -> {
           var result = workingHoursByNumberQueryHandler.handle(qry);
-          frontend.display(result);
-        });
-    frontend.setOnWorkingHoursTodayQuery(
-        qry -> {
-          var result = workingHoursTodayQueryHandler.handle(qry);
           frontend.display(result);
         });
 
