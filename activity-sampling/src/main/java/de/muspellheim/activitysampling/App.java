@@ -25,10 +25,7 @@ import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuer
 import de.muspellheim.activitysampling.frontend.ActivitySamplingController;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Clock;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
