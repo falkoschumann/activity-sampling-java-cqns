@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## Changed
+
+- Beschränke Auswahl aus letzten Aktivitäten.
+- Beschränke Auswahl aus letzten Stichworte.
+
 ## [1.1.0] - 2021-06-27
 
 ## Added

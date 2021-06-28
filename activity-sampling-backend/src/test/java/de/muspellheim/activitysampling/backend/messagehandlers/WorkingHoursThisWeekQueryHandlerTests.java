@@ -12,6 +12,7 @@ import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQueryResult;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -23,7 +24,12 @@ public class WorkingHoursThisWeekQueryHandlerTests {
   void testHandle() {
     var store = new MemoryEventStore();
     store.record(createEvents());
-    var handler = new WorkingHoursThisWeekQueryHandler(store);
+    var handler =
+        new WorkingHoursThisWeekQueryHandler(
+            store,
+            Clock.fixed(
+                LocalDateTime.of(2021, 6, 22, 16, 12).atZone(ZoneId.systemDefault()).toInstant(),
+                ZoneId.systemDefault()));
 
     var result = handler.handle(new WorkingHoursThisWeekQuery());
 
