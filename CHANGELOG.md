@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Beschränke Auswahl aus letzten Aktivitäten.
 - Beschränke Auswahl aus letzten Stichworte.
+- Begrenze Anzahl dargestellter Aktivitäten im Log.
 
 ## [1.1.0] - 2021-06-27
 
@@ -18,10 +19,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Nutzer kann Stichwort hinzufügen, durch Auswahl aus letzten Stichworten.
 - Nutzer kann Statistiken zu seinen Aktivitäten abrufen:
-  - Arbeitszeit Heute
-  - Arbeitszeit diese Woche
-  - Arbeitszeit nach Aktivität
-  - Arbeitszeit nach Anzahl
+    - Arbeitszeit Heute
+    - Arbeitszeit diese Woche
+    - Arbeitszeit nach Aktivität
+    - Arbeitszeit nach Anzahl
 
 ## Fixed
 
@@ -32,7 +33,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 ### Added
 
 - Fragt in einstellbaren Abstand nach der aktuellen Tätigkeit.
-- Sichert Antworten als CSV-Datei zur leichten Auswertung mit weiteren Werkzeugen.
+- Sichert Antworten als CSV-Datei zur leichten Auswertung mit weiteren
+  Werkzeugen.
 
 
 [1]: https://keepachangelog.com/en/1.0.0/

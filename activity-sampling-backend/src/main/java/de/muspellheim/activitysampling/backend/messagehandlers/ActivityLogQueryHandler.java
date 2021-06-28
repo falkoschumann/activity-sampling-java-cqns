@@ -44,6 +44,9 @@ public class ActivityLogQueryHandler {
             event.activity(),
             event.tags());
     log.add(activity);
+    if (log.size() > 1000) {
+      log.removeFirst();
+    }
 
     recent.removeIf(
         it ->
