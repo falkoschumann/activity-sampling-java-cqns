@@ -93,7 +93,7 @@
                                        <graphic>
                                           <ImageView pickOnBounds="true" preserveRatio="true">
                                              <image>
-                                                <Image url="@add-black.png" />
+                                                <Image url="@add.png" />
                                              </image>
                                           </ImageView>
                                        </graphic>

@@ -196,7 +196,7 @@ public class ActivitySamplingController {
     workingHoursTodayController.setOnQuery(
         () -> onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery()));
     workingHoursThisWeekController.setOnQuery(
-        () -> onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery()));
+        q -> onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery(q)));
     workingHoursByActivityController.setOnQuery(
         () -> onWorkingHoursByActivityQuery.accept(new WorkingHoursByActivityQuery()));
     workingHoursByNumberController.setOnQuery(
@@ -248,6 +248,7 @@ public class ActivitySamplingController {
     workingHoursThisWeekController.setCalendarWeek(result.calendarWeek());
     workingHoursThisWeekController.setTotalWorkingHours(result.totalWorkingHours());
     workingHoursThisWeekController.setActivities(result.activities());
+    workingHoursThisWeekController.setTags(result.tags());
   }
 
   public void display(WorkingHoursByActivityQueryResult result) {

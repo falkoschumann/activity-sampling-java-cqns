@@ -19,12 +19,12 @@ import java.time.ZoneId;
 import java.time.temporal.WeekFields;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 public class WorkingHoursThisWeekQueryHandler {
   private final LinkedList<Activity> activities = new LinkedList<>();
   private final Clock clock;
   private int calenderWeek;
-  private Duration totalWorkingHours;
 
   public WorkingHoursThisWeekQueryHandler(EventStore eventStore) {
     this(eventStore, Clock.systemDefaultZone());
@@ -55,13 +55,33 @@ public class WorkingHoursThisWeekQueryHandler {
 
     calenderWeek = LocalDate.now(clock).get(WeekFields.ISO.weekOfYear());
     activities.removeIf(it -> calenderWeek != it.timestamp().get(WeekFields.ISO.weekOfYear()));
-    totalWorkingHours =
-        activities.stream().map(Activity::period).reduce(Duration.ZERO, Duration::plus);
   }
 
-  public WorkingHoursThisWeekQueryResult handle(
-      @SuppressWarnings("unused") WorkingHoursThisWeekQuery query) {
+  public WorkingHoursThisWeekQueryResult handle(WorkingHoursThisWeekQuery query) {
+    var tags = activities.stream().flatMap(it -> it.tags().stream()).toList();
+    var filtered =
+        query.includedTags().isEmpty()
+            ? activities
+            : activities.stream()
+                .filter(
+                    it -> {
+                      if (it.tags().isEmpty()
+                          && query.includedTags().contains(WorkingHoursThisWeekQuery.NO_TAG)) {
+                        return true;
+                      }
+
+                      for (var tag : it.tags()) {
+                        if (query.includedTags().contains(tag)) {
+                          return true;
+                        }
+                      }
+
+                      return false;
+                    })
+                .toList();
+    var totalWorkingHours =
+        filtered.stream().map(Activity::period).reduce(Duration.ZERO, Duration::plus);
     return new WorkingHoursThisWeekQueryResult(
-        calenderWeek, totalWorkingHours, List.copyOf(activities));
+        calenderWeek, totalWorkingHours, List.copyOf(filtered), new TreeSet<>(tags));
   }
 }

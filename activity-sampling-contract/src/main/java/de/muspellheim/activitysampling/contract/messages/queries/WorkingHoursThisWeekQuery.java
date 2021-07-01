@@ -5,4 +5,12 @@
 
 package de.muspellheim.activitysampling.contract.messages.queries;
 
-public class WorkingHoursThisWeekQuery {}
+import java.util.Set;
+
+public record WorkingHoursThisWeekQuery(Set<String> includedTags) {
+  public static final String NO_TAG = "";
+
+  public WorkingHoursThisWeekQuery() {
+    this(Set.of());
+  }
+}
