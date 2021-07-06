@@ -5,10 +5,8 @@
 
 package de.muspellheim.activitysampling.contract.messages.queries;
 
-import java.util.Set;
+public final class Queries {
+  private Queries() {}
 
-public record WorkingHoursByNumberQuery(Set<String> includedTags) {
-  public WorkingHoursByNumberQuery() {
-    this(Set.of());
-  }
+  public static final String NO_TAG = "";
 }

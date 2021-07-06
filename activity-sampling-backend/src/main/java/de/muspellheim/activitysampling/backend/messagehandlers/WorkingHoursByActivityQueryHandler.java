@@ -5,50 +5,22 @@
 
 package de.muspellheim.activitysampling.backend.messagehandlers;
 
-import de.muspellheim.activitysampling.backend.Event;
 import de.muspellheim.activitysampling.backend.EventStore;
-import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
-import de.muspellheim.activitysampling.contract.data.WorkingHours;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.TreeSet;
 
-public class WorkingHoursByActivityQueryHandler {
-  private final SortedMap<String, WorkingHours> activities = new TreeMap<>();
-
+public class WorkingHoursByActivityQueryHandler extends BaseWorkingHoursQueryHandler {
   public WorkingHoursByActivityQueryHandler(EventStore eventStore) {
-    eventStore.replay(ActivityLoggedEvent.class).forEach(this::apply);
-    eventStore.addRecordedObserver(this::apply);
+    super(eventStore);
   }
 
-  private void apply(Event event) {
-    if (event instanceof ActivityLoggedEvent e) {
-      apply(e);
-    }
-  }
-
-  private void apply(ActivityLoggedEvent event) {
-    if (activities.containsKey(event.activity())) {
-      var workingHours = this.activities.get(event.activity());
-      var tags = new LinkedHashSet<>(workingHours.tags());
-      tags.addAll(event.tags());
-      this.activities.put(
-          workingHours.activity(),
-          new WorkingHours(
-              workingHours.activity(),
-              List.copyOf(tags),
-              event.period().plus(workingHours.workingHours())));
-    } else {
-      activities.put(
-          event.activity(), new WorkingHours(event.activity(), event.tags(), event.period()));
-    }
-  }
-
-  public WorkingHoursByActivityQueryResult handle(
-      @SuppressWarnings("unused") WorkingHoursByActivityQuery query) {
-    return new WorkingHoursByActivityQueryResult(List.copyOf(activities.values()));
+  public WorkingHoursByActivityQueryResult handle(WorkingHoursByActivityQuery query) {
+    var tags = workingHours.values().stream().flatMap(it -> it.tags().stream()).toList();
+    var filtered =
+        WorkingHoursProjection.filterTags(workingHours.values().stream(), query.includedTags())
+            .toList();
+    return new WorkingHoursByActivityQueryResult(List.copyOf(filtered), new TreeSet<>(tags));
   }
 }

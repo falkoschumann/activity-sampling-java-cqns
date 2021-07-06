@@ -12,7 +12,6 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQueryResult;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -58,29 +57,10 @@ public class WorkingHoursThisWeekQueryHandler {
   }
 
   public WorkingHoursThisWeekQueryResult handle(WorkingHoursThisWeekQuery query) {
-    var tags = activities.stream().flatMap(it -> it.tags().stream()).toList();
+    var tags = ActivityProjection.distinctTags(activities.stream());
     var filtered =
-        query.includedTags().isEmpty()
-            ? activities
-            : activities.stream()
-                .filter(
-                    it -> {
-                      if (it.tags().isEmpty()
-                          && query.includedTags().contains(WorkingHoursThisWeekQuery.NO_TAG)) {
-                        return true;
-                      }
-
-                      for (var tag : it.tags()) {
-                        if (query.includedTags().contains(tag)) {
-                          return true;
-                        }
-                      }
-
-                      return false;
-                    })
-                .toList();
-    var totalWorkingHours =
-        filtered.stream().map(Activity::period).reduce(Duration.ZERO, Duration::plus);
+        ActivityProjection.filterTags(activities.stream(), query.includedTags()).toList();
+    var totalWorkingHours = ActivityProjection.totalWorkingHours(filtered.stream());
     return new WorkingHoursThisWeekQueryResult(
         calenderWeek, totalWorkingHours, List.copyOf(filtered), new TreeSet<>(tags));
   }

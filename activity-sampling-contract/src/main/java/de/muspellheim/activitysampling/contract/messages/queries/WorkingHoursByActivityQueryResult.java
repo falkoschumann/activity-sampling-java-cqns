@@ -7,5 +7,7 @@ package de.muspellheim.activitysampling.contract.messages.queries;
 
 import de.muspellheim.activitysampling.contract.data.WorkingHours;
 import java.util.List;
+import java.util.SortedSet;
 
-public record WorkingHoursByActivityQueryResult(List<WorkingHours> workingHours) {}
+public record WorkingHoursByActivityQueryResult(
+    List<WorkingHours> workingHours, SortedSet<String> tags) {}

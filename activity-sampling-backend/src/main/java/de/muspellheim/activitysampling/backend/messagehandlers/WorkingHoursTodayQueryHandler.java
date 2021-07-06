@@ -12,18 +12,17 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQueryResult;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 public class WorkingHoursTodayQueryHandler {
   private final LinkedList<Activity> activities = new LinkedList<>();
   private final Clock clock;
   private LocalDate today;
-  private Duration totalWorkingHours;
 
   public WorkingHoursTodayQueryHandler(EventStore eventStore) {
     this(eventStore, Clock.systemDefaultZone());
@@ -54,12 +53,14 @@ public class WorkingHoursTodayQueryHandler {
 
     today = LocalDate.now(clock);
     activities.removeIf(it -> !it.timestamp().toLocalDate().equals(today));
-    totalWorkingHours =
-        activities.stream().map(Activity::period).reduce(Duration.ZERO, Duration::plus);
   }
 
-  public WorkingHoursTodayQueryResult handle(
-      @SuppressWarnings("unused") WorkingHoursTodayQuery query) {
-    return new WorkingHoursTodayQueryResult(today, totalWorkingHours, List.copyOf(activities));
+  public WorkingHoursTodayQueryResult handle(WorkingHoursTodayQuery query) {
+    var tags = ActivityProjection.distinctTags(activities.stream());
+    var filtered =
+        ActivityProjection.filterTags(activities.stream(), query.includedTags()).toList();
+    var totalWorkingHours = ActivityProjection.totalWorkingHours(filtered.stream());
+    return new WorkingHoursTodayQueryResult(
+        today, totalWorkingHours, List.copyOf(filtered), new TreeSet<>(tags));
   }
 }

@@ -9,120 +9,79 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
-import de.muspellheim.activitysampling.contract.data.Activity;
+import de.muspellheim.activitysampling.contract.messages.queries.Queries;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQueryResult;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.jupiter.api.Test;
 
 public class WorkingHoursThisWeekQueryHandlerTests {
+  private static final Instant START_TIMESTAMP =
+      LocalDateTime.of(2021, 7, 5, 9, 0).atZone(ZoneId.systemDefault()).toInstant();
+  private static final Instant CURRENT_TIMESTAMP = START_TIMESTAMP.plus(9, ChronoUnit.DAYS);
+
   @Test
   void testHandle() {
     var store = new MemoryEventStore();
-    store.record(createEvents());
+    var events = createEvents();
+    store.record(events);
     var handler =
         new WorkingHoursThisWeekQueryHandler(
-            store,
-            Clock.fixed(
-                LocalDateTime.of(2021, 6, 22, 16, 12).atZone(ZoneId.systemDefault()).toInstant(),
-                ZoneId.systemDefault()));
+            store, Clock.fixed(CURRENT_TIMESTAMP, ZoneId.systemDefault()));
 
     var result = handler.handle(new WorkingHoursThisWeekQuery());
 
     assertEquals(
         new WorkingHoursThisWeekQueryResult(
-            25,
-            Duration.ofMinutes(60),
+            28,
+            Duration.ofMinutes(80),
             List.of(
-                new Activity(
-                    "d5abc0dd-60b0-4a3b-9b2f-8b02005fb256",
-                    LocalDateTime.of(2021, 6, 21, 21, 20),
-                    Duration.ofMinutes(20),
-                    "B",
-                    List.of("Bar")),
-                new Activity(
-                    "e9ed7915-8109-402d-b9e6-2d5764ef688d",
-                    LocalDateTime.of(2021, 6, 22, 13, 52),
-                    Duration.ofMinutes(20),
-                    "B",
-                    List.of("Foo")),
-                new Activity(
-                    "d36a20db-56ae-48af-9221-0630911cdb8d",
-                    LocalDateTime.of(2021, 6, 22, 14, 20),
-                    Duration.ofMinutes(20),
-                    "A",
-                    List.of())),
+                ActivityFactory.create(events.get(1)),
+                ActivityFactory.create(events.get(2)),
+                ActivityFactory.create(events.get(3)),
+                ActivityFactory.create(events.get(4))),
             new TreeSet<>(List.of("Bar", "Foo"))),
         result);
   }
 
   @Test
-  void testHandle_WithIncludeTags() {
+  void testHandle_WithIncludedTags() {
     var store = new MemoryEventStore();
-    store.record(createEvents());
+    var events = createEvents();
+    store.record(events);
     var handler =
         new WorkingHoursThisWeekQueryHandler(
-            store,
-            Clock.fixed(
-                LocalDateTime.of(2021, 6, 22, 16, 12).atZone(ZoneId.systemDefault()).toInstant(),
-                ZoneId.systemDefault()));
+            store, Clock.fixed(CURRENT_TIMESTAMP, ZoneId.systemDefault()));
 
-    var result =
-        handler.handle(
-            new WorkingHoursThisWeekQuery(Set.of("Foo", WorkingHoursThisWeekQuery.NO_TAG)));
+    var result = handler.handle(new WorkingHoursThisWeekQuery(Set.of("Foo", Queries.NO_TAG)));
 
     assertEquals(
         new WorkingHoursThisWeekQueryResult(
-            25,
-            Duration.ofMinutes(40),
+            28,
+            Duration.ofMinutes(60),
             List.of(
-                new Activity(
-                    "e9ed7915-8109-402d-b9e6-2d5764ef688d",
-                    LocalDateTime.of(2021, 6, 22, 13, 52),
-                    Duration.ofMinutes(20),
-                    "B",
-                    List.of("Foo")),
-                new Activity(
-                    "d36a20db-56ae-48af-9221-0630911cdb8d",
-                    LocalDateTime.of(2021, 6, 22, 14, 20),
-                    Duration.ofMinutes(20),
-                    "A",
-                    List.of())),
+                ActivityFactory.create(events.get(1)),
+                ActivityFactory.create(events.get(3)),
+                ActivityFactory.create(events.get(4))),
             new TreeSet<>(List.of("Bar", "Foo"))),
         result);
   }
 
   private static List<ActivityLoggedEvent> createEvents() {
+    var factory = new EventFactory();
     return List.of(
-        new ActivityLoggedEvent(
-            "a7caf1b0-886e-406f-8fbc-71da9f34714e",
-            LocalDateTime.of(2021, 6, 18, 17, 52).atZone(ZoneId.systemDefault()).toInstant(),
-            Duration.ofMinutes(20),
-            "A",
-            List.of("Foo")),
-        new ActivityLoggedEvent(
-            "d5abc0dd-60b0-4a3b-9b2f-8b02005fb256",
-            LocalDateTime.of(2021, 6, 21, 21, 20).atZone(ZoneId.systemDefault()).toInstant(),
-            Duration.ofMinutes(20),
-            "B",
-            List.of("Bar")),
-        new ActivityLoggedEvent(
-            "e9ed7915-8109-402d-b9e6-2d5764ef688d",
-            LocalDateTime.of(2021, 6, 22, 13, 52).atZone(ZoneId.systemDefault()).toInstant(),
-            Duration.ofMinutes(20),
-            "B",
-            List.of("Foo")),
-        new ActivityLoggedEvent(
-            "d36a20db-56ae-48af-9221-0630911cdb8d",
-            LocalDateTime.of(2021, 6, 22, 14, 20).atZone(ZoneId.systemDefault()).toInstant(),
-            Duration.ofMinutes(20),
-            "A",
-            List.of()));
+        factory.create("B", List.of("Foo", "Bar")),
+        factory.nextWeek().create("B", List.of("Foo", "Bar")),
+        factory.create("C", List.of("Bar")),
+        factory.nextDay().create("A", List.of()),
+        factory.create("B", List.of("Foo")));
   }
 }

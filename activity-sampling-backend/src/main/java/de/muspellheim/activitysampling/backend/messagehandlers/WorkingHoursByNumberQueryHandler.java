@@ -5,56 +5,25 @@
 
 package de.muspellheim.activitysampling.backend.messagehandlers;
 
-import de.muspellheim.activitysampling.backend.Event;
 import de.muspellheim.activitysampling.backend.EventStore;
-import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
-import de.muspellheim.activitysampling.contract.data.WorkingHours;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult.WorkingHoursCategory;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
-public class WorkingHoursByNumberQueryHandler {
-  private final SortedMap<String, WorkingHours> workingHours = new TreeMap<>();
-
+public class WorkingHoursByNumberQueryHandler extends BaseWorkingHoursQueryHandler {
   public WorkingHoursByNumberQueryHandler(EventStore eventStore) {
-    eventStore.replay(ActivityLoggedEvent.class).forEach(this::apply);
-    eventStore.addRecordedObserver(this::apply);
+    super(eventStore);
   }
 
-  private void apply(Event event) {
-    if (event instanceof ActivityLoggedEvent e) {
-      apply(e);
-    }
-  }
-
-  private void apply(ActivityLoggedEvent event) {
-    if (workingHours.containsKey(event.activity())) {
-      var workingHours = this.workingHours.get(event.activity());
-      var tags = new LinkedHashSet<>(workingHours.tags());
-      tags.addAll(event.tags());
-      this.workingHours.put(
-          workingHours.activity(),
-          new WorkingHours(
-              workingHours.activity(),
-              List.copyOf(tags),
-              event.period().plus(workingHours.workingHours())));
-    } else {
-      workingHours.put(
-          event.activity(), new WorkingHours(event.activity(), event.tags(), event.period()));
-    }
-  }
-
-  public WorkingHoursByNumberQueryResult handle(
-      @SuppressWarnings("unused") WorkingHoursByNumberQuery query) {
+  public WorkingHoursByNumberQueryResult handle(WorkingHoursByNumberQuery query) {
+    var tags = workingHours.values().stream().flatMap(it -> it.tags().stream()).toList();
     var numbers = new TreeMap<Duration, WorkingHoursCategory>();
-    workingHours
-        .values()
+    WorkingHoursProjection.filterTags(workingHours.values().stream(), query.includedTags())
         .forEach(
             it -> {
               var hours = it.workingHours().truncatedTo(ChronoUnit.HOURS);
@@ -70,6 +39,6 @@ public class WorkingHoursByNumberQueryHandler {
                 numbers.put(hours, new WorkingHoursCategory(hours, 1));
               }
             });
-    return new WorkingHoursByNumberQueryResult(List.copyOf(numbers.values()));
+    return new WorkingHoursByNumberQueryResult(List.copyOf(numbers.values()), new TreeSet<>(tags));
   }
 }

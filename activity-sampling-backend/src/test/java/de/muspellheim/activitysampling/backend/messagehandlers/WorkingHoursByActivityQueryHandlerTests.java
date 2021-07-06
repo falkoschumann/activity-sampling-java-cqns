@@ -13,9 +13,9 @@ import de.muspellheim.activitysampling.contract.data.WorkingHours;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import org.junit.jupiter.api.Test;
 
 public class WorkingHoursByActivityQueryHandlerTests {
@@ -31,28 +31,35 @@ public class WorkingHoursByActivityQueryHandlerTests {
         new WorkingHoursByActivityQueryResult(
             List.of(
                 new WorkingHours("A", List.of(), Duration.ofMinutes(20)),
-                new WorkingHours("B", List.of("Foo", "Bar"), Duration.ofMinutes(40)))),
+                new WorkingHours("B", List.of("Foo", "Bar"), Duration.ofMinutes(40)),
+                new WorkingHours("C", List.of("Bar"), Duration.ofMinutes(40))),
+            new TreeSet<>(List.of("Bar", "Foo"))),
         result);
   }
 
+  @Test
+  void testHandle_WithIncludedTags() {
+    var store = new MemoryEventStore();
+    store.record(createEvents());
+    var handler = new WorkingHoursByActivityQueryHandler(store);
+
+    var result = handler.handle(new WorkingHoursByActivityQuery(Set.of("")));
+
+    assertEquals(
+        new WorkingHoursByActivityQueryResult(
+            List.of(new WorkingHours("A", List.of(), Duration.ofMinutes(20))),
+            new TreeSet<>(List.of("Bar", "Foo"))),
+        result);
+  }
+
+  // TODO Unterscheide nach Aktivität und Tags
   private static List<ActivityLoggedEvent> createEvents() {
+    var factory = new EventFactory();
     return List.of(
-        new ActivityLoggedEvent(
-            "a7caf1b0-886e-406f-8fbc-71da9f34714e",
-            LocalDateTime.of(2020, 12, 30, 17, 52).atZone(ZoneId.systemDefault()).toInstant(),
-            Duration.ofMinutes(20),
-            "B",
-            List.of("Foo", "Bar")),
-        new ActivityLoggedEvent(
-            "d5abc0dd-60b0-4a3b-9b2f-8b02005fb256",
-            LocalDateTime.of(2020, 12, 30, 21, 20).atZone(ZoneId.systemDefault()).toInstant(),
-            Duration.ofMinutes(20),
-            "A"),
-        new ActivityLoggedEvent(
-            "d36a20db-56ae-48af-9221-0630911cdb8d",
-            LocalDateTime.of(2021, 1, 4, 14, 20).atZone(ZoneId.systemDefault()).toInstant(),
-            Duration.ofMinutes(20),
-            "B",
-            List.of("Foo")));
+        factory.create("B", List.of("Foo", "Bar")),
+        factory.create("C", List.of("Bar")),
+        factory.create("C", List.of("Bar")),
+        factory.create("A", List.of()),
+        factory.create("B", List.of("Foo")));
   }
 }
