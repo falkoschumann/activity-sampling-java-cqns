@@ -21,9 +21,9 @@ public class WorkingHoursByNumberQueryHandler extends BaseWorkingHoursQueryHandl
   }
 
   public WorkingHoursByNumberQueryResult handle(WorkingHoursByNumberQuery query) {
-    var tags = workingHours.values().stream().flatMap(it -> it.tags().stream()).toList();
+    var tags = workingHours.stream().flatMap(it -> it.tags().stream()).toList();
     var numbers = new TreeMap<Duration, WorkingHoursCategory>();
-    WorkingHoursProjection.filterTags(workingHours.values().stream(), query.includedTags())
+    WorkingHoursProjection.filterTags(workingHours.stream(), query.includedTags())
         .forEach(
             it -> {
               var hours = it.workingHours().truncatedTo(ChronoUnit.HOURS);

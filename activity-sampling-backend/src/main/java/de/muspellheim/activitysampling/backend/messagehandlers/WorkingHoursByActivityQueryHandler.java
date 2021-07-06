@@ -17,10 +17,9 @@ public class WorkingHoursByActivityQueryHandler extends BaseWorkingHoursQueryHan
   }
 
   public WorkingHoursByActivityQueryResult handle(WorkingHoursByActivityQuery query) {
-    var tags = workingHours.values().stream().flatMap(it -> it.tags().stream()).toList();
+    var tags = workingHours.stream().flatMap(it -> it.tags().stream()).toList();
     var filtered =
-        WorkingHoursProjection.filterTags(workingHours.values().stream(), query.includedTags())
-            .toList();
+        WorkingHoursProjection.filterTags(workingHours.stream(), query.includedTags()).toList();
     return new WorkingHoursByActivityQueryResult(List.copyOf(filtered), new TreeSet<>(tags));
   }
 }

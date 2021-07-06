@@ -30,7 +30,7 @@ public class WorkingHoursByNumberQueryHandlerTests {
     assertEquals(
         new WorkingHoursByNumberQueryResult(
             List.of(
-                new WorkingHoursCategory(Duration.ofHours(1), 2),
+                new WorkingHoursCategory(Duration.ofHours(1), 3),
                 new WorkingHoursCategory(Duration.ofHours(2), 1)),
             new TreeSet<>(List.of("Bar", "Foo"))),
         result);
@@ -46,7 +46,7 @@ public class WorkingHoursByNumberQueryHandlerTests {
 
     assertEquals(
         new WorkingHoursByNumberQueryResult(
-            List.of(new WorkingHoursCategory(Duration.ofHours(1), 1)),
+            List.of(new WorkingHoursCategory(Duration.ofHours(1), 2)),
             new TreeSet<>(List.of("Bar", "Foo"))),
         result);
   }

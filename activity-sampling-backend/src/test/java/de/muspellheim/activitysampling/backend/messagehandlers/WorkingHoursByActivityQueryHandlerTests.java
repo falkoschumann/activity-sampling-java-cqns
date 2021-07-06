@@ -31,7 +31,8 @@ public class WorkingHoursByActivityQueryHandlerTests {
         new WorkingHoursByActivityQueryResult(
             List.of(
                 new WorkingHours("A", List.of(), Duration.ofMinutes(20)),
-                new WorkingHours("B", List.of("Foo", "Bar"), Duration.ofMinutes(40)),
+                new WorkingHours("B", List.of("Foo"), Duration.ofMinutes(20)),
+                new WorkingHours("B", List.of("Foo", "Bar"), Duration.ofMinutes(20)),
                 new WorkingHours("C", List.of("Bar"), Duration.ofMinutes(40))),
             new TreeSet<>(List.of("Bar", "Foo"))),
         result);
