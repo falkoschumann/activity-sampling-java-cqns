@@ -194,9 +194,9 @@ public class ActivitySamplingController {
                                 })
                             .toList()));
     workingHoursTodayController.setOnQuery(
-        () -> onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery()));
+        tags -> onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery(tags)));
     workingHoursThisWeekController.setOnQuery(
-        q -> onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery(q)));
+        tags -> onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery(tags)));
     workingHoursByActivityController.setOnQuery(
         () -> onWorkingHoursByActivityQuery.accept(new WorkingHoursByActivityQuery()));
     workingHoursByNumberController.setOnQuery(
@@ -242,6 +242,7 @@ public class ActivitySamplingController {
     workingHoursTodayController.setDate(result.date());
     workingHoursTodayController.setTotalWorkingHours(result.totalWorkingHours());
     workingHoursTodayController.setActivities(result.activities());
+    workingHoursTodayController.setTags(result.tags());
   }
 
   public void display(WorkingHoursThisWeekQueryResult result) {

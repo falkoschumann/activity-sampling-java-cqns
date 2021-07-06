@@ -68,6 +68,7 @@ public class TagsController implements Initializable {
             },
             new TagStringConverter(resources)));
 
+    // TODO allTagsCheckBox nur ausgewählt, wenn alle Tags ausgewählt, sonst nicht
     allTagsCheckBox
         .selectedProperty()
         .addListener(
@@ -84,6 +85,7 @@ public class TagsController implements Initializable {
 
   final void initTags(SortedSet<String> tags, Set<String> selectedTags) {
     this.selectedTags = new LinkedHashSet<>(selectedTags);
+    // TODO Füge Kein Tag nur hinzu, wenn es vorkommt, Zuständigkeit ins Backend verschieben
     this.selectedTags.add("");
 
     tagList.getItems().setAll(tags);

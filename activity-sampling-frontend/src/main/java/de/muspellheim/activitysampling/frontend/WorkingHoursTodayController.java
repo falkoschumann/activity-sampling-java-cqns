@@ -11,8 +11,12 @@ import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.function.Consumer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -29,7 +33,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class WorkingHoursTodayController {
-  @Getter @Setter Runnable onQuery;
+  @Getter @Setter Consumer<Set<String>> onQuery;
 
   @FXML private Stage stage;
   @FXML private TextField dateText;
@@ -132,8 +136,54 @@ public class WorkingHoursTodayController {
     return activities;
   }
 
+  private final ObjectProperty<SortedSet<String>> tags =
+      new SimpleObjectProperty<>() {
+        @Override
+        protected void invalidated() {
+          if (getSelectedTags().isEmpty()) {
+            setSelectedTags(getValue());
+          }
+        }
+      };
+
+  final SortedSet<String> getTags() {
+    return tags.get();
+  }
+
+  final void setTags(SortedSet<String> tags) {
+    this.tags.set(tags);
+  }
+
+  final ObjectProperty<SortedSet<String>> tagsProperty() {
+    return tags;
+  }
+
+  private final ObjectProperty<Set<String>> selectedTags =
+      new SimpleObjectProperty<>(new LinkedHashSet<>());
+
+  final Set<String> getSelectedTags() {
+    return selectedTags.get();
+  }
+
+  final void setSelectedTags(Set<String> selectedTags) {
+    this.selectedTags.set(selectedTags);
+  }
+
+  final ObjectProperty<Set<String>> selectedTagsProperty() {
+    return selectedTags;
+  }
+
   void run() {
     stage.show();
-    onQuery.run();
+    onQuery.accept(getSelectedTags());
+  }
+
+  @FXML
+  private void handleSelectTags() {
+    var controller = TagsController.create(stage);
+    controller.initTags(getTags(), getSelectedTags());
+    controller.run();
+    setSelectedTags(controller.getSelectedTags());
+    onQuery.accept(getSelectedTags());
   }
 }

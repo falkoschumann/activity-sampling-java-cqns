@@ -75,53 +75,53 @@ public class App extends Application {
     var frontend = ActivitySamplingController.create(primaryStage);
 
     frontend.setOnLogActivityCommand(
-        cmd -> {
-          logActivityCommandHandler.handle(cmd);
+        command -> {
+          logActivityCommandHandler.handle(command);
           var result = activityLogQueryHandler.handle(new ActivityLogQuery());
           frontend.display(result);
         });
     frontend.setOnChangePeriodDurationCommand(
-        cmd -> {
-          changePeriodDurationCommandHandler.handle(cmd);
+        command -> {
+          changePeriodDurationCommandHandler.handle(command);
           var result = preferencesQueryHandler.handle(new PreferencesQuery());
           frontend.display(result);
         });
     frontend.setOnChangeActivityLogFileCommand(
-        cmd -> {
-          changeActivityLogFileCommandHandler.handle(cmd);
+        command -> {
+          changeActivityLogFileCommandHandler.handle(command);
           var preferencesQueryResult = preferencesQueryHandler.handle(new PreferencesQuery());
           frontend.display(preferencesQueryResult);
           var activityLogQueryResult = activityLogQueryHandler.handle(new ActivityLogQuery());
           frontend.display(activityLogQueryResult);
         });
     frontend.setOnPreferencesQuery(
-        qry -> {
+        query -> {
           var result = preferencesQueryHandler.handle(new PreferencesQuery());
           frontend.display(result);
         });
     frontend.setOnActivityLogQuery(
-        qry -> {
-          var result = activityLogQueryHandler.handle(qry);
+        query -> {
+          var result = activityLogQueryHandler.handle(query);
           frontend.display(result);
         });
     frontend.setOnWorkingHoursTodayQuery(
-        qry -> {
-          var result = workingHoursTodayQueryHandler.handle(qry);
+        query -> {
+          var result = workingHoursTodayQueryHandler.handle(query);
           frontend.display(result);
         });
     frontend.setOnWorkingHoursThisWeekQuery(
-        qry -> {
-          var result = workingHoursThisWeekQueryHandler.handle(qry);
+        query -> {
+          var result = workingHoursThisWeekQueryHandler.handle(query);
           frontend.display(result);
         });
     frontend.setOnWorkingHoursByActivityQuery(
-        qry -> {
-          var result = workingHoursByActivityQueryHandler.handle(qry);
+        query -> {
+          var result = workingHoursByActivityQueryHandler.handle(query);
           frontend.display(result);
         });
     frontend.setOnWorkingHoursByNumberQuery(
-        qry -> {
-          var result = workingHoursByNumberQueryHandler.handle(qry);
+        query -> {
+          var result = workingHoursByNumberQueryHandler.handle(query);
           frontend.display(result);
         });
 
