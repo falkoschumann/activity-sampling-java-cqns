@@ -10,7 +10,7 @@ import de.muspellheim.activitysampling.backend.PreferencesStore;
 import de.muspellheim.activitysampling.backend.adapters.CsvEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesStore;
-import de.muspellheim.activitysampling.backend.adapters.PreferencesPreferencesStore;
+import de.muspellheim.activitysampling.backend.adapters.PrefsPreferencesStore;
 import de.muspellheim.activitysampling.backend.messagehandlers.ActivityLogQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.ChangeActivityLogFileCommandHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.ChangePeriodDurationCommandHandler;
@@ -42,11 +42,12 @@ public class App extends Application {
     if (getParameters().getUnnamed().contains("--demo")) {
       System.out.println("Run in demo mode...");
       System.setProperty("demoMode", "true");
+      // TODO Add examples ergänzen
       eventStore = new MemoryEventStore();
       eventStore.addRecordedObserver(it -> System.out.println("Logged event: " + it));
       preferencesStore = new MemoryPreferencesStore();
     } else {
-      preferencesStore = new PreferencesPreferencesStore();
+      preferencesStore = new PrefsPreferencesStore();
       var activityLogFile = preferencesStore.loadActivityLogFile();
       System.out.println("Save activity log in: " + activityLogFile.toAbsolutePath());
       eventStore = new CsvEventStore(activityLogFile.toString());
@@ -91,6 +92,8 @@ public class App extends Application {
           changeActivityLogFileCommandHandler.handle(command);
           var preferencesQueryResult = preferencesQueryHandler.handle(new PreferencesQuery());
           frontend.display(preferencesQueryResult);
+          // FIXME Folgendes hat mal das Activity-Log neu geladen, aber jetzt nicht mehr, seit
+          //  Replay nur noch im Konstruktor verwendet wird
           var activityLogQueryResult = activityLogQueryHandler.handle(new ActivityLogQuery());
           frontend.display(activityLogQueryResult);
         });
@@ -129,6 +132,8 @@ public class App extends Application {
   }
 
   private static class PreferencesStoreWrapper implements PreferencesStore {
+    // TODO Entferne Store Wrapper und erstelle Notification, für den Fall, dass File nicht
+    //  schreibbar oder lesbar
     private final PreferencesStore preferencesStore;
     private Path activityLogFile;
 

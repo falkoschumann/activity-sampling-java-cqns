@@ -11,12 +11,12 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.prefs.Preferences;
 
-public class PreferencesPreferencesStore implements PreferencesStore {
-  private static final String KEY_PREFIX = "de.muspellheim.activitysampling";
-  private static final String KEY_PERIOD_DURATION = KEY_PREFIX + "/periodDuration";
-  private static final String KEY_ACTIVITY_LOG_FILE = KEY_PREFIX + "/activityLogFile";
+public class PrefsPreferencesStore implements PreferencesStore {
+  private static final String APP_NODE = "/de/muspellheim/activitysampling";
+  private static final String KEY_PERIOD_DURATION = "periodDuration";
+  private static final String KEY_ACTIVITY_LOG_FILE = "activityLogFile";
 
-  private final Preferences preferences = Preferences.userRoot();
+  private final Preferences preferences = Preferences.userRoot().node(APP_NODE);
 
   @Override
   public Duration loadPeriodDuration() {
