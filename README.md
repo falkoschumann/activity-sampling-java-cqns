@@ -36,9 +36,10 @@ unter macOS und der Taskleiste unter Windows zur Auswahl.
 
 ## Contributing
 
-- Der Code Style [Google Java Style Guide][1] wird beim Build geprüft.
-- Code formatieren: `./gradlew spotlessApply`
-- Release erstellen: `./gradlew jpackage`
+- Build mit `.gradlew clean build`
+- Release erstellen mit `./gradlew jpackage`
+- Code Style [Google Java Style Guide][1] wird beim Build geprüft und
+  mit `./gradlew spotlessApply` formatiert
 - [Project Lombok][2] wird verwendet, um Boilerplate Code zu reduzieren, es
   werden nur stabile Features verwendet, zum Beispiel: `@Getter` oder `@Setter`.
 

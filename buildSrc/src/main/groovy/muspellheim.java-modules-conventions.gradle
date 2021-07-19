@@ -1,5 +1,5 @@
 plugins {
-  id("extra-java-module-info")
+  id "extra-java-module-info"
 }
 
 extraJavaModuleInfo {

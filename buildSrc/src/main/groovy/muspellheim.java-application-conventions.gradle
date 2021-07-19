@@ -1,0 +1,52 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+plugins {
+  id "application"
+  id "org.beryx.jlink"
+  id "muspellheim.java-common-conventions"
+}
+
+jlink {
+  options = [
+    "--strip-debug",
+    "--compress",
+    "2",
+    "--no-header-files",
+    "--no-man-pages",
+    "--include-locales",
+    "en,de"
+  ]
+}
+
+if (Os.isFamily(Os.FAMILY_MAC)) {
+  jlink {
+    jpackage {
+      icon = "src/main/macos/AppIcon.icns"
+      imageOptions += [
+        "--copyright", "Copyright © ${copyrightYear} Falko Schumann",
+        "--mac-sign",
+        "--mac-signing-key-user-name", "Falko Schumann (QC6EN37P56)",
+      ]
+      installerType = "dmg"
+    }
+  }
+}
+
+if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+  jlink {
+    jpackage {
+      icon = "src/main/win/app.ico"
+      imageOptions = [
+        "--copyright", "Copyright (c) ${copyrightYear} Falko Schumann",
+      ]
+      installerType = "msi"
+      installerOptions = [
+        "--copyright", "Copyright (c) ${copyrightYear} Falko Schumann",
+        "--license-file", "../LICENSE.txt",
+        "--win-dir-chooser",
+        "--win-menu",
+        "--win-menu-group", "Muspellheim",
+      ]
+    }
+  }
+}

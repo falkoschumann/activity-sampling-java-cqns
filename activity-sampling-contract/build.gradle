@@ -1,0 +1,3 @@
+plugins {
+  id "muspellheim.java-library-conventions"
+}

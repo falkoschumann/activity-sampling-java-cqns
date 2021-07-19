@@ -1,0 +1,67 @@
+import java.time.LocalDate
+
+plugins {
+  id "java"
+  id "jacoco"
+  id "com.diffplug.spotless"
+  id "io.freefair.lombok"
+}
+
+version = rootProject.version
+
+ext {
+  copyrightYear = LocalDate.now().year
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
+  testImplementation "org.hamcrest:hamcrest:2.2"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+}
+
+tasks.compileJava {
+  options.encoding = "UTF-8"
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_16
+  targetCompatibility = JavaVersion.VERSION_16
+  modularity.inferModulePath.set(true)
+}
+
+tasks {
+  processResources {
+    filesMatching("**/*.properties") {
+      expand([version: version, copyrightYear: copyrightYear])
+    }
+  }
+}
+
+compileTestJava {
+  options.encoding = "UTF-8"
+}
+
+test {
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed"
+    showExceptions = true
+    exceptionFormat = "full"
+  }
+  finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+  dependsOn += tasks.test
+}
+
+spotless {
+  java {
+    googleJavaFormat()
+    licenseHeaderFile "config/LicenseHeader.txt"
+  }
+}

@@ -1,0 +1,4 @@
+plugins {
+  id "java-library"
+  id "muspellheim.java-common-conventions"
+}

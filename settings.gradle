@@ -1,4 +1,4 @@
-rootProject.name = "activity-sampling-root"
+rootProject.name = "activity-sampling-java"
 
 include(
   "activity-sampling",

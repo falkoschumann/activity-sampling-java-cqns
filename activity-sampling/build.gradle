@@ -1,0 +1,37 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+plugins {
+  id "muspellheim.java-application-conventions"
+  id "muspellheim.java-openjfx-conventions"
+  id "muspellheim.java-modules-conventions"
+}
+
+dependencies {
+  implementation project(":activity-sampling-frontend")
+  implementation project(":activity-sampling-backend")
+}
+
+application {
+  mainModule = "de.muspellheim.activitysampling"
+  mainClass = "de.muspellheim.activitysampling.App"
+}
+
+if (Os.isFamily(Os.FAMILY_MAC)) {
+  jlink {
+    jpackage {
+      imageName = "Activity Sampling"
+    }
+  }
+}
+
+if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+  jlink {
+    jpackage {
+      imageName = "Activity Sampling"
+      installerName = "activity-sampling"
+      installerOptions += [
+        "--win-upgrade-uuid", "cce3747c-06dc-466c-8c49-4aebe528da61"
+      ]
+    }
+  }
+}
