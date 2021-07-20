@@ -32,6 +32,11 @@ public class AboutController {
     }
   }
 
+  @FXML
+  private void initialize() {
+    Stages.hookCloseHandler(stage);
+  }
+
   public void run() {
     stage.show();
   }

@@ -22,11 +22,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import lombok.Getter;
 
-class ActivitySamplingModel {
-  boolean isRunningOnMac() {
-    return System.getProperty("os.name").toLowerCase().contains("mac");
-  }
-
+class MainWindowModel {
   private final ObjectProperty<Duration> periodDuration =
       new SimpleObjectProperty<>(Duration.ofMinutes(20)) {
         @Override

@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.stage.Stage?>
 
-<fx:root fx:id="stage" minHeight="420.0" minWidth="240.0" title="%mainView.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.ActivitySamplingController">
+<fx:root fx:id="stage" minHeight="420.0" minWidth="240.0" title="%mainView.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainWindowController">
    <scene>
       <Scene stylesheets="@style.css">
          <root>
@@ -31,13 +31,13 @@
                         <items>
                               <MenuItem mnemonicParsing="false" onAction="#handleOpenPreferences" text="%mainView.fileMenu.preferences">
                                  <accelerator>
-                                    <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                    <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                                  </accelerator>
                               </MenuItem>
-                              <SeparatorMenuItem fx:id="quitSeparatorMenuItem" mnemonicParsing="false" />
-                          <MenuItem fx:id="quitMenuItem" mnemonicParsing="false" onAction="#handleQuit" text="%mainView.fileMenu.quit">
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                          <MenuItem mnemonicParsing="false" onAction="#handleQuit" text="%mainView.fileMenu.close">
                                  <accelerator>
-                                    <KeyCodeCombination alt="UP" code="Q" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                    <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                                  </accelerator>
                               </MenuItem>
                         </items>
@@ -46,21 +46,21 @@
                           <items>
                               <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursToday" text="%mainView.statisticsMenu.workingHoursToday">
                                  <accelerator>
-                                    <KeyCodeCombination alt="UP" code="DIGIT1" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                    <KeyCodeCombination alt="UP" code="DIGIT1" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                                  </accelerator>
                               </MenuItem>
                               <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursThisWeek" text="%mainView.statisticsMenu.workingHoursThisWeek">
                                  <accelerator>
-                                    <KeyCodeCombination alt="UP" code="DIGIT2" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                    <KeyCodeCombination alt="UP" code="DIGIT2" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                                  </accelerator>
                               </MenuItem>
                             <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByActivity" text="%mainView.statisticsMenu.workingHoursByActivity">
                                  <accelerator>
-                                    <KeyCodeCombination alt="UP" code="DIGIT3" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                    <KeyCodeCombination alt="UP" code="DIGIT3" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                                  </accelerator></MenuItem>
                               <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByNumber" text="%mainView.statisticsMenu.workingHoursByNumber">
                                  <accelerator>
-                                    <KeyCodeCombination alt="UP" code="DIGIT4" control="UP" meta="DOWN" shift="UP" shortcut="UP" />
+                                    <KeyCodeCombination alt="UP" code="DIGIT4" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                                  </accelerator></MenuItem>
                           </items>
                         </Menu>
@@ -85,7 +85,7 @@
                               <HBox spacing="8.0">
                                  <children>
                                     <TextField fx:id="tagsText" disable="true" onAction="#handleLogActivity" promptText="%mainView.tagsText.promptText" HBox.hgrow="ALWAYS" />
-                                    <MenuButton fx:id="addTagButton" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" text="MenuButton">
+                                    <MenuButton fx:id="addTagButton" contentDisplay="GRAPHIC_ONLY" disable="true" mnemonicParsing="false" text="MenuButton">
                                       <items>
                                         <MenuItem mnemonicParsing="false" text="Foo" />
                                         <MenuItem mnemonicParsing="false" text="Bar" />

@@ -22,7 +22,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursThisW
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursTodayQueryHandler;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.frontend.ActivitySamplingController;
+import de.muspellheim.activitysampling.frontend.MainWindowController;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -73,7 +73,7 @@ public class App extends Application {
     var workingHoursThisWeekQueryHandler = new WorkingHoursThisWeekQueryHandler(eventStore);
     var workingHoursByActivityQueryHandler = new WorkingHoursByActivityQueryHandler(eventStore);
     var workingHoursByNumberQueryHandler = new WorkingHoursByNumberQueryHandler(eventStore);
-    var frontend = ActivitySamplingController.create(primaryStage);
+    var frontend = MainWindowController.create(primaryStage);
 
     frontend.setOnLogActivityCommand(
         command -> {

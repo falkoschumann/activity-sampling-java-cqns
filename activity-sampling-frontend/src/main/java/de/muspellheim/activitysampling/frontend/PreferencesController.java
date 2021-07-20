@@ -27,6 +27,7 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 public class PreferencesController implements Initializable {
+  // TODO Ersetze Properties durch Messages: onMessage/display(Message)
   private final ObjectProperty<Duration> periodDuration = new SimpleObjectProperty<>();
   private final ObjectProperty<Path> activityLogFile = new SimpleObjectProperty<>();
 
@@ -72,6 +73,7 @@ public class PreferencesController implements Initializable {
                     Duration.ofMinutes(30),
                     Duration.ofHours(1)));
 
+    Stages.hookCloseHandler(stage);
     periodDurationChoice.valueProperty().bindBidirectional(periodDuration);
     activityLogText.textProperty().bind(activityLogFileProperty().asString());
   }

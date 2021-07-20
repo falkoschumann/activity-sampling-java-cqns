@@ -41,7 +41,6 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -50,7 +49,7 @@ import javafx.util.StringConverter;
 import lombok.Getter;
 import lombok.Setter;
 
-public class ActivitySamplingController {
+public class MainWindowController {
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
   @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
   @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
@@ -63,8 +62,6 @@ public class ActivitySamplingController {
 
   @FXML private Stage stage;
   @FXML private MenuBar menuBar;
-  @FXML private SeparatorMenuItem quitSeparatorMenuItem;
-  @FXML private MenuItem quitMenuItem;
   @FXML private TextField activityText;
   @FXML private TextField tagsText;
   @FXML private MenuButton addTagButton;
@@ -80,11 +77,11 @@ public class ActivitySamplingController {
   private WorkingHoursByActivityController workingHoursByActivityController;
   private WorkingHoursByNumberController workingHoursByNumberController;
 
-  private ActivitySamplingModel model;
+  private MainWindowModel model;
 
-  public static ActivitySamplingController create(Stage stage) {
+  public static MainWindowController create(Stage stage) {
     try {
-      var location = ActivitySamplingController.class.getResource("ActivitySamplingView.fxml");
+      var location = MainWindowController.class.getResource("MainWindowView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
       var loader = new FXMLLoader(location, resources);
       loader.setRoot(stage);
@@ -97,18 +94,14 @@ public class ActivitySamplingController {
 
   @FXML
   private void initialize() {
-    model = new ActivitySamplingModel();
-    if (model.isRunningOnMac()) {
-      menuBar.setUseSystemMenuBar(true);
-      quitSeparatorMenuItem.setVisible(false);
-      quitMenuItem.setVisible(false);
-    }
+    menuBar.setUseSystemMenuBar(true);
     trayIconViewController = new TrayIconController();
     preferencesController = PreferencesController.create(stage);
     workingHoursTodayController = WorkingHoursTodayController.create(stage);
     workingHoursThisWeekController = WorkingHoursThisWeekController.create(stage);
     workingHoursByActivityController = WorkingHoursByActivityController.create(stage);
     workingHoursByNumberController = WorkingHoursByNumberController.create(stage);
+    model = new MainWindowModel();
 
     activityText.textProperty().bindBidirectional(model.activityProperty());
     activityText.disableProperty().bind(model.formDisabledProperty());

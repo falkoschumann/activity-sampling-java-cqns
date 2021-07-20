@@ -17,11 +17,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class ActivitySamplingModelTests {
-  private ActivitySamplingModel fixture;
+  private MainWindowModel fixture;
 
   @BeforeEach
   void init() {
-    fixture = new ActivitySamplingModel();
+    fixture = new MainWindowModel();
   }
 
   @Test
