@@ -6,7 +6,6 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -41,20 +40,6 @@ class MainWindowModel {
 
   final ObjectProperty<Duration> periodDurationProperty() {
     return periodDuration;
-  }
-
-  private final ObjectProperty<Path> activityLogFile = new SimpleObjectProperty<>();
-
-  final Path getActivityLogFile() {
-    return activityLogFile.get();
-  }
-
-  final void setActivityLogFile(Path value) {
-    activityLogFile.set(value);
-  }
-
-  final ObjectProperty<Path> activityLogFileProperty() {
-    return activityLogFile;
   }
 
   private final ObjectProperty<List<Activity>> log = new SimpleObjectProperty<>(List.of());

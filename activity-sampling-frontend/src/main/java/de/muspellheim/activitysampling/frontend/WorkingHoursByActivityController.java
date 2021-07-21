@@ -6,27 +6,26 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.WorkingHours;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.ResourceBundle;
-import javafx.beans.property.ObjectProperty;
+import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 
 public class WorkingHoursByActivityController {
-  @Getter @Setter Runnable onQuery;
+  @Getter @Setter Consumer<WorkingHoursByActivityQuery> onWorkingHoursByActivityQuery;
 
   @FXML private Stage stage;
   @FXML private TableView<WorkingHours> workingHoursTable;
@@ -56,37 +55,15 @@ public class WorkingHoursByActivityController {
     workingHoursColumn.setCellValueFactory(
         it -> new ReadOnlyObjectWrapper<>(it.getValue().workingHours()));
 
-    stage.addEventHandler(
-        KeyEvent.KEY_RELEASED,
-        e -> {
-          if (e.isMetaDown() && KeyCode.W.equals(e.getCode())) {
-            stage.hide();
-          }
-        });
+    Stages.hookCloseHandler(stage);
   }
 
-  private final ObjectProperty<List<WorkingHours>> workingHours =
-      new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-          workingHoursTable.getItems().setAll(getValue());
-        }
-      };
-
-  final List<WorkingHours> getWorkingHours() {
-    return workingHours.get();
-  }
-
-  final void setWorkingHours(List<WorkingHours> workingHours) {
-    this.workingHours.set(workingHours);
-  }
-
-  final ObjectProperty<List<WorkingHours>> workingHoursProperty() {
-    return workingHours;
+  public void display(WorkingHoursByActivityQueryResult result) {
+    workingHoursTable.getItems().setAll(result.workingHours());
   }
 
   void run() {
     stage.show();
-    onQuery.run();
+    onWorkingHoursByActivityQuery.accept(new WorkingHoursByActivityQuery());
   }
 }

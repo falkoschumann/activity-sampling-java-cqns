@@ -5,7 +5,6 @@
 
 package de.muspellheim.activitysampling.backend;
 
-import java.nio.file.Path;
 import java.time.Duration;
 
 public interface PreferencesStore {
@@ -13,7 +12,7 @@ public interface PreferencesStore {
 
   void savePeriodDuration(Duration periodDuration);
 
-  Path loadActivityLogFile();
+  String loadActivityLogFile();
 
-  void saveActivityLogFile(Path activityLogFile);
+  void saveActivityLogFile(String activityLogFile);
 }

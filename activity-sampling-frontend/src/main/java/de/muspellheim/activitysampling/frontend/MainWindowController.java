@@ -131,24 +131,6 @@ public class MainWindowController {
         .textProperty()
         .addListener(
             observable -> Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE)));
-    preferencesController
-        .periodDurationProperty()
-        .bindBidirectional(model.periodDurationProperty());
-    preferencesController
-        .activityLogFileProperty()
-        .bindBidirectional(model.activityLogFileProperty());
-    preferencesController
-        .periodDurationProperty()
-        .addListener(
-            observable ->
-                onChangePeriodDurationCommand.accept(
-                    new ChangePeriodDurationCommand(preferencesController.getPeriodDuration())));
-    preferencesController
-        .activityLogFileProperty()
-        .addListener(
-            observable ->
-                onChangeActivityLogFileCommand.accept(
-                    new ChangeActivityLogFileCommand(preferencesController.getActivityLogFile())));
     model
         .recentProperty()
         .addListener(
@@ -186,14 +168,6 @@ public class MainWindowController {
                                   return menuItem;
                                 })
                             .toList()));
-    workingHoursTodayController.setOnQuery(
-        tags -> onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery(tags)));
-    workingHoursThisWeekController.setOnQuery(
-        tags -> onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery(tags)));
-    workingHoursByActivityController.setOnQuery(
-        () -> onWorkingHoursByActivityQuery.accept(new WorkingHoursByActivityQuery()));
-    workingHoursByNumberController.setOnQuery(
-        () -> onWorkingHoursByNumberQuery.accept(new WorkingHoursByNumberQuery()));
   }
 
   public void run() {
@@ -219,7 +193,7 @@ public class MainWindowController {
   }
 
   public void display(PreferencesQueryResult result) {
-    model.setActivityLogFile(result.activityLogFile());
+    preferencesController.display(result);
     model.setPeriodDuration(result.periodDuration());
   }
 
@@ -232,25 +206,19 @@ public class MainWindowController {
   }
 
   public void display(WorkingHoursTodayQueryResult result) {
-    workingHoursTodayController.setDate(result.date());
-    workingHoursTodayController.setTotalWorkingHours(result.totalWorkingHours());
-    workingHoursTodayController.setActivities(result.activities());
-    workingHoursTodayController.setTags(result.tags());
+    workingHoursTodayController.display(result);
   }
 
   public void display(WorkingHoursThisWeekQueryResult result) {
-    workingHoursThisWeekController.setCalendarWeek(result.calendarWeek());
-    workingHoursThisWeekController.setTotalWorkingHours(result.totalWorkingHours());
-    workingHoursThisWeekController.setActivities(result.activities());
-    workingHoursThisWeekController.setTags(result.tags());
+    workingHoursThisWeekController.display(result);
   }
 
   public void display(WorkingHoursByActivityQueryResult result) {
-    workingHoursByActivityController.setWorkingHours(result.workingHours());
+    workingHoursByActivityController.display(result);
   }
 
   public void display(WorkingHoursByNumberQueryResult result) {
-    workingHoursByNumberController.setWorkingHours(result.catogories());
+    workingHoursByNumberController.display(result);
   }
 
   @FXML

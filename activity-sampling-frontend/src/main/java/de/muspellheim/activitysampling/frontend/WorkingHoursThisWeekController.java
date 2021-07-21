@@ -6,36 +6,31 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Consumer;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 
 public class WorkingHoursThisWeekController {
-  @Getter @Setter Consumer<Set<String>> onQuery;
+  @Getter @Setter Consumer<WorkingHoursThisWeekQuery> onWorkingHoursThisWeekQuery;
 
   @FXML private Stage stage;
   @FXML private TextField calendarWeekText;
@@ -45,6 +40,9 @@ public class WorkingHoursThisWeekController {
   @FXML private TreeTableColumn<Activity, String> activityColumn;
   @FXML private TreeTableColumn<Activity, String> tagsColumn;
   @FXML private TextField totalWorkingHoursText;
+
+  private SortedSet<String> tags;
+  private Set<String> selectedTags;
 
   static WorkingHoursThisWeekController create(Stage owner) {
     try {
@@ -81,147 +79,55 @@ public class WorkingHoursThisWeekController {
                     ? ""
                     : it.getValue().getValue().tags().toString()));
 
-    stage.addEventHandler(
-        KeyEvent.KEY_RELEASED,
-        e -> {
-          if (e.isMetaDown() && KeyCode.W.equals(e.getCode())) {
-            stage.hide();
-          }
-        });
+    Stages.hookCloseHandler(stage);
   }
 
-  private final IntegerProperty calendarWeek =
-      new SimpleIntegerProperty() {
-        @Override
-        protected void invalidated() {
-          calendarWeekText.setText(getValue().toString());
-        }
-      };
+  public void display(WorkingHoursThisWeekQueryResult result) {
+    calendarWeekText.setText(String.valueOf(result.calendarWeek()));
+    totalWorkingHoursText.setText(result.totalWorkingHours().toString());
 
-  final int getCalendarWeek() {
-    return calendarWeek.get();
-  }
+    tags = result.tags();
+    if (selectedTags == null) {
+      selectedTags = result.tags();
+    }
 
-  final void setCalendarWeek(int value) {
-    this.calendarWeek.set(value);
-  }
-
-  final IntegerProperty calendarWeekProperty() {
-    return calendarWeek;
-  }
-
-  private final ObjectProperty<Duration> totalWorkingHours =
-      new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-          totalWorkingHoursText.setText(getValue().toString());
-        }
-      };
-
-  final Duration getTotalWorkingHours() {
-    return totalWorkingHours.get();
-  }
-
-  final void setTotalWorkingHours(Duration value) {
-    this.totalWorkingHours.set(value);
-  }
-
-  final ObjectProperty<Duration> totalWorkingHoursProperty() {
-    return totalWorkingHours;
-  }
-
-  private final ObjectProperty<List<Activity>> activities =
-      new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-          var weekdays = new ArrayList<TreeItem<Activity>>();
-          TreeItem<Activity> currentDay = null;
-          for (var it : getValue()) {
-            if (currentDay == null
-                || !currentDay
-                    .getValue()
-                    .timestamp()
-                    .toLocalDate()
-                    .equals(it.timestamp().toLocalDate())) {
-              currentDay =
-                  new WeekdayTreeItem(
-                      new Activity("", it.timestamp(), Duration.ZERO, "", List.of()));
-              weekdays.add(currentDay);
-            }
-            currentDay.getChildren().add(new ActivityTreeItem(it));
-            currentDay.setValue(
-                new Activity(
-                    "",
-                    currentDay.getValue().timestamp(),
-                    currentDay.getValue().period().plus(it.period()),
-                    "",
-                    List.of()));
-          }
-          activitiesTable.getRoot().getChildren().setAll(weekdays);
-        }
-      };
-
-  final List<Activity> getActivities() {
-    return activities.get();
-  }
-
-  final void setActivities(List<Activity> value) {
-    this.activities.set(value);
-  }
-
-  final ObjectProperty<List<Activity>> activitiesProperty() {
-    return activities;
-  }
-
-  private final ObjectProperty<SortedSet<String>> tags =
-      new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-          if (getSelectedTags().isEmpty()) {
-            setSelectedTags(getValue());
-          }
-        }
-      };
-
-  final SortedSet<String> getTags() {
-    return tags.get();
-  }
-
-  final void setTags(SortedSet<String> tags) {
-    this.tags.set(tags);
-  }
-
-  final ObjectProperty<SortedSet<String>> tagsProperty() {
-    return tags;
-  }
-
-  private final ObjectProperty<Set<String>> selectedTags =
-      new SimpleObjectProperty<>(new LinkedHashSet<>());
-
-  final Set<String> getSelectedTags() {
-    return selectedTags.get();
-  }
-
-  final void setSelectedTags(Set<String> selectedTags) {
-    this.selectedTags.set(selectedTags);
-  }
-
-  final ObjectProperty<Set<String>> selectedTagsProperty() {
-    return selectedTags;
+    var weekdays = new ArrayList<TreeItem<Activity>>();
+    TreeItem<Activity> currentDay = null;
+    for (var it : result.activities()) {
+      if (currentDay == null
+          || !currentDay
+              .getValue()
+              .timestamp()
+              .toLocalDate()
+              .equals(it.timestamp().toLocalDate())) {
+        currentDay =
+            new WeekdayTreeItem(new Activity("", it.timestamp(), Duration.ZERO, "", List.of()));
+        weekdays.add(currentDay);
+      }
+      currentDay.getChildren().add(new ActivityTreeItem(it));
+      currentDay.setValue(
+          new Activity(
+              "",
+              currentDay.getValue().timestamp(),
+              currentDay.getValue().period().plus(it.period()),
+              "",
+              List.of()));
+    }
+    activitiesTable.getRoot().getChildren().setAll(weekdays);
   }
 
   void run() {
     stage.show();
-    onQuery.accept(getSelectedTags());
+    onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery(selectedTags));
   }
 
   @FXML
   private void handleSelectTags() {
     var controller = TagsController.create(stage);
-    controller.initTags(getTags(), getSelectedTags());
+    controller.initTags(tags, selectedTags);
     controller.run();
-    setSelectedTags(controller.getSelectedTags());
-    onQuery.accept(getSelectedTags());
+    selectedTags = controller.getSelectedTags();
+    onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery(selectedTags));
   }
 
   private static class WeekdayTreeItem extends TreeItem<Activity> {

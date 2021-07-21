@@ -22,7 +22,7 @@ public class ChangeActivityLogFileCommandHandler {
   }
 
   public CommandStatus handle(ChangeActivityLogFileCommand command) {
-    eventStore.setUri(command.activityLogFile().toString());
+    eventStore.setUri(command.activityLogFile());
     preferencesStore.saveActivityLogFile(command.activityLogFile());
     return new Success();
   }

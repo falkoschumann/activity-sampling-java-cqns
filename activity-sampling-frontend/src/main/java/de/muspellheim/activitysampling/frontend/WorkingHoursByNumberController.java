@@ -5,13 +5,13 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult.WorkingHoursCategory;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.ResourceBundle;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import java.util.function.Consumer;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,14 +20,12 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 
 public class WorkingHoursByNumberController {
-  @Getter @Setter Runnable onQuery;
+  @Getter @Setter Consumer<WorkingHoursByNumberQuery> onWorkingHoursByNumberQuery;
 
   @FXML private Stage stage;
   @FXML private BarChart<String, Number> chart;
@@ -60,41 +58,19 @@ public class WorkingHoursByNumberController {
     xAxis.setLabel("Working hours");
     yAxis.setLabel("Number");
 
-    stage.addEventHandler(
-        KeyEvent.KEY_RELEASED,
-        e -> {
-          if (e.isMetaDown() && KeyCode.W.equals(e.getCode())) {
-            stage.hide();
-          }
-        });
+    Stages.hookCloseHandler(stage);
   }
 
-  private final ObjectProperty<List<WorkingHoursCategory>> workingHours =
-      new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-          var data =
-              getValue().stream()
-                  .map(it -> new Data<>(it.workingHours().toString(), (Number) it.number()))
-                  .toList();
-          series.setData(FXCollections.observableArrayList(data));
-        }
-      };
-
-  final List<WorkingHoursCategory> getWorkingHours() {
-    return workingHours.get();
-  }
-
-  final void setWorkingHours(List<WorkingHoursCategory> workingHours) {
-    this.workingHours.set(workingHours);
-  }
-
-  final ObjectProperty<List<WorkingHoursCategory>> workingHoursProperty() {
-    return workingHours;
+  public void display(WorkingHoursByNumberQueryResult result) {
+    var data =
+        result.catogories().stream()
+            .map(it -> new Data<>(it.workingHours().toString(), (Number) it.number()))
+            .toList();
+    series.setData(FXCollections.observableArrayList(data));
   }
 
   void run() {
     stage.show();
-    onQuery.run();
+    onWorkingHoursByNumberQuery.accept(new WorkingHoursByNumberQuery());
   }
 }

@@ -12,7 +12,6 @@ import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesStore;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
-import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 public class ChangeActivityLogFileCommandHandlerTests {
@@ -22,13 +21,13 @@ public class ChangeActivityLogFileCommandHandlerTests {
     var eventStore = new MemoryEventStore();
     var handler = new ChangeActivityLogFileCommandHandler(preferencesStore, eventStore);
 
-    var result = handler.handle(new ChangeActivityLogFileCommand(Paths.get("/home/activity.log")));
+    var result = handler.handle(new ChangeActivityLogFileCommand("/home/alice/activity.log"));
 
     assertAll(
         () -> assertEquals(new Success(), result, "Command status"),
         () ->
             assertEquals(
-                Paths.get("/home/activity.log"),
+                "/home/alice/activity.log",
                 preferencesStore.loadActivityLogFile(),
                 "Activity log file"));
   }

@@ -23,8 +23,6 @@ import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursToday
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.frontend.MainWindowController;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -49,8 +47,8 @@ public class App extends Application {
     } else {
       preferencesStore = new PrefsPreferencesStore();
       var activityLogFile = preferencesStore.loadActivityLogFile();
-      System.out.println("Save activity log in: " + activityLogFile.toAbsolutePath());
-      eventStore = new CsvEventStore(activityLogFile.toString());
+      System.out.println("Save activity log in: " + activityLogFile);
+      eventStore = new CsvEventStore(activityLogFile);
     }
 
     if (getParameters().getNamed().containsKey("activityLogFile")) {
@@ -135,11 +133,11 @@ public class App extends Application {
     // TODO Entferne Store Wrapper und erstelle Notification, für den Fall, dass File nicht
     //  schreibbar oder lesbar
     private final PreferencesStore preferencesStore;
-    private Path activityLogFile;
+    private String activityLogFile;
 
     public PreferencesStoreWrapper(PreferencesStore preferencesStore, String activityLogFile) {
       this.preferencesStore = preferencesStore;
-      this.activityLogFile = Paths.get(activityLogFile);
+      this.activityLogFile = activityLogFile;
     }
 
     @Override
@@ -153,12 +151,12 @@ public class App extends Application {
     }
 
     @Override
-    public Path loadActivityLogFile() {
+    public String loadActivityLogFile() {
       return activityLogFile;
     }
 
     @Override
-    public void saveActivityLogFile(Path activityLogFile) {
+    public void saveActivityLogFile(String activityLogFile) {
       this.activityLogFile = activityLogFile;
     }
   }

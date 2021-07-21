@@ -5,17 +5,18 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
+import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
+import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.List;
 import java.util.ResourceBundle;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -25,11 +26,12 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import lombok.Getter;
+import lombok.Setter;
 
 public class PreferencesController implements Initializable {
-  // TODO Ersetze Properties durch Messages: onMessage/display(Message)
-  private final ObjectProperty<Duration> periodDuration = new SimpleObjectProperty<>();
-  private final ObjectProperty<Path> activityLogFile = new SimpleObjectProperty<>();
+  @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
+  @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
 
   @FXML private Stage stage;
   @FXML private ChoiceBox<Duration> periodDurationChoice;
@@ -74,32 +76,11 @@ public class PreferencesController implements Initializable {
                     Duration.ofHours(1)));
 
     Stages.hookCloseHandler(stage);
-    periodDurationChoice.valueProperty().bindBidirectional(periodDuration);
-    activityLogText.textProperty().bind(activityLogFileProperty().asString());
   }
 
-  final ObjectProperty<Duration> periodDurationProperty() {
-    return periodDuration;
-  }
-
-  final Duration getPeriodDuration() {
-    return periodDuration.get();
-  }
-
-  final void setPeriodDuration(Duration value) {
-    periodDuration.set(value);
-  }
-
-  final ObjectProperty<Path> activityLogFileProperty() {
-    return activityLogFile;
-  }
-
-  final Path getActivityLogFile() {
-    return activityLogFile.get();
-  }
-
-  final void setActivityLogFile(Path value) {
-    activityLogFile.set(value);
+  public void display(PreferencesQueryResult result) {
+    periodDurationChoice.setValue(result.periodDuration());
+    activityLogText.setText(result.activityLogFile());
   }
 
   public void run() {
@@ -123,7 +104,8 @@ public class PreferencesController implements Initializable {
 
     var file = chooser.showSaveDialog(stage);
     if (file != null) {
-      setActivityLogFile(file.toPath());
+      onChangeActivityLogFileCommand.accept(
+          new ChangeActivityLogFileCommand(file.getAbsolutePath()));
     }
   }
 

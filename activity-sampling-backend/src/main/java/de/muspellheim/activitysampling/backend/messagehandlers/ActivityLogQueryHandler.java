@@ -66,7 +66,7 @@ public class ActivityLogQueryHandler {
     }
   }
 
-  public ActivityLogQueryResult handle(@SuppressWarnings("unused") ActivityLogQuery query) {
+  public ActivityLogQueryResult handle(ActivityLogQuery query) {
     return new ActivityLogQueryResult(
         List.copyOf(log), List.copyOf(recent), last, List.copyOf(new TreeSet<>(tags)));
   }

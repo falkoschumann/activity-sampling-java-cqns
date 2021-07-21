@@ -6,7 +6,6 @@
 package de.muspellheim.activitysampling.backend.adapters;
 
 import de.muspellheim.activitysampling.backend.PreferencesStore;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.prefs.Preferences;
@@ -30,15 +29,13 @@ public class PrefsPreferencesStore implements PreferencesStore {
   }
 
   @Override
-  public Path loadActivityLogFile() {
-    var userHome = System.getProperty("user.home");
-    var file = Paths.get(userHome, "activity-log.csv");
-    var value = preferences.get(KEY_ACTIVITY_LOG_FILE, file.toString());
-    return Paths.get(value);
+  public String loadActivityLogFile() {
+    var file = Paths.get(System.getProperty("user.home"), "activity-log.csv");
+    return preferences.get(KEY_ACTIVITY_LOG_FILE, file.toString());
   }
 
   @Override
-  public void saveActivityLogFile(Path activityLogFile) {
-    preferences.put(KEY_ACTIVITY_LOG_FILE, activityLogFile.toString());
+  public void saveActivityLogFile(String activityLogFile) {
+    preferences.put(KEY_ACTIVITY_LOG_FILE, activityLogFile);
   }
 }

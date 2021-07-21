@@ -5,10 +5,9 @@
 
 package de.muspellheim.activitysampling.contract.messages.commands;
 
-import java.nio.file.Path;
 import java.util.Objects;
 
-public record ChangeActivityLogFileCommand(Path activityLogFile) {
+public record ChangeActivityLogFileCommand(String activityLogFile) {
   public ChangeActivityLogFileCommand {
     Objects.requireNonNull(activityLogFile, "activityLogFile");
   }

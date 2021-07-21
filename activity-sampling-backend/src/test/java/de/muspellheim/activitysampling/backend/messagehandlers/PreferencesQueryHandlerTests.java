@@ -23,7 +23,9 @@ public class PreferencesQueryHandlerTests {
     var result = handler.handle(new PreferencesQuery());
 
     assertEquals(
-        new PreferencesQueryResult(Duration.ofMinutes(20), Paths.get("~/activity-log.csv")),
+        new PreferencesQueryResult(
+            Duration.ofMinutes(20),
+            Paths.get(System.getProperty("user.home"), "activity-log.csv").toString()),
         result);
   }
 }

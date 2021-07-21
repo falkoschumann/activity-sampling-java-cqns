@@ -6,34 +6,30 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Consumer;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 
 public class WorkingHoursTodayController {
-  @Getter @Setter Consumer<Set<String>> onQuery;
+  @Getter @Setter Consumer<WorkingHoursTodayQuery> onWorkingHoursTodayQuery;
 
   @FXML private Stage stage;
   @FXML private TextField dateText;
@@ -43,6 +39,9 @@ public class WorkingHoursTodayController {
   @FXML private TableColumn<Activity, String> activityColumn;
   @FXML private TableColumn<Activity, List<String>> tagsColumn;
   @FXML private TextField totalWorkingHoursText;
+
+  private SortedSet<String> tags;
+  private Set<String> selectedTags;
 
   static WorkingHoursTodayController create(Stage owner) {
     try {
@@ -67,123 +66,30 @@ public class WorkingHoursTodayController {
     activityColumn.setCellValueFactory(it -> new ReadOnlyStringWrapper(it.getValue().activity()));
     tagsColumn.setCellValueFactory(it -> new ReadOnlyObjectWrapper<>(it.getValue().tags()));
 
-    stage.addEventHandler(
-        KeyEvent.KEY_RELEASED,
-        e -> {
-          if (e.isMetaDown() && KeyCode.W.equals(e.getCode())) {
-            stage.hide();
-          }
-        });
+    Stages.hookCloseHandler(stage);
   }
 
-  private final ObjectProperty<LocalDate> date =
-      new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-          dateText.setText(getValue().toString());
-        }
-      };
-
-  final LocalDate getDate() {
-    return date.get();
-  }
-
-  final void setDate(LocalDate value) {
-    this.date.set(value);
-  }
-
-  final ObjectProperty<LocalDate> dateProperty() {
-    return date;
-  }
-
-  private final ObjectProperty<Duration> totalWorkingHours =
-      new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-          totalWorkingHoursText.setText(getValue().toString());
-        }
-      };
-
-  final Duration getTotalWorkingHours() {
-    return totalWorkingHours.get();
-  }
-
-  final void setTotalWorkingHours(Duration value) {
-    this.totalWorkingHours.set(value);
-  }
-
-  final ObjectProperty<Duration> totalWorkingHoursProperty() {
-    return totalWorkingHours;
-  }
-
-  private final ObjectProperty<List<Activity>> activities =
-      new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-          activitiesTable.getItems().setAll(getValue());
-        }
-      };
-
-  final List<Activity> getActivities() {
-    return activities.get();
-  }
-
-  final void setActivities(List<Activity> value) {
-    this.activities.set(value);
-  }
-
-  final ObjectProperty<List<Activity>> activitiesProperty() {
-    return activities;
-  }
-
-  private final ObjectProperty<SortedSet<String>> tags =
-      new SimpleObjectProperty<>() {
-        @Override
-        protected void invalidated() {
-          if (getSelectedTags().isEmpty()) {
-            setSelectedTags(getValue());
-          }
-        }
-      };
-
-  final SortedSet<String> getTags() {
-    return tags.get();
-  }
-
-  final void setTags(SortedSet<String> tags) {
-    this.tags.set(tags);
-  }
-
-  final ObjectProperty<SortedSet<String>> tagsProperty() {
-    return tags;
-  }
-
-  private final ObjectProperty<Set<String>> selectedTags =
-      new SimpleObjectProperty<>(new LinkedHashSet<>());
-
-  final Set<String> getSelectedTags() {
-    return selectedTags.get();
-  }
-
-  final void setSelectedTags(Set<String> selectedTags) {
-    this.selectedTags.set(selectedTags);
-  }
-
-  final ObjectProperty<Set<String>> selectedTagsProperty() {
-    return selectedTags;
+  public void display(WorkingHoursTodayQueryResult result) {
+    dateText.setText(result.date().toString());
+    totalWorkingHoursText.setText(result.totalWorkingHours().toString());
+    activitiesTable.getItems().setAll(result.activities());
+    tags = result.tags();
+    if (selectedTags == null) {
+      selectedTags = result.tags();
+    }
   }
 
   void run() {
     stage.show();
-    onQuery.accept(getSelectedTags());
+    onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery(selectedTags));
   }
 
   @FXML
   private void handleSelectTags() {
     var controller = TagsController.create(stage);
-    controller.initTags(getTags(), getSelectedTags());
+    controller.initTags(tags, selectedTags);
     controller.run();
-    setSelectedTags(controller.getSelectedTags());
-    onQuery.accept(getSelectedTags());
+    selectedTags = controller.getSelectedTags();
+    onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery(selectedTags));
   }
 }
