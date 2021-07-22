@@ -8,6 +8,7 @@ package de.muspellheim.activitysampling.frontend;
 import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
+import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
@@ -36,6 +37,8 @@ import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuButton;
@@ -219,6 +222,19 @@ public class MainWindowController {
 
   public void display(WorkingHoursByNumberQueryResult result) {
     workingHoursByNumberController.display(result);
+  }
+
+  public void display(Failure failure) {
+    var index = failure.errorMessage().indexOf(": ");
+    var header = index == -1 ? null : failure.errorMessage().substring(0, index);
+    var content =
+        index == -1 ? failure.errorMessage() : failure.errorMessage().substring(index + 1);
+
+    var alert = new Alert(AlertType.ERROR);
+    alert.initOwner(stage);
+    alert.setHeaderText(header);
+    alert.setContentText(content);
+    alert.show();
   }
 
   @FXML

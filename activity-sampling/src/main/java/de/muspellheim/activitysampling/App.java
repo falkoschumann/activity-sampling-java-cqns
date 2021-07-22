@@ -20,6 +20,7 @@ import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByAct
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByNumberQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursThisWeekQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursTodayQueryHandler;
+import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.frontend.MainWindowController;
@@ -73,21 +74,31 @@ public class App extends Application {
     var workingHoursByNumberQueryHandler = new WorkingHoursByNumberQueryHandler(eventStore);
     var frontend = MainWindowController.create(primaryStage);
 
+    // TODO Use CompletableFuture.supplyAsync(request).thenAcceptAsync(answer, Platform::runLater)
     frontend.setOnLogActivityCommand(
         command -> {
-          logActivityCommandHandler.handle(command);
+          var status = logActivityCommandHandler.handle(command);
+          if (status instanceof Failure failure) {
+            frontend.display(failure);
+          }
           var result = activityLogQueryHandler.handle(new ActivityLogQuery());
           frontend.display(result);
         });
     frontend.setOnChangePeriodDurationCommand(
         command -> {
-          changePeriodDurationCommandHandler.handle(command);
+          var status = changePeriodDurationCommandHandler.handle(command);
+          if (status instanceof Failure failure) {
+            frontend.display(failure);
+          }
           var result = preferencesQueryHandler.handle(new PreferencesQuery());
           frontend.display(result);
         });
     frontend.setOnChangeActivityLogFileCommand(
         command -> {
-          changeActivityLogFileCommandHandler.handle(command);
+          var status = changeActivityLogFileCommandHandler.handle(command);
+          if (status instanceof Failure failure) {
+            frontend.display(failure);
+          }
           var preferencesQueryResult = preferencesQueryHandler.handle(new PreferencesQuery());
           frontend.display(preferencesQueryResult);
           // FIXME Folgendes hat mal das Activity-Log neu geladen, aber jetzt nicht mehr, seit

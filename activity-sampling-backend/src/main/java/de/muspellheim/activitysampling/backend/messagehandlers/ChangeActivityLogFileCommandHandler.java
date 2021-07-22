@@ -9,6 +9,7 @@ import de.muspellheim.activitysampling.backend.EventStore;
 import de.muspellheim.activitysampling.backend.PreferencesStore;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
+import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
 
 public class ChangeActivityLogFileCommandHandler {
@@ -22,8 +23,12 @@ public class ChangeActivityLogFileCommandHandler {
   }
 
   public CommandStatus handle(ChangeActivityLogFileCommand command) {
-    eventStore.setUri(command.activityLogFile());
-    preferencesStore.saveActivityLogFile(command.activityLogFile());
-    return new Success();
+    try {
+      eventStore.setUri(command.activityLogFile());
+      preferencesStore.saveActivityLogFile(command.activityLogFile());
+      return new Success();
+    } catch (Exception e) {
+      return new Failure("Storing settings failed: " + e.getMessage());
+    }
   }
 }

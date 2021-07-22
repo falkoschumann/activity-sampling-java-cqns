@@ -33,7 +33,7 @@ public class LogActivityCommandHandler {
               List.copyOf(tags)));
       return new Success();
     } catch (Exception e) {
-      return new Failure(e.toString());
+      return new Failure("Recording event failed: " + e.getMessage());
     }
   }
 }
