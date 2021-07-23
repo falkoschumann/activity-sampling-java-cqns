@@ -25,7 +25,11 @@ import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuer
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.frontend.MainWindowController;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -74,70 +78,66 @@ public class App extends Application {
     var workingHoursByNumberQueryHandler = new WorkingHoursByNumberQueryHandler(eventStore);
     var frontend = MainWindowController.create(primaryStage);
 
-    // TODO Use CompletableFuture.supplyAsync(request).thenAcceptAsync(answer, Platform::runLater)
+    var activityLogQueryProcessor =
+        queryProcessor(activityLogQueryHandler::handle, frontend::display);
     frontend.setOnLogActivityCommand(
-        command -> {
-          var status = logActivityCommandHandler.handle(command);
-          if (status instanceof Failure failure) {
-            frontend.display(failure);
-          }
-          var result = activityLogQueryHandler.handle(new ActivityLogQuery());
-          frontend.display(result);
-        });
+        commandProcessor(
+            logActivityCommandHandler::handle,
+            () -> activityLogQueryProcessor.accept(new ActivityLogQuery()),
+            frontend::display));
+    var preferencesQueryProcessor =
+        queryProcessor(preferencesQueryHandler::handle, frontend::display);
     frontend.setOnChangePeriodDurationCommand(
-        command -> {
-          var status = changePeriodDurationCommandHandler.handle(command);
-          if (status instanceof Failure failure) {
-            frontend.display(failure);
-          }
-          var result = preferencesQueryHandler.handle(new PreferencesQuery());
-          frontend.display(result);
-        });
+        commandProcessor(
+            changePeriodDurationCommandHandler::handle,
+            () -> preferencesQueryProcessor.accept(new PreferencesQuery()),
+            frontend::display));
     frontend.setOnChangeActivityLogFileCommand(
-        command -> {
-          var status = changeActivityLogFileCommandHandler.handle(command);
-          if (status instanceof Failure failure) {
-            frontend.display(failure);
-          }
-          var preferencesQueryResult = preferencesQueryHandler.handle(new PreferencesQuery());
-          frontend.display(preferencesQueryResult);
-          // FIXME Folgendes hat mal das Activity-Log neu geladen, aber jetzt nicht mehr, seit
-          //  Replay nur noch im Konstruktor verwendet wird
-          var activityLogQueryResult = activityLogQueryHandler.handle(new ActivityLogQuery());
-          frontend.display(activityLogQueryResult);
-        });
-    frontend.setOnPreferencesQuery(
-        query -> {
-          var result = preferencesQueryHandler.handle(new PreferencesQuery());
-          frontend.display(result);
-        });
-    frontend.setOnActivityLogQuery(
-        query -> {
-          var result = activityLogQueryHandler.handle(query);
-          frontend.display(result);
-        });
+        commandProcessor(
+            changeActivityLogFileCommandHandler::handle,
+            () -> {
+              preferencesQueryProcessor.accept(new PreferencesQuery());
+              // FIXME Folgendes hat mal das Activity-Log neu geladen, aber jetzt nicht  mehr, seit
+              //  Replay nur noch im Konstruktor verwendet wird
+              activityLogQueryProcessor.accept(new ActivityLogQuery());
+            },
+            frontend::display));
+    frontend.setOnPreferencesQuery(preferencesQueryProcessor);
+    frontend.setOnActivityLogQuery(activityLogQueryProcessor);
     frontend.setOnWorkingHoursTodayQuery(
-        query -> {
-          var result = workingHoursTodayQueryHandler.handle(query);
-          frontend.display(result);
-        });
+        queryProcessor(workingHoursTodayQueryHandler::handle, frontend::display));
     frontend.setOnWorkingHoursThisWeekQuery(
-        query -> {
-          var result = workingHoursThisWeekQueryHandler.handle(query);
-          frontend.display(result);
-        });
+        queryProcessor(workingHoursThisWeekQueryHandler::handle, frontend::display));
     frontend.setOnWorkingHoursByActivityQuery(
-        query -> {
-          var result = workingHoursByActivityQueryHandler.handle(query);
-          frontend.display(result);
-        });
+        queryProcessor(workingHoursByActivityQueryHandler::handle, frontend::display));
     frontend.setOnWorkingHoursByNumberQuery(
-        query -> {
-          var result = workingHoursByNumberQueryHandler.handle(query);
-          frontend.display(result);
-        });
+        queryProcessor(workingHoursByNumberQueryHandler::handle, frontend::display));
 
     frontend.run();
+  }
+
+  private static <C, S> Consumer<C> commandProcessor(
+      Function<C, S> commandHandler, Runnable onSuccess, Consumer<Failure> onFailure) {
+    return command ->
+        CompletableFuture.supplyAsync(() -> commandHandler.apply(command))
+            .thenAcceptAsync(
+                status -> {
+                  if (status instanceof Failure failure) {
+                    onFailure.accept(failure);
+                  } else {
+                    onSuccess.run();
+                  }
+                },
+                Platform::runLater);
+  }
+
+  private static void noOperation() {}
+
+  private static <Q, R> Consumer<Q> queryProcessor(
+      Function<Q, R> queryHandler, Consumer<R> projector) {
+    return query ->
+        CompletableFuture.supplyAsync(() -> queryHandler.apply(query))
+            .thenAcceptAsync(projector, Platform::runLater);
   }
 
   private static class PreferencesStoreWrapper implements PreferencesStore {
