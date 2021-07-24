@@ -11,8 +11,4 @@ public interface PreferencesStore {
   Duration loadPeriodDuration();
 
   void savePeriodDuration(Duration periodDuration);
-
-  String loadActivityLogFile();
-
-  void saveActivityLogFile(String activityLogFile);
 }

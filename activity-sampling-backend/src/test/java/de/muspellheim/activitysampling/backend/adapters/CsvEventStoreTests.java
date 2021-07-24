@@ -19,8 +19,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class CsvEventStoreTests {
-  private static final String OUT_FILE = "build/tests/activity-log.csv";
-  private static final String SOLL_FILE = "src/test/resources/activity-log.csv";
+  private static final String OUT_FILE = "build/event-store/event-stream.csv";
+  private static final String SOLL_FILE = "src/test/resources/event-stream.csv";
 
   @BeforeAll
   static void setUpBeforeAll() throws Exception {
@@ -30,7 +30,8 @@ public class CsvEventStoreTests {
 
   @Test
   void record() throws Exception {
-    var eventStore = new CsvEventStore(OUT_FILE);
+    var eventStore = new CsvEventStore();
+    eventStore.setUri(OUT_FILE);
     var events = createEvents();
 
     eventStore.record(events.get(0));
@@ -40,10 +41,21 @@ public class CsvEventStoreTests {
   }
 
   @Test
-  void replay() throws Exception {
-    var eventStore = new CsvEventStore(SOLL_FILE);
+  void replay_EventType() {
+    var eventStore = new CsvEventStore();
+    eventStore.setUri(SOLL_FILE);
 
     var events = eventStore.replay(ActivityLoggedEvent.class);
+
+    assertEquals(createEvents(), events.collect(Collectors.toList()));
+  }
+
+  @Test
+  void replay_EventTypeCollection() {
+    var eventStore = new CsvEventStore();
+    eventStore.setUri(SOLL_FILE);
+
+    var events = eventStore.replay(List.of(ActivityLoggedEvent.class));
 
     assertEquals(createEvents(), events.collect(Collectors.toList()));
   }

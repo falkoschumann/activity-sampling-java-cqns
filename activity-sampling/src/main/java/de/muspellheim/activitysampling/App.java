@@ -12,8 +12,7 @@ import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesStore;
 import de.muspellheim.activitysampling.backend.adapters.PrefsPreferencesStore;
 import de.muspellheim.activitysampling.backend.messagehandlers.ActivityLogQueryHandler;
-import de.muspellheim.activitysampling.backend.messagehandlers.ChangeActivityLogFileCommandHandler;
-import de.muspellheim.activitysampling.backend.messagehandlers.ChangePeriodDurationCommandHandler;
+import de.muspellheim.activitysampling.backend.messagehandlers.ChangePreferencesCommandHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByActivityQueryHandler;
@@ -24,7 +23,6 @@ import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.frontend.MainWindowController;
-import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -43,33 +41,19 @@ public class App extends Application {
   @Override
   public void init() {
     if (getParameters().getUnnamed().contains("--demo")) {
-      System.out.println("Run in demo mode...");
       System.setProperty("demoMode", "true");
-      // TODO Add examples ergänzen
-      eventStore = new MemoryEventStore();
-      eventStore.addRecordedObserver(it -> System.out.println("Logged event: " + it));
-      preferencesStore = new MemoryPreferencesStore();
+      preferencesStore = new MemoryPreferencesStore().addExamples();
+      eventStore = new MemoryEventStore().addExamples();
     } else {
       preferencesStore = new PrefsPreferencesStore();
-      var activityLogFile = preferencesStore.loadActivityLogFile();
-      System.out.println("Save activity log in: " + activityLogFile);
-      eventStore = new CsvEventStore(activityLogFile);
-    }
-
-    if (getParameters().getNamed().containsKey("activityLogFile")) {
-      var activityLogFile = getParameters().getNamed().get("activityLogFile");
-      preferencesStore = new PreferencesStoreWrapper(preferencesStore, activityLogFile);
-      eventStore.setUri(activityLogFile);
+      eventStore = new CsvEventStore();
     }
   }
 
   @Override
   public void start(Stage primaryStage) {
     var logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
-    var changePeriodDurationCommandHandler =
-        new ChangePeriodDurationCommandHandler(preferencesStore);
-    var changeActivityLogFileCommandHandler =
-        new ChangeActivityLogFileCommandHandler(preferencesStore, eventStore);
+    var changePreferencesCommandHandler = new ChangePreferencesCommandHandler(preferencesStore);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
     var workingHoursTodayQueryHandler = new WorkingHoursTodayQueryHandler(eventStore);
@@ -87,20 +71,10 @@ public class App extends Application {
             frontend::display));
     var preferencesQueryProcessor =
         queryProcessor(preferencesQueryHandler::handle, frontend::display);
-    frontend.setOnChangePeriodDurationCommand(
+    frontend.setOnChangePreferencesCommand(
         commandProcessor(
-            changePeriodDurationCommandHandler::handle,
+            changePreferencesCommandHandler::handle,
             () -> preferencesQueryProcessor.accept(new PreferencesQuery()),
-            frontend::display));
-    frontend.setOnChangeActivityLogFileCommand(
-        commandProcessor(
-            changeActivityLogFileCommandHandler::handle,
-            () -> {
-              preferencesQueryProcessor.accept(new PreferencesQuery());
-              // FIXME Folgendes hat mal das Activity-Log neu geladen, aber jetzt nicht  mehr, seit
-              //  Replay nur noch im Konstruktor verwendet wird
-              activityLogQueryProcessor.accept(new ActivityLogQuery());
-            },
             frontend::display));
     frontend.setOnPreferencesQuery(preferencesQueryProcessor);
     frontend.setOnActivityLogQuery(activityLogQueryProcessor);
@@ -138,37 +112,5 @@ public class App extends Application {
     return query ->
         CompletableFuture.supplyAsync(() -> queryHandler.apply(query))
             .thenAcceptAsync(projector, Platform::runLater);
-  }
-
-  private static class PreferencesStoreWrapper implements PreferencesStore {
-    // TODO Entferne Store Wrapper und erstelle Notification, für den Fall, dass File nicht
-    //  schreibbar oder lesbar
-    private final PreferencesStore preferencesStore;
-    private String activityLogFile;
-
-    public PreferencesStoreWrapper(PreferencesStore preferencesStore, String activityLogFile) {
-      this.preferencesStore = preferencesStore;
-      this.activityLogFile = activityLogFile;
-    }
-
-    @Override
-    public Duration loadPeriodDuration() {
-      return preferencesStore.loadPeriodDuration();
-    }
-
-    @Override
-    public void savePeriodDuration(Duration periodDuration) {
-      preferencesStore.savePeriodDuration(periodDuration);
-    }
-
-    @Override
-    public String loadActivityLogFile() {
-      return activityLogFile;
-    }
-
-    @Override
-    public void saveActivityLogFile(String activityLogFile) {
-      this.activityLogFile = activityLogFile;
-    }
   }
 }

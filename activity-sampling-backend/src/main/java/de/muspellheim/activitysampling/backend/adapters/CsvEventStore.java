@@ -46,8 +46,9 @@ public class CsvEventStore extends AbstractEventStore {
     Tags
   }
 
-  public CsvEventStore(String uri) {
-    setUri(uri);
+  public CsvEventStore() {
+    var path = Paths.get(System.getProperty("user.home"), ".activity-sampling", "event-stream.csv");
+    setUri(path.toString());
   }
 
   private Path getFile() {

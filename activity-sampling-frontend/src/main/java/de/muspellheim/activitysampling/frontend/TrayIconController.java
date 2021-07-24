@@ -5,6 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
 import java.awt.AWTException;
 import java.awt.EventQueue;
 import java.awt.MenuItem;

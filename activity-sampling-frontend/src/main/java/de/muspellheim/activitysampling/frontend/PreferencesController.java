@@ -5,15 +5,14 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
-import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
+import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -21,21 +20,16 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import lombok.Getter;
 import lombok.Setter;
 
 public class PreferencesController implements Initializable {
-  @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
-  @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
+  @Getter @Setter private Consumer<ChangePreferencesCommand> onChangePreferencesCommand;
 
   @FXML private Stage stage;
   @FXML private ChoiceBox<Duration> periodDurationChoice;
-  @FXML private TextField activityLogText;
 
   private ResourceBundle resources;
 
@@ -59,28 +53,23 @@ public class PreferencesController implements Initializable {
     this.resources = resources;
     periodDurationChoice.setConverter(new PeriodDurationStringConverter());
     periodDurationChoice.setValue(Duration.ofMinutes(20));
-    periodDurationChoice
-        .getItems()
-        .setAll(
-            Boolean.parseBoolean(System.getProperty("demoMode"))
-                ? List.of(
-                    Duration.ofMinutes(1),
-                    Duration.ofMinutes(15),
-                    Duration.ofMinutes(20),
-                    Duration.ofMinutes(30),
-                    Duration.ofHours(1))
-                : List.of(
-                    Duration.ofMinutes(15),
-                    Duration.ofMinutes(20),
-                    Duration.ofMinutes(30),
-                    Duration.ofHours(1)));
+    var periods =
+        new ArrayList<>(
+            List.of(
+                Duration.ofMinutes(15),
+                Duration.ofMinutes(20),
+                Duration.ofMinutes(30),
+                Duration.ofHours(1)));
+    if (Boolean.parseBoolean(System.getProperty("demoMode"))) {
+      periods.add(0, Duration.ofMinutes(2));
+    }
+    periodDurationChoice.getItems().setAll(periods);
 
-    Stages.hookCloseHandler(stage);
+    Stages.hookCloseHandler(stage, this::handleClose);
   }
 
   public void display(PreferencesQueryResult result) {
     periodDurationChoice.setValue(result.periodDuration());
-    activityLogText.setText(result.activityLogFile());
   }
 
   public void run() {
@@ -88,25 +77,10 @@ public class PreferencesController implements Initializable {
   }
 
   @FXML
-  private void handleChangeActivityLog() {
-    var chooser = new FileChooser();
-    chooser.setTitle(resources.getString("activityLogChooser.title"));
-    var activityLog = Paths.get(activityLogText.getText());
-    chooser.setInitialDirectory(activityLog.getParent().toAbsolutePath().toFile());
-    chooser.setInitialFileName(activityLog.getFileName().toString());
-    chooser
-        .getExtensionFilters()
-        .addAll(
-            new ExtensionFilter(
-                resources.getString("activityLogChooser.csvFileExtensionFilter"), "*.csv"),
-            new ExtensionFilter(
-                resources.getString("activityLogChooser.allFilesExtensionFilter"), "*.*"));
-
-    var file = chooser.showSaveDialog(stage);
-    if (file != null) {
-      onChangeActivityLogFileCommand.accept(
-          new ChangeActivityLogFileCommand(file.getAbsolutePath()));
-    }
+  private void handleClose() {
+    onChangePreferencesCommand.accept(
+        new ChangePreferencesCommand(periodDurationChoice.getValue()));
+    stage.close();
   }
 
   private class PeriodDurationStringConverter extends StringConverter<Duration> {

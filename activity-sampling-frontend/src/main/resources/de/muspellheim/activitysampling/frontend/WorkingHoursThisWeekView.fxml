@@ -7,8 +7,6 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TreeTableColumn?>
 <?import javafx.scene.control.TreeTableView?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
@@ -24,15 +22,7 @@
                      <Label styleClass="base" text="%workingHoursThisWeek.calendarWeekText.text" />
                      <TextField fx:id="calendarWeekText" editable="false" focusTraversable="false" prefWidth="100.0" />
                      <Pane HBox.hgrow="ALWAYS" />
-                     <Button mnemonicParsing="false" onAction="#handleSelectTags" text="%workingHoursThisWeek.selectTagsButton.text">
-                        <graphic>
-                           <ImageView pickOnBounds="true" preserveRatio="true">
-                              <image>
-                                 <Image url="@label.png" />
-                              </image>
-                           </ImageView>
-                        </graphic>
-                     </Button>
+                     <Button mnemonicParsing="false" onAction="#handleSelectTags" text="%workingHoursThisWeek.selectTagsButton.text" />
                   </children>
                   <VBox.margin>
                      <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />

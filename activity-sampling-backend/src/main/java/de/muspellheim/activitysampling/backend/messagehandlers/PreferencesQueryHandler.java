@@ -18,7 +18,6 @@ public class PreferencesQueryHandler {
 
   public PreferencesQueryResult handle(PreferencesQuery query) {
     var periodDuration = preferencesStore.loadPeriodDuration();
-    var activityLogFile = preferencesStore.loadActivityLogFile();
-    return new PreferencesQueryResult(periodDuration, activityLogFile);
+    return new PreferencesQueryResult(periodDuration);
   }
 }

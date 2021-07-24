@@ -8,7 +8,6 @@ package de.muspellheim.activitysampling.backend.adapters;
 import de.muspellheim.activitysampling.backend.Event;
 import de.muspellheim.activitysampling.backend.EventStore;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -21,13 +20,11 @@ public abstract class AbstractEventStore implements EventStore {
 
   @Override
   public void addRecordedObserver(Consumer<Event> observer) {
-    Objects.requireNonNull(observer);
     recordedObserver.add(observer);
   }
 
   @Override
   public void removeRecordedObserver(Consumer<Event> observer) {
-    Objects.requireNonNull(observer);
     recordedObserver.remove(observer);
   }
 

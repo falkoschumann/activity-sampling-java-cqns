@@ -8,9 +8,8 @@ package de.muspellheim.activitysampling.contract.messages.queries;
 import java.time.Duration;
 import java.util.Objects;
 
-public record PreferencesQueryResult(Duration periodDuration, String activityLogFile) {
+public record PreferencesQueryResult(Duration periodDuration) {
   public PreferencesQueryResult {
     Objects.requireNonNull(periodDuration, "periodDuration");
-    Objects.requireNonNull(activityLogFile, "activityLogFile");
   }
 }

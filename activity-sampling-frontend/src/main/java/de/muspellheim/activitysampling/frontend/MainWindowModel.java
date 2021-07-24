@@ -6,6 +6,7 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
+import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -22,54 +23,6 @@ import javafx.beans.property.StringProperty;
 import lombok.Getter;
 
 class MainWindowModel {
-  private final ObjectProperty<Duration> periodDuration =
-      new SimpleObjectProperty<>(Duration.ofMinutes(20)) {
-        @Override
-        protected void invalidated() {
-          periodStart = null;
-        }
-      };
-
-  final Duration getPeriodDuration() {
-    return periodDuration.get();
-  }
-
-  final void setPeriodDuration(Duration value) {
-    periodDuration.set(value);
-  }
-
-  final ObjectProperty<Duration> periodDurationProperty() {
-    return periodDuration;
-  }
-
-  private final ObjectProperty<List<Activity>> log = new SimpleObjectProperty<>(List.of());
-
-  final List<Activity> getLog() {
-    return log.get();
-  }
-
-  final void setLog(List<Activity> value) {
-    log.set(value);
-  }
-
-  final ObjectProperty<List<Activity>> logProperty() {
-    return log;
-  }
-
-  private final ObjectProperty<List<Activity>> recent = new SimpleObjectProperty<>(List.of());
-
-  final List<Activity> getRecent() {
-    return recent.get();
-  }
-
-  final void setRecent(List<Activity> value) {
-    recent.set(value);
-  }
-
-  final ObjectProperty<List<Activity>> recentProperty() {
-    return recent;
-  }
-
   private final StringProperty activity = new SimpleStringProperty("");
 
   final String getActivity() {
@@ -98,18 +51,18 @@ class MainWindowModel {
     return tags;
   }
 
-  private final ObjectProperty<List<String>> knownTags = new SimpleObjectProperty<>(List.of());
+  private final ObjectProperty<List<String>> recentTags = new SimpleObjectProperty<>(List.of());
 
-  final List<String> getKnownTags() {
-    return knownTags.get();
+  final List<String> getRecentTags() {
+    return recentTags.get();
   }
 
-  final void setKnownTags(List<String> value) {
-    knownTags.set(value);
+  final void setRecentTags(List<String> value) {
+    recentTags.set(value);
   }
 
-  final ObjectProperty<List<String>> knownTagsProperty() {
-    return knownTags;
+  final ObjectProperty<List<String>> recentTagsProperty() {
+    return recentTags;
   }
 
   private final BooleanProperty formDisabled = new SimpleBooleanProperty(true);
@@ -124,6 +77,54 @@ class MainWindowModel {
 
   final BooleanProperty formDisabledProperty() {
     return formDisabled;
+  }
+
+  final BooleanBinding tagNotAddable =
+      formDisabledProperty().or(recentTagsProperty().isEqualTo(List.of()));
+
+  final BooleanBinding tagNotAddableBinding() {
+    return tagNotAddable;
+  }
+
+  private final ObjectProperty<List<ActivityTemplate>> recent =
+      new SimpleObjectProperty<>(List.of());
+
+  final List<ActivityTemplate> getRecent() {
+    return recent.get();
+  }
+
+  final void setRecent(List<ActivityTemplate> value) {
+    recent.set(value);
+  }
+
+  final ObjectProperty<List<ActivityTemplate>> recentProperty() {
+    return recent;
+  }
+
+  final BooleanBinding formUnsubmittable = formDisabledProperty().or(activityProperty().isEmpty());
+
+  final BooleanBinding formUnsubmittableBinding() {
+    return formUnsubmittable;
+  }
+
+  private final ObjectProperty<Duration> periodDuration =
+      new SimpleObjectProperty<>(Duration.ZERO) {
+        @Override
+        protected void invalidated() {
+          periodStart = null;
+        }
+      };
+
+  final Duration getPeriodDuration() {
+    return periodDuration.get();
+  }
+
+  final void setPeriodDuration(Duration value) {
+    periodDuration.set(value);
+  }
+
+  final ObjectProperty<Duration> periodDurationProperty() {
+    return periodDuration;
   }
 
   private LocalDateTime periodStart;
@@ -142,19 +143,6 @@ class MainWindowModel {
 
   final ObjectProperty<Duration> remainingTimeProperty() {
     return remainingTime;
-  }
-
-  final BooleanBinding tagNotAddable =
-      formDisabledProperty().or(knownTagsProperty().isEqualTo(List.of()));
-
-  final BooleanBinding tagNotAddableBinding() {
-    return tagNotAddable;
-  }
-
-  final BooleanBinding formUnsubmittable = formDisabledProperty().or(activityProperty().isEmpty());
-
-  final BooleanBinding formUnsubmittableBinding() {
-    return formUnsubmittable;
   }
 
   final DoubleBinding periodProgress =
@@ -193,5 +181,19 @@ class MainWindowModel {
     } else {
       setRemainingTime(remaining);
     }
+  }
+
+  private final ObjectProperty<List<Activity>> log = new SimpleObjectProperty<>(List.of());
+
+  final List<Activity> getLog() {
+    return log.get();
+  }
+
+  final void setLog(List<Activity> value) {
+    log.set(value);
+  }
+
+  final ObjectProperty<List<Activity>> logProperty() {
+    return log;
   }
 }

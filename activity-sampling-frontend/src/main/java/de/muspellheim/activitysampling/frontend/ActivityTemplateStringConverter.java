@@ -5,6 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
 import java.util.List;
 import java.util.regex.Pattern;
 import javafx.util.StringConverter;

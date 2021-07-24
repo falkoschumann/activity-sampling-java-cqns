@@ -8,6 +8,7 @@ package de.muspellheim.activitysampling.frontend;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 

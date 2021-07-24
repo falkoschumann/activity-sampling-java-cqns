@@ -2,13 +2,10 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Scene?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.stage.Stage?>
 
@@ -16,7 +13,7 @@
   <scene>
     <Scene stylesheets="@style.css">
       <root>
-      <GridPane hgap="12.0" vgap="8.0">
+      <GridPane hgap="12.0" prefWidth="600.0" vgap="8.0">
         <columnConstraints>
           <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" />
           <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" />
@@ -28,13 +25,6 @@
         <children>
           <Label text="%preferencesView.periodDurationLabel.text" />
           <ChoiceBox fx:id="periodDurationChoice" GridPane.columnIndex="1" />
-          <Label text="%preferencesView.activityLogLabel.text" GridPane.rowIndex="1" />
-          <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <children>
-              <TextField fx:id="activityLogText" editable="false" promptText="%preferencesView.activityLogText.promptText" HBox.hgrow="ALWAYS" />
-              <Button mnemonicParsing="false" onAction="#handleChangeActivityLog" text="%preferencesView.changeActivityLogButton.text" />
-            </children>
-          </HBox>
         </children>
         <padding>
           <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />

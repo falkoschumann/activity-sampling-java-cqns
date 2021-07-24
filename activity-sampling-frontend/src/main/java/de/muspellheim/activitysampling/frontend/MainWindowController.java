@@ -6,8 +6,8 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
-import de.muspellheim.activitysampling.contract.messages.commands.ChangeActivityLogFileCommand;
-import de.muspellheim.activitysampling.contract.messages.commands.ChangePeriodDurationCommand;
+import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
+import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
@@ -54,8 +54,7 @@ import lombok.Setter;
 
 public class MainWindowController {
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
-  @Getter @Setter private Consumer<ChangePeriodDurationCommand> onChangePeriodDurationCommand;
-  @Getter @Setter private Consumer<ChangeActivityLogFileCommand> onChangeActivityLogFileCommand;
+  @Getter @Setter private Consumer<ChangePreferencesCommand> onChangePreferencesCommand;
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
   @Getter @Setter private Consumer<WorkingHoursTodayQuery> onWorkingHoursTodayQuery;
@@ -157,13 +156,13 @@ public class MainWindowController {
               trayIconViewController.setRecent(recent);
             });
     model
-        .knownTagsProperty()
+        .recentTagsProperty()
         .addListener(
             observable ->
                 addTagButton
                     .getItems()
                     .setAll(
-                        model.getKnownTags().stream()
+                        model.getRecentTags().stream()
                             .map(
                                 it -> {
                                   var menuItem = new MenuItem(it);
@@ -205,7 +204,7 @@ public class MainWindowController {
     model.setRecent(result.recent());
     model.setActivity(result.last().activity());
     model.setTags(result.last().tags());
-    model.setKnownTags(result.tags());
+    model.setRecentTags(result.recentTags());
   }
 
   public void display(WorkingHoursTodayQueryResult result) {
@@ -239,6 +238,7 @@ public class MainWindowController {
 
   @FXML
   private void handleOpenPreferences() {
+    preferencesController.setOnChangePreferencesCommand(onChangePreferencesCommand);
     preferencesController.run();
   }
 
@@ -249,21 +249,26 @@ public class MainWindowController {
 
   @FXML
   private void handleWorkingHoursToday() {
+    workingHoursTodayController.setOnWorkingHoursTodayQuery(onWorkingHoursTodayQuery);
     workingHoursTodayController.run();
   }
 
   @FXML
   private void handleWorkingHoursThisWeek() {
+    workingHoursThisWeekController.setOnWorkingHoursThisWeekQuery(onWorkingHoursThisWeekQuery);
     workingHoursThisWeekController.run();
   }
 
   @FXML
   private void handleWorkingHoursByActivity() {
+    workingHoursByActivityController.setOnWorkingHoursByActivityQuery(
+        onWorkingHoursByActivityQuery);
     workingHoursByActivityController.run();
   }
 
   @FXML
   private void handleWorkingHoursByNumber() {
+    workingHoursByNumberController.setOnWorkingHoursByNumberQuery(onWorkingHoursByNumberQuery);
     workingHoursByNumberController.run();
   }
 

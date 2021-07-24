@@ -5,7 +5,7 @@
 
 package de.muspellheim.activitysampling.backend;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -30,10 +30,10 @@ public interface EventStore {
 
   @SuppressWarnings("unchecked")
   default <E extends Event> Stream<E> replay(Class<E> eventType) {
-    return (Stream<E>) replay().filter(it -> it.getClass().equals(eventType));
+    return (Stream<E>) replay().filter(it -> eventType.equals(it.getClass()));
   }
 
-  default Stream<? extends Event> replay(List<Class<? extends Event>> eventTypes) {
+  default Stream<? extends Event> replay(Collection<Class<? extends Event>> eventTypes) {
     return replay().filter(it -> eventTypes.contains(it.getClass()));
   }
 }

@@ -61,7 +61,7 @@ public class WorkingHoursThisWeekController {
 
   @FXML
   private void initialize() {
-    activitiesTable.setRoot(new TreeItem<>(Activity.NULL));
+    activitiesTable.setRoot(new TreeItem<>(null));
     timestampColumn.setCellValueFactory(
         it ->
             new ReadOnlyObjectWrapper<>(

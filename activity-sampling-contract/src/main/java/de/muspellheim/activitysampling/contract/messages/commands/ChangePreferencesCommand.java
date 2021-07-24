@@ -5,10 +5,11 @@
 
 package de.muspellheim.activitysampling.contract.messages.commands;
 
+import java.time.Duration;
 import java.util.Objects;
 
-public record ChangeActivityLogFileCommand(String activityLogFile) {
-  public ChangeActivityLogFileCommand {
-    Objects.requireNonNull(activityLogFile, "activityLogFile");
+public record ChangePreferencesCommand(Duration periodDuration) {
+  public ChangePreferencesCommand {
+    Objects.requireNonNull(periodDuration, "periodDuration");
   }
 }
