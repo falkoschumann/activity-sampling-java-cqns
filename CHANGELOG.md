@@ -9,12 +9,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [1.2.0] - 2021-07-26
 
+### Added
+
+- Filtere Arbeitszeit heute und diese Woche nach Stichworten.
+
 ### Changed
 
 - Beschränke Auswahl aus letzten Aktivitäten.
 - Beschränke Auswahl aus letzten Stichworte.
 - Begrenze Anzahl dargestellter Aktivitäten im Log.
-- Filtere Arbeitszeit heute und diese Woche nach Stichworten.
 
 ## [1.1.0] - 2021-06-27
 
