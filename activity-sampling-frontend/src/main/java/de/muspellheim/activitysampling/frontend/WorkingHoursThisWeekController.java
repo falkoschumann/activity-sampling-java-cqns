@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -41,8 +42,8 @@ public class WorkingHoursThisWeekController {
   @FXML private TreeTableColumn<Activity, String> tagsColumn;
   @FXML private TextField totalWorkingHoursText;
 
-  private SortedSet<String> tags;
-  private Set<String> selectedTags;
+  private SortedSet<String> tags = new TreeSet<>();
+  private Set<String> selectedTags = Set.of();
 
   static WorkingHoursThisWeekController create(Stage owner) {
     try {

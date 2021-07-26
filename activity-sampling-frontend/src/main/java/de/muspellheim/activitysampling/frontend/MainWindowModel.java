@@ -7,45 +7,42 @@ package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
+import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import lombok.Getter;
+import lombok.Setter;
 
 class MainWindowModel {
+  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Runnable onPeriodEnded;
+
   private final StringProperty activity = new SimpleStringProperty("");
-
-  final String getActivity() {
-    return activity.get();
-  }
-
-  final void setActivity(String value) {
-    activity.set(value);
-  }
 
   final StringProperty activityProperty() {
     return activity;
   }
 
   private final ObjectProperty<List<String>> tags = new SimpleObjectProperty<>(List.of());
-
-  final List<String> getTags() {
-    return tags.get();
-  }
-
-  final void setTags(List<String> value) {
-    tags.set(value);
-  }
 
   final ObjectProperty<List<String>> tagsProperty() {
     return tags;
@@ -57,12 +54,19 @@ class MainWindowModel {
     return recentTags.get();
   }
 
-  final void setRecentTags(List<String> value) {
-    recentTags.set(value);
-  }
-
   final ObjectProperty<List<String>> recentTagsProperty() {
     return recentTags;
+  }
+
+  private final ObjectProperty<List<ActivityTemplate>> recentActivities =
+      new SimpleObjectProperty<>(List.of());
+
+  final List<ActivityTemplate> getRecentActivities() {
+    return recentActivities.get();
+  }
+
+  final ObjectProperty<List<ActivityTemplate>> recentActivitiesProperty() {
+    return recentActivities;
   }
 
   private final BooleanProperty formDisabled = new SimpleBooleanProperty(true);
@@ -71,60 +75,33 @@ class MainWindowModel {
     return formDisabled.get();
   }
 
-  final void setFormDisabled(boolean value) {
-    formDisabled.set(value);
-  }
-
   final BooleanProperty formDisabledProperty() {
     return formDisabled;
   }
 
-  final BooleanBinding tagNotAddable =
-      formDisabledProperty().or(recentTagsProperty().isEqualTo(List.of()));
+  final BooleanBinding addTagButtonDisabled = formDisabled.or(recentTags.isEqualTo(List.of()));
 
-  final BooleanBinding tagNotAddableBinding() {
-    return tagNotAddable;
+  final BooleanBinding addTagButtonDisabledBinding() {
+    return addTagButtonDisabled;
   }
 
-  private final ObjectProperty<List<ActivityTemplate>> recent =
-      new SimpleObjectProperty<>(List.of());
+  final BooleanBinding logButtonDisabled = formDisabled.or(activity.isEmpty());
 
-  final List<ActivityTemplate> getRecent() {
-    return recent.get();
+  final BooleanBinding logButtonDisabledBinding() {
+    return logButtonDisabled;
   }
 
-  final void setRecent(List<ActivityTemplate> value) {
-    recent.set(value);
+  private final ReadOnlyBooleanWrapper trayIconVisible = new ReadOnlyBooleanWrapper(false);
+
+  final ReadOnlyBooleanProperty trayIconVisibleProperty() {
+    return trayIconVisible.getReadOnlyProperty();
   }
 
-  final ObjectProperty<List<ActivityTemplate>> recentProperty() {
-    return recent;
-  }
-
-  final BooleanBinding formUnsubmittable = formDisabledProperty().or(activityProperty().isEmpty());
-
-  final BooleanBinding formUnsubmittableBinding() {
-    return formUnsubmittable;
-  }
-
-  private final ObjectProperty<Duration> periodDuration =
-      new SimpleObjectProperty<>(Duration.ZERO) {
-        @Override
-        protected void invalidated() {
-          periodStart = null;
-        }
-      };
-
-  final Duration getPeriodDuration() {
-    return periodDuration.get();
-  }
+  @Getter private Duration periodDuration = Duration.ZERO;
 
   final void setPeriodDuration(Duration value) {
-    periodDuration.set(value);
-  }
-
-  final ObjectProperty<Duration> periodDurationProperty() {
-    return periodDuration;
+    periodDuration = value;
+    periodStart = null;
   }
 
   private LocalDateTime periodStart;
@@ -137,10 +114,6 @@ class MainWindowModel {
     return remainingTime.get();
   }
 
-  final void setRemainingTime(Duration value) {
-    remainingTime.set(value);
-  }
-
   final ObjectProperty<Duration> remainingTimeProperty() {
     return remainingTime;
   }
@@ -148,52 +121,106 @@ class MainWindowModel {
   final DoubleBinding periodProgress =
       Bindings.createDoubleBinding(
           () -> {
-            var remainingSeconds = (double) getRemainingTime().getSeconds();
-            var totalSeconds = (double) getPeriodDuration().getSeconds();
+            var remainingSeconds = (double) remainingTime.get().getSeconds();
+            var totalSeconds = (double) periodDuration.getSeconds();
+            if (totalSeconds == 0) {
+              return 0.0;
+            }
             return 1 - remainingSeconds / totalSeconds;
           },
-          remainingTimeProperty());
+          remainingTime);
 
   final DoubleBinding periodProgressBinding() {
     return periodProgress;
   }
 
   void addTag(String tag) {
-    var tags = new LinkedHashSet<>(getTags());
-    tags.add(tag);
-    setTags(List.copyOf(tags));
+    var s = new LinkedHashSet<>(tags.get());
+    s.add(tag);
+    tags.set(List.copyOf(s));
   }
 
   void progressPeriod(LocalDateTime timestamp) {
     if (periodStart == null) {
       periodStart = timestamp;
-      setRemainingTime(getPeriodDuration());
+      remainingTime.set(periodDuration);
       return;
     }
 
     var elapsed = Duration.between(periodStart, timestamp);
-    var remaining = getPeriodDuration().minus(elapsed);
+    var remaining = periodDuration.minus(elapsed);
     if (remaining.toSeconds() <= 0) {
-      setRemainingTime(Duration.ZERO);
+      remainingTime.set(Duration.ZERO);
       periodEnd = timestamp;
       periodStart = null;
-      setFormDisabled(false);
+      formDisabled.set(false);
+      trayIconVisible.set(true);
+      onPeriodEnded.run();
     } else {
-      setRemainingTime(remaining);
+      remainingTime.set(remaining);
     }
   }
 
-  private final ObjectProperty<List<Activity>> log = new SimpleObjectProperty<>(List.of());
+  private final ReadOnlyStringWrapper log = new ReadOnlyStringWrapper("");
 
-  final List<Activity> getLog() {
-    return log.get();
+  final ReadOnlyStringProperty logProperty() {
+    return log.getReadOnlyProperty();
   }
 
-  final void setLog(List<Activity> value) {
-    log.set(value);
+  public void updateWith(ActivityLogQueryResult result) {
+    // TODO Schreibe Test
+    activity.set(result.last().activity());
+    recentActivities.set(result.recent());
+    tags.set(result.last().tags());
+    recentTags.set(result.recentTags());
+    updateLog(result.log());
   }
 
-  final ObjectProperty<List<Activity>> logProperty() {
-    return log;
+  private void updateLog(List<Activity> activities) {
+    var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
+    var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
+    var logBuilder = new StringBuilder();
+    var tagsConverter = new TagsStringConverter();
+    for (int i = 0; i < activities.size(); i++) {
+      var activity = activities.get(i);
+      if (i == 0) {
+        logBuilder.append(dateFormatter.format(activity.timestamp()));
+        logBuilder.append("\n");
+      } else {
+        var lastActivity = activities.get(i - 1);
+        if (!lastActivity.timestamp().toLocalDate().equals(activity.timestamp().toLocalDate())) {
+          logBuilder.append(dateFormatter.format(activity.timestamp()));
+          logBuilder.append("\n");
+        }
+      }
+
+      logBuilder.append(timeFormatter.format(activity.timestamp()));
+      logBuilder.append(" - ");
+      String activityText = activity.activity();
+      if (!activity.tags().isEmpty()) {
+        activityText = "[" + tagsConverter.toString(activity.tags()) + "] " + activityText;
+      }
+      logBuilder.append(activityText);
+      logBuilder.append("\n");
+    }
+    log.set(logBuilder.toString());
+  }
+
+  void logActivity(ActivityTemplate template) {
+    // TODO Schreibe Test
+    activity.set(template.activity());
+    tags.set(template.tags());
+    logActivity();
+  }
+
+  void logActivity() {
+    formDisabled.set(true);
+    trayIconVisible.set(false);
+    var command = new LogActivityCommand(periodEnd, periodDuration, activity.get(), tags.get());
+    onLogActivityCommand.accept(command);
+  }
+
+  public void dispose() {
+    trayIconVisible.set(false);
   }
 }

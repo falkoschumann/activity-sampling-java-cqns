@@ -7,15 +7,18 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
-## Changed
+## [1.2.0] - 2021-07-26
+
+### Changed
 
 - Beschränke Auswahl aus letzten Aktivitäten.
 - Beschränke Auswahl aus letzten Stichworte.
 - Begrenze Anzahl dargestellter Aktivitäten im Log.
+- Filtere Arbeitszeit heute und diese Woche nach Stichworten.
 
 ## [1.1.0] - 2021-06-27
 
-## Added
+### Added
 
 - Nutzer kann Stichwort hinzufügen, durch Auswahl aus letzten Stichworten.
 - Nutzer kann Statistiken zu seinen Aktivitäten abrufen:
@@ -24,7 +27,7 @@ The format is based on [Keep a Changelog][1], and this project adheres to
     - Arbeitszeit nach Aktivität
     - Arbeitszeit nach Anzahl
 
-## Fixed
+### Fixed
 
 - Log scrollte nicht immer zur letzten Aktivität.
 
@@ -36,9 +39,14 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Sichert Antworten als CSV-Datei zur leichten Auswertung mit weiteren
   Werkzeugen.
 
-
 [1]: https://keepachangelog.com/en/1.0.0/
+
 [2]: https://semver.org/spec/v2.0.0.html
-[Unreleased]: https://github.com/falkoschumann/activity-sampling-java/compare/v1.1.0...HEAD
-[1.1.0]: https://github.com/falkoschumann/activity-sampling-java/compare/v1.1.0...v1.0.0
+
+[Unreleased]: https://github.com/falkoschumann/activity-sampling-java/compare/v1.2.0...HEAD
+
+[1.2.0]: https://github.com/falkoschumann/activity-sampling-java/compare/v1.1.0...v1.2.0
+
+[1.1.0]: https://github.com/falkoschumann/activity-sampling-java/compare/v1.0.0...v1.1.0
+
 [1.0.0]: https://github.com/falkoschumann/activity-sampling-java/releases/tag/v1.0.0

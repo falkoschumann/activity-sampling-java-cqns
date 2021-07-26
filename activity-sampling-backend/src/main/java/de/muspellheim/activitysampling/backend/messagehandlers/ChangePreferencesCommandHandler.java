@@ -23,7 +23,7 @@ public class ChangePreferencesCommandHandler {
       preferencesStore.savePeriodDuration(command.periodDuration());
       return new Success();
     } catch (Exception e) {
-      return new Failure("Storing settings failed: " + e.getMessage());
+      return new Failure("Storing preferences failed: " + e.getMessage());
     }
   }
 }

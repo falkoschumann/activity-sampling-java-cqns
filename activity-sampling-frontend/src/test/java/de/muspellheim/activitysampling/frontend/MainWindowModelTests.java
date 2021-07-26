@@ -16,12 +16,13 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ActivitySamplingModelTests {
+class MainWindowModelTests {
   private MainWindowModel fixture;
 
   @BeforeEach
   void init() {
     fixture = new MainWindowModel();
+    fixture.setOnPeriodEnded(() -> {});
   }
 
   @Test
@@ -36,7 +37,7 @@ class ActivitySamplingModelTests {
         () -> assertNull(fixture.getPeriodEnd(), "periodEnd"),
         () -> assertEquals(0.0, fixture.periodProgressBinding().get(), "periodProgress"),
         () -> assertTrue(fixture.isFormDisabled(), "formDisabled"),
-        () -> assertTrue(fixture.formUnsubmittable.get(), "formUnsubmittable"));
+        () -> assertTrue(fixture.logButtonDisabled.get(), "formUnsubmittable"));
   }
 
   @Test
@@ -55,7 +56,7 @@ class ActivitySamplingModelTests {
         () -> assertNull(fixture.getPeriodEnd(), "periodEnd"),
         () -> assertEquals(0.5875, fixture.periodProgressBinding().get(), "periodProgress"),
         () -> assertTrue(fixture.isFormDisabled(), "formDisabled"),
-        () -> assertTrue(fixture.formUnsubmittable.get(), "formUnsubmittable"));
+        () -> assertTrue(fixture.logButtonDisabled.get(), "formUnsubmittable"));
   }
 
   @Test
@@ -72,6 +73,6 @@ class ActivitySamplingModelTests {
         () -> assertEquals(currentTime, fixture.getPeriodEnd(), "periodEnd"),
         () -> assertEquals(1.0, fixture.periodProgressBinding().get(), "periodProgress"),
         () -> assertFalse(fixture.isFormDisabled(), "formDisabled"),
-        () -> assertTrue(fixture.formUnsubmittable.get(), "formUnsubmittable"));
+        () -> assertTrue(fixture.logButtonDisabled.get(), "formUnsubmittable"));
   }
 }

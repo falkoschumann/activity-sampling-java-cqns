@@ -97,7 +97,7 @@ public class TagsController implements Initializable {
   }
 
   void run() {
-    // Ersetze mit show()
+    // TODO Ersetze mit show() oder gib Ergebnis zurück
     dialog.showAndWait();
   }
 

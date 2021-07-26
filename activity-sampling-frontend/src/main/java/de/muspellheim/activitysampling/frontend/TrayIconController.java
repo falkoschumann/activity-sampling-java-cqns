@@ -16,6 +16,8 @@ import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.util.List;
 import java.util.function.Consumer;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,6 +35,37 @@ class TrayIconController {
     var url = getClass().getResource("tray-icon.png");
     var image = Toolkit.getDefaultToolkit().getImage(url);
     trayIcon = new TrayIcon(image);
+  }
+
+  private final BooleanProperty visible =
+      new SimpleBooleanProperty(false) {
+        @Override
+        protected void invalidated() {
+          if (!SystemTray.isSupported()) {
+            return;
+          }
+
+          EventQueue.invokeLater(
+              () -> {
+                var tray = SystemTray.getSystemTray();
+                if (visible.get()) {
+                  var missingIconInTray = !List.of(tray.getTrayIcons()).contains(trayIcon);
+                  if (missingIconInTray) {
+                    try {
+                      tray.add(trayIcon);
+                    } catch (AWTException e) {
+                      System.err.println("Can not add icon to system tray: " + e);
+                    }
+                  }
+                } else {
+                  tray.remove(trayIcon);
+                }
+              });
+        }
+      };
+
+  public final BooleanProperty visibleProperty() {
+    return visible;
   }
 
   void setRecent(List<ActivityTemplate> value) {
@@ -54,35 +87,12 @@ class TrayIconController {
         });
   }
 
-  void show() {
+  void showQuestion() {
     if (!SystemTray.isSupported()) {
       return;
     }
 
     EventQueue.invokeLater(
-        () -> {
-          var tray = SystemTray.getSystemTray();
-          var missingIconInTray = !List.of(tray.getTrayIcons()).contains(trayIcon);
-          if (missingIconInTray) {
-            try {
-              tray.add(trayIcon);
-            } catch (AWTException e) {
-              System.err.println("Can not add icon to system tray: " + e);
-            }
-          }
-          trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
-        });
-  }
-
-  void hide() {
-    if (!SystemTray.isSupported()) {
-      return;
-    }
-
-    EventQueue.invokeLater(
-        () -> {
-          var tray = SystemTray.getSystemTray();
-          tray.remove(trayIcon);
-        });
+        () -> trayIcon.displayMessage("What are you working on?", null, MessageType.NONE));
   }
 }

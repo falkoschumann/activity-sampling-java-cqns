@@ -5,7 +5,6 @@
 
 package de.muspellheim.activitysampling.frontend;
 
-import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Failure;
@@ -26,10 +25,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -53,14 +49,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class MainWindowController {
-  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
-  @Getter @Setter private Consumer<ChangePreferencesCommand> onChangePreferencesCommand;
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
-  @Getter @Setter private Consumer<WorkingHoursTodayQuery> onWorkingHoursTodayQuery;
-  @Getter @Setter private Consumer<WorkingHoursThisWeekQuery> onWorkingHoursThisWeekQuery;
-  @Getter @Setter private Consumer<WorkingHoursByActivityQuery> onWorkingHoursByActivityQuery;
-  @Getter @Setter private Consumer<WorkingHoursByNumberQuery> onWorkingHoursByNumberQuery;
 
   @FXML private Stage stage;
   @FXML private MenuBar menuBar;
@@ -109,70 +99,108 @@ public class MainWindowController {
     activityText.disableProperty().bind(model.formDisabledProperty());
     tagsText.textProperty().bindBidirectional(model.tagsProperty(), new TagsStringConverter());
     tagsText.disableProperty().bind(model.formDisabledProperty());
-    addTagButton.disableProperty().bind(model.tagNotAddableBinding());
-    logButton.disableProperty().bind(model.formUnsubmittableBinding());
+    addTagButton.disableProperty().bind(model.addTagButtonDisabledBinding());
+    logButton.disableProperty().bind(model.logButtonDisabledBinding());
     remainingTimeLabel
         .textProperty()
         .bindBidirectional(model.remainingTimeProperty(), new RemainingTimeStringConverter());
     progressBar.progressProperty().bind(model.periodProgressBinding());
-    activityLogText.textProperty().bindBidirectional(model.logProperty(), new LogStringConverter());
-    trayIconViewController.setOnActivitySelected(this::handleLogActivity);
-    Platform.runLater(() -> stage.setOnHiding(e -> trayIconViewController.hide()));
-    model
-        .formDisabledProperty()
-        .addListener(
-            (observable, oldValue, newValue) -> {
-              if (oldValue && !newValue) {
-                trayIconViewController.show();
-                Platform.runLater(() -> activityText.requestFocus());
-              } else if (!oldValue && newValue) {
-                trayIconViewController.hide();
-              }
-            });
-    activityLogText
-        .textProperty()
-        .addListener(
-            observable -> Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE)));
-    model
-        .recentProperty()
-        .addListener(
-            observable -> {
-              var recent =
-                  model.getRecent().stream()
-                      .map(it -> new ActivityTemplate(it.activity(), it.tags()))
-                      .toList();
-              var converter = new ActivityTemplateStringConverter();
-              logButton
-                  .getItems()
-                  .setAll(
-                      recent.stream()
-                          .map(
-                              it -> {
-                                var menuItem = new MenuItem(converter.toString(it));
-                                menuItem.setOnAction(e -> handleLogActivity(it));
-                                return menuItem;
-                              })
-                          .toList());
-              trayIconViewController.setRecent(recent);
-            });
-    model
-        .recentTagsProperty()
-        .addListener(
-            observable ->
-                addTagButton
-                    .getItems()
-                    .setAll(
-                        model.getRecentTags().stream()
-                            .map(
-                                it -> {
-                                  var menuItem = new MenuItem(it);
-                                  menuItem.setOnAction(e -> model.addTag(it));
-                                  return menuItem;
-                                })
-                            .toList()));
+    activityLogText.textProperty().bind(model.logProperty());
+    activityLogText.textProperty().addListener(o -> scrollLogToBottom());
+    trayIconViewController.visibleProperty().bind(model.trayIconVisibleProperty());
+    trayIconViewController.setOnActivitySelected(model::logActivity);
+    model.recentActivitiesProperty().addListener(o -> updateRecentActivities());
+    model.recentTagsProperty().addListener(o -> updateRecentTags());
+    model.setOnPeriodEnded(this::handlePeriodEnded);
+    Platform.runLater(() -> stage.setOnHiding(e -> model.dispose()));
+  }
+
+  private void scrollLogToBottom() {
+    Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE));
+  }
+
+  private void updateRecentActivities() {
+    {
+      var recent =
+          model.getRecentActivities().stream()
+              .map(it -> new ActivityTemplate(it.activity(), it.tags()))
+              .toList();
+      var converter = new ActivityTemplateStringConverter();
+      logButton
+          .getItems()
+          .setAll(
+              recent.stream()
+                  .map(
+                      it -> {
+                        var menuItem = new MenuItem(converter.toString(it));
+                        menuItem.setOnAction(e -> model.logActivity(it));
+                        return menuItem;
+                      })
+                  .toList());
+      trayIconViewController.setRecent(recent);
+    }
+  }
+
+  private void updateRecentTags() {
+    addTagButton
+        .getItems()
+        .setAll(
+            model.getRecentTags().stream()
+                .map(
+                    it -> {
+                      var menuItem = new MenuItem(it);
+                      menuItem.setOnAction(e -> model.addTag(it));
+                      return menuItem;
+                    })
+                .toList());
+  }
+
+  private void handlePeriodEnded() {
+    Platform.runLater(
+        () -> {
+          activityText.requestFocus();
+          trayIconViewController.showQuestion();
+        });
+  }
+
+  public void setOnChangePreferencesCommand(
+      Consumer<ChangePreferencesCommand> onChangePreferencesCommand) {
+    preferencesController.setOnChangePreferencesCommand(onChangePreferencesCommand);
+  }
+
+  public void setOnLogActivityCommand(Consumer<LogActivityCommand> onLogActivityCommand) {
+    model.setOnLogActivityCommand(onLogActivityCommand);
+  }
+
+  public void setOnWorkingHoursTodayQuery(
+      Consumer<WorkingHoursTodayQuery> onWorkingHoursTodayQuery) {
+    workingHoursTodayController.setOnWorkingHoursTodayQuery(onWorkingHoursTodayQuery);
+  }
+
+  public void setOnWorkingHoursThisWeekQuery(
+      Consumer<WorkingHoursThisWeekQuery> onWorkingHoursThisWeekQuery) {
+    workingHoursThisWeekController.setOnWorkingHoursThisWeekQuery(onWorkingHoursThisWeekQuery);
+  }
+
+  public void setOnWorkingHoursByActivityQuery(
+      Consumer<WorkingHoursByActivityQuery> onWorkingHoursByActivityQuery) {
+    workingHoursByActivityController.setOnWorkingHoursByActivityQuery(
+        onWorkingHoursByActivityQuery);
+  }
+
+  public void setOnWorkingHoursByNumberQuery(
+      Consumer<WorkingHoursByNumberQuery> onWorkingHoursByNumberQuery) {
+    workingHoursByNumberController.setOnWorkingHoursByNumberQuery(onWorkingHoursByNumberQuery);
   }
 
   public void run() {
+    onPreferencesQuery.accept(new PreferencesQuery());
+    onActivityLogQuery.accept(new ActivityLogQuery());
+    startPeriod();
+    stage.show();
+  }
+
+  private void startPeriod() {
     var systemClock = new Timer(true);
     systemClock.schedule(
         new TimerTask() {
@@ -187,11 +215,6 @@ public class MainWindowController {
         },
         0,
         1000);
-
-    onPreferencesQuery.accept(new PreferencesQuery());
-    onActivityLogQuery.accept(new ActivityLogQuery());
-
-    stage.show();
   }
 
   public void display(PreferencesQueryResult result) {
@@ -200,11 +223,7 @@ public class MainWindowController {
   }
 
   public void display(ActivityLogQueryResult result) {
-    model.setLog(result.log());
-    model.setRecent(result.recent());
-    model.setActivity(result.last().activity());
-    model.setTags(result.last().tags());
-    model.setRecentTags(result.recentTags());
+    model.updateWith(result);
   }
 
   public void display(WorkingHoursTodayQueryResult result) {
@@ -238,7 +257,6 @@ public class MainWindowController {
 
   @FXML
   private void handleOpenPreferences() {
-    preferencesController.setOnChangePreferencesCommand(onChangePreferencesCommand);
     preferencesController.run();
   }
 
@@ -249,26 +267,21 @@ public class MainWindowController {
 
   @FXML
   private void handleWorkingHoursToday() {
-    workingHoursTodayController.setOnWorkingHoursTodayQuery(onWorkingHoursTodayQuery);
     workingHoursTodayController.run();
   }
 
   @FXML
   private void handleWorkingHoursThisWeek() {
-    workingHoursThisWeekController.setOnWorkingHoursThisWeekQuery(onWorkingHoursThisWeekQuery);
     workingHoursThisWeekController.run();
   }
 
   @FXML
   private void handleWorkingHoursByActivity() {
-    workingHoursByActivityController.setOnWorkingHoursByActivityQuery(
-        onWorkingHoursByActivityQuery);
     workingHoursByActivityController.run();
   }
 
   @FXML
   private void handleWorkingHoursByNumber() {
-    workingHoursByNumberController.setOnWorkingHoursByNumberQuery(onWorkingHoursByNumberQuery);
     workingHoursByNumberController.run();
   }
 
@@ -280,23 +293,10 @@ public class MainWindowController {
 
   @FXML
   private void handleLogActivity() {
-    logActivity();
+    model.logActivity();
   }
 
-  private void handleLogActivity(ActivityTemplate template) {
-    model.setActivity(template.activity());
-    model.setTags(template.tags());
-    logActivity();
-  }
-
-  private void logActivity() {
-    model.setFormDisabled(true);
-    onLogActivityCommand.accept(
-        new LogActivityCommand(
-            model.getPeriodEnd(), model.getPeriodDuration(), model.getActivity(), model.getTags()));
-  }
-
-  static class RemainingTimeStringConverter extends StringConverter<Duration> {
+  private static class RemainingTimeStringConverter extends StringConverter<Duration> {
     @Override
     public String toString(Duration object) {
       return String.format(
@@ -306,44 +306,6 @@ public class MainWindowController {
 
     @Override
     public Duration fromString(String string) {
-      throw new UnsupportedOperationException();
-    }
-  }
-
-  static class LogStringConverter extends StringConverter<List<Activity>> {
-    @Override
-    public String toString(List<Activity> object) {
-      var dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL);
-      var timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
-      var logBuilder = new StringBuilder();
-      var tagsConverter = new TagsStringConverter();
-      for (int i = 0; i < object.size(); i++) {
-        var activity = object.get(i);
-        if (i == 0) {
-          logBuilder.append(dateFormatter.format(activity.timestamp()));
-          logBuilder.append("\n");
-        } else {
-          var lastActivity = object.get(i - 1);
-          if (!lastActivity.timestamp().toLocalDate().equals(activity.timestamp().toLocalDate())) {
-            logBuilder.append(dateFormatter.format(activity.timestamp()));
-            logBuilder.append("\n");
-          }
-        }
-
-        logBuilder.append(timeFormatter.format(activity.timestamp()));
-        logBuilder.append(" - ");
-        String activityText = activity.activity();
-        if (!activity.tags().isEmpty()) {
-          activityText = "[" + tagsConverter.toString(activity.tags()) + "] " + activityText;
-        }
-        logBuilder.append(activityText);
-        logBuilder.append("\n");
-      }
-      return logBuilder.toString();
-    }
-
-    @Override
-    public List<Activity> fromString(String string) {
       throw new UnsupportedOperationException();
     }
   }
