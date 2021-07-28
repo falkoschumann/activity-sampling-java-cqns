@@ -11,12 +11,12 @@ import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThi
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -42,8 +42,9 @@ public class WorkingHoursThisWeekController {
   @FXML private TreeTableColumn<Activity, String> tagsColumn;
   @FXML private TextField totalWorkingHoursText;
 
-  private SortedSet<String> tags = new TreeSet<>();
-  private Set<String> selectedTags = Set.of();
+  // TODO Zeige an, wenn Stichworte gefiltert sind
+  private TagsController tagsController;
+  private final SortedMap<LocalDate, WeekdayTreeItem> weekdays = new TreeMap<>();
 
   static WorkingHoursThisWeekController create(Stage owner) {
     try {
@@ -79,56 +80,79 @@ public class WorkingHoursThisWeekController {
                 it.getValue() instanceof WeekdayTreeItem
                     ? ""
                     : it.getValue().getValue().tags().toString()));
+    tagsController = TagsController.create(stage);
 
+    tagsController.setOnSelectedTagsChanged(
+        t -> onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery(t)));
     Stages.hookCloseHandler(stage);
   }
 
   public void display(WorkingHoursThisWeekQueryResult result) {
     calendarWeekText.setText(String.valueOf(result.calendarWeek()));
     totalWorkingHoursText.setText(result.totalWorkingHours().toString());
+    tagsController.setTags(result.tags());
 
-    tags = result.tags();
-    if (selectedTags == null) {
-      selectedTags = result.tags();
+    updateWeekdays(result.activities());
+  }
+
+  private void updateWeekdays(List<Activity> activities) {
+    if (activities.isEmpty()) {
+      weekdays.clear();
+      activitiesTable.getRoot().getChildren().setAll(weekdays.values());
+      return;
     }
 
-    var weekdays = new ArrayList<TreeItem<Activity>>();
-    TreeItem<Activity> currentDay = null;
-    for (var it : result.activities()) {
-      if (currentDay == null
-          || !currentDay
-              .getValue()
-              .timestamp()
-              .toLocalDate()
-              .equals(it.timestamp().toLocalDate())) {
-        currentDay =
-            new WeekdayTreeItem(new Activity("", it.timestamp(), Duration.ZERO, "", List.of()));
-        weekdays.add(currentDay);
+    var lastWeekdays = Set.copyOf(weekdays.keySet());
+    var firstDate = activities.get(0).timestamp().toLocalDate();
+    lastWeekdays.forEach(
+        d -> {
+          if (d.isBefore(firstDate)) {
+            weekdays.remove(d);
+          }
+        });
+    var lastDate = activities.get(activities.size() - 1).timestamp().toLocalDate();
+    lastWeekdays.forEach(
+        d -> {
+          if (d.isAfter(lastDate)) {
+            weekdays.remove(d);
+          }
+        });
+
+    WeekdayTreeItem currentWeekday = null;
+    for (Activity it : activities) {
+      var currentDate = it.timestamp().toLocalDate();
+      if (currentWeekday == null
+          || !currentWeekday.getValue().timestamp().toLocalDate().equals(currentDate)) {
+        if (!weekdays.containsKey(currentDate)) {
+          currentWeekday =
+              new WeekdayTreeItem(new Activity("", it.timestamp(), Duration.ZERO, "", List.of()));
+          weekdays.put(currentDate, currentWeekday);
+        } else {
+          currentWeekday = weekdays.get(currentDate);
+          currentWeekday.setValue(new Activity("", it.timestamp(), Duration.ZERO, "", List.of()));
+          currentWeekday.getChildren().clear();
+        }
       }
-      currentDay.getChildren().add(new ActivityTreeItem(it));
-      currentDay.setValue(
+      currentWeekday.getChildren().add(new ActivityTreeItem(it));
+      currentWeekday.setValue(
           new Activity(
               "",
-              currentDay.getValue().timestamp(),
-              currentDay.getValue().period().plus(it.period()),
+              currentWeekday.getValue().timestamp(),
+              currentWeekday.getValue().period().plus(it.period()),
               "",
               List.of()));
     }
-    activitiesTable.getRoot().getChildren().setAll(weekdays);
+    activitiesTable.getRoot().getChildren().setAll(weekdays.values());
   }
 
   void run() {
     stage.show();
-    onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery(selectedTags));
+    onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery());
   }
 
   @FXML
   private void handleSelectTags() {
-    var controller = TagsController.create(stage);
-    controller.initTags(tags, selectedTags);
-    controller.run();
-    selectedTags = controller.getSelectedTags();
-    onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery(selectedTags));
+    tagsController.run();
   }
 
   private static class WeekdayTreeItem extends TreeItem<Activity> {

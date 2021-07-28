@@ -8,42 +8,49 @@ package de.muspellheim.activitysampling.frontend;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.ListView;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
+import lombok.Getter;
+import lombok.Setter;
 
 public class TagsController implements Initializable {
-  @FXML private ListView<String> tagList;
+  @Getter @Setter Consumer<Set<String>> onSelectedTagsChanged;
+
+  @FXML private Stage stage;
   @FXML private CheckBox allTagsCheckBox;
-  private Dialog<Collection<String>> dialog;
-  private Set<String> selectedTags;
+  @FXML private ListView<String> tagList;
+
+  // TODO Extrahiere Model
+  private final Map<String, BooleanProperty> checkedTags = new LinkedHashMap<>();
 
   static TagsController create(Stage owner) {
     try {
       var location = PreferencesController.class.getResource("TagsView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
       var loader = new FXMLLoader(location, resources);
-      var view = (DialogPane) loader.load();
+      loader.load();
 
       var controller = (TagsController) loader.getController();
-      var dialog = new Dialog<Collection<String>>();
-      dialog.initOwner(owner);
-      dialog.setTitle(resources.getString("tags.title"));
-      dialog.setDialogPane(view);
-      controller.dialog = dialog;
+      controller.stage.initOwner(owner);
+      controller.stage.initStyle(StageStyle.UTILITY);
       return controller;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -53,56 +60,67 @@ public class TagsController implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     tagList.setCellFactory(
-        CheckBoxListCell.forListView(
-            it -> {
-              var prop = new SimpleBooleanProperty(getSelectedTags().contains(it));
-              prop.addListener(
-                  (observable, oldValue, newValue) -> {
-                    if (!oldValue && newValue) {
-                      getSelectedTags().add(it);
-                    } else if (oldValue && !newValue) {
-                      getSelectedTags().remove(it);
-                    }
-                  });
-              return prop;
-            },
-            new TagStringConverter(resources)));
+        CheckBoxListCell.forListView(checkedTags::get, new TagStringConverter(resources)));
 
-    // TODO allTagsCheckBox nur ausgewählt, wenn alle Tags ausgewählt, sonst nicht
-    allTagsCheckBox
-        .selectedProperty()
-        .addListener(
-            observable -> {
-              if (allTagsCheckBox.isSelected()) {
-                System.out.println("Alle ausgewählt");
-                selectedTags = new LinkedHashSet<>(tagList.getItems());
-              } else {
-                selectedTags.clear();
-              }
-              tagList.refresh();
-            });
+    Stages.hookCloseHandler(stage);
   }
 
-  final void initTags(SortedSet<String> tags, Set<String> selectedTags) {
-    this.selectedTags = new LinkedHashSet<>(selectedTags);
-    // TODO Füge Kein Tag nur hinzu, wenn es vorkommt, Zuständigkeit ins Backend verschieben
-    this.selectedTags.add("");
-
+  void setTags(SortedSet<String> tags) {
     tagList.getItems().setAll(tags);
-    tagList.getItems().add(0, "");
+    updateCheckedTags(tags);
   }
 
-  final Set<String> getSelectedTags() {
-    return selectedTags;
+  private void updateCheckedTags(SortedSet<String> newTags) {
+    var lastTags = Set.copyOf(checkedTags.keySet());
+    lastTags.forEach(
+        it -> {
+          if (!newTags.contains(it)) {
+            checkedTags.remove(it);
+          }
+        });
+
+    newTags.forEach(
+        it -> {
+          if (!checkedTags.containsKey(it)) {
+            checkedTags.put(
+                it,
+                new SimpleBooleanProperty(true) {
+                  @Override
+                  protected void invalidated() {
+                    var allTagsChecked =
+                        checkedTags.values().stream()
+                            .map(BooleanExpression::getValue)
+                            .reduce(Boolean::logicalAnd)
+                            .orElse(true);
+                    allTagsCheckBox.setSelected(allTagsChecked);
+                    sendWorkingHoursTodayQuery();
+                  }
+                });
+          }
+        });
   }
 
   void run() {
-    // TODO Ersetze mit show() oder gib Ergebnis zurück
-    dialog.showAndWait();
+    stage.show();
+  }
+
+  @FXML
+  private void handleCheckAllTags() {
+    var allTagsChecked = allTagsCheckBox.isSelected();
+    checkedTags.values().forEach(it -> it.set(allTagsChecked));
+    sendWorkingHoursTodayQuery();
+  }
+
+  private void sendWorkingHoursTodayQuery() {
+    var selectedTags =
+        checkedTags.entrySet().stream()
+            .filter(it -> it.getValue().get())
+            .map(Entry::getKey)
+            .collect(Collectors.toSet());
+    onSelectedTagsChanged.accept(selectedTags);
   }
 
   private static class TagStringConverter extends StringConverter<String> {
-
     private final ResourceBundle resources;
 
     TagStringConverter(ResourceBundle resources) {

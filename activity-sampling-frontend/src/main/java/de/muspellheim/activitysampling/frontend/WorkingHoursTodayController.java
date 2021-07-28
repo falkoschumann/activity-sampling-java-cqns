@@ -14,9 +14,6 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -41,8 +38,8 @@ public class WorkingHoursTodayController {
   @FXML private TableColumn<Activity, List<String>> tagsColumn;
   @FXML private TextField totalWorkingHoursText;
 
-  private SortedSet<String> tags = new TreeSet<>();
-  private Set<String> selectedTags = Set.of();
+  // TODO Zeige an, wenn Stichworte gefiltert sind
+  private TagsController tagsController;
 
   static WorkingHoursTodayController create(Stage owner) {
     try {
@@ -66,7 +63,10 @@ public class WorkingHoursTodayController {
     periodColumn.setCellValueFactory(it -> new ReadOnlyObjectWrapper<>(it.getValue().period()));
     activityColumn.setCellValueFactory(it -> new ReadOnlyStringWrapper(it.getValue().activity()));
     tagsColumn.setCellValueFactory(it -> new ReadOnlyObjectWrapper<>(it.getValue().tags()));
+    tagsController = TagsController.create(stage);
 
+    tagsController.setOnSelectedTagsChanged(
+        t -> onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery(t)));
     Stages.hookCloseHandler(stage);
   }
 
@@ -74,23 +74,16 @@ public class WorkingHoursTodayController {
     dateText.setText(result.date().toString());
     totalWorkingHoursText.setText(result.totalWorkingHours().toString());
     activitiesTable.getItems().setAll(result.activities());
-    tags = result.tags();
-    if (selectedTags == null) {
-      selectedTags = result.tags();
-    }
+    tagsController.setTags(result.tags());
   }
 
   void run() {
     stage.show();
-    onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery(selectedTags));
+    onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery());
   }
 
   @FXML
   private void handleSelectTags() {
-    var controller = TagsController.create(stage);
-    controller.initTags(tags, selectedTags);
-    controller.run();
-    selectedTags = controller.getSelectedTags();
-    onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery(selectedTags));
+    tagsController.run();
   }
 }
