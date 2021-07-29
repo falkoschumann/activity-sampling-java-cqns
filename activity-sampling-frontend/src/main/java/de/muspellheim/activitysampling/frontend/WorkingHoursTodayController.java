@@ -79,6 +79,7 @@ public class WorkingHoursTodayController {
 
   void run() {
     stage.show();
+    // FIXME Hier müssen Stichworte zurückgesetzt werden
     onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery());
   }
 

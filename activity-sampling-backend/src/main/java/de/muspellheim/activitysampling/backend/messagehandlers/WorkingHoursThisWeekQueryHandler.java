@@ -18,7 +18,6 @@ import java.time.ZoneId;
 import java.time.temporal.WeekFields;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeSet;
 
 public class WorkingHoursThisWeekQueryHandler {
   private final LinkedList<Activity> activities = new LinkedList<>();
@@ -62,6 +61,6 @@ public class WorkingHoursThisWeekQueryHandler {
         ActivityProjection.filterTags(activities.stream(), query.includedTags()).toList();
     var totalWorkingHours = ActivityProjection.totalWorkingHours(filtered.stream());
     return new WorkingHoursThisWeekQueryResult(
-        calenderWeek, totalWorkingHours, List.copyOf(filtered), new TreeSet<>(tags));
+        calenderWeek, totalWorkingHours, List.copyOf(filtered), tags);
   }
 }

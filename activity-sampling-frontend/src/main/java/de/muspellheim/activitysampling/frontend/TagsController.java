@@ -8,17 +8,9 @@ package de.muspellheim.activitysampling.frontend;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import javafx.beans.binding.BooleanExpression;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -28,18 +20,13 @@ import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
-import lombok.Getter;
-import lombok.Setter;
 
 public class TagsController implements Initializable {
-  @Getter @Setter Consumer<Set<String>> onSelectedTagsChanged;
-
   @FXML private Stage stage;
   @FXML private CheckBox allTagsCheckBox;
   @FXML private ListView<String> tagList;
 
-  // TODO Extrahiere Model
-  private final Map<String, BooleanProperty> checkedTags = new LinkedHashMap<>();
+  private TagsModel model;
 
   static TagsController create(Stage owner) {
     try {
@@ -59,65 +46,25 @@ public class TagsController implements Initializable {
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
+    model = new TagsModel();
     tagList.setCellFactory(
-        CheckBoxListCell.forListView(checkedTags::get, new TagStringConverter(resources)));
+        CheckBoxListCell.forListView(model::getSelectedFor, new TagStringConverter(resources)));
 
+    allTagsCheckBox.selectedProperty().bindBidirectional(model.allSelectedProperty());
     Stages.hookCloseHandler(stage);
   }
 
-  void setTags(SortedSet<String> tags) {
-    tagList.getItems().setAll(tags);
-    updateCheckedTags(tags);
+  public void setOnSelectedTagsChanged(Consumer<Set<String>> onSelectedTagsChanged) {
+    model.setOnSelectedTagsChanged(onSelectedTagsChanged);
   }
 
-  private void updateCheckedTags(SortedSet<String> newTags) {
-    var lastTags = Set.copyOf(checkedTags.keySet());
-    lastTags.forEach(
-        it -> {
-          if (!newTags.contains(it)) {
-            checkedTags.remove(it);
-          }
-        });
-
-    newTags.forEach(
-        it -> {
-          if (!checkedTags.containsKey(it)) {
-            checkedTags.put(
-                it,
-                new SimpleBooleanProperty(true) {
-                  @Override
-                  protected void invalidated() {
-                    var allTagsChecked =
-                        checkedTags.values().stream()
-                            .map(BooleanExpression::getValue)
-                            .reduce(Boolean::logicalAnd)
-                            .orElse(true);
-                    allTagsCheckBox.setSelected(allTagsChecked);
-                    sendWorkingHoursTodayQuery();
-                  }
-                });
-          }
-        });
+  void setTags(Set<String> tags) {
+    model.setTags(tags);
+    tagList.getItems().setAll(model.getTags());
   }
 
   void run() {
     stage.show();
-  }
-
-  @FXML
-  private void handleCheckAllTags() {
-    var allTagsChecked = allTagsCheckBox.isSelected();
-    checkedTags.values().forEach(it -> it.set(allTagsChecked));
-    sendWorkingHoursTodayQuery();
-  }
-
-  private void sendWorkingHoursTodayQuery() {
-    var selectedTags =
-        checkedTags.entrySet().stream()
-            .filter(it -> it.getValue().get())
-            .map(Entry::getKey)
-            .collect(Collectors.toSet());
-    onSelectedTagsChanged.accept(selectedTags);
   }
 
   private static class TagStringConverter extends StringConverter<String> {

@@ -112,10 +112,11 @@ public class MainWindowController {
     model.recentActivitiesProperty().addListener(o -> updateRecentActivities());
     model.recentTagsProperty().addListener(o -> updateRecentTags());
     model.setOnPeriodEnded(this::handlePeriodEnded);
-    Platform.runLater(() -> stage.setOnHiding(e -> model.dispose()));
+    stage.setOnHiding(e -> model.dispose());
   }
 
   private void scrollLogToBottom() {
+    // FIXME Herunterscrollen funktioniert nicht
     Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE));
   }
 
@@ -261,8 +262,8 @@ public class MainWindowController {
   }
 
   @FXML
-  private void handleQuit() {
-    Platform.exit();
+  private void handleClose() {
+    stage.close();
   }
 
   @FXML

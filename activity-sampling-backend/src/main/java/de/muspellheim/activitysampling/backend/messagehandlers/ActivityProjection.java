@@ -9,14 +9,15 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.messages.queries.Queries;
 import java.time.Duration;
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class ActivityProjection {
   private ActivityProjection() {}
 
-  static List<String> distinctTags(Stream<Activity> activities) {
-    return activities.flatMap(it -> it.tags().stream()).toList();
+  static Set<String> distinctTags(Stream<Activity> activities) {
+    return activities.flatMap(it -> it.tags().stream()).collect(Collectors.toUnmodifiableSet());
   }
 
   static Stream<Activity> filterTags(Stream<Activity> activities, Collection<String> tags) {

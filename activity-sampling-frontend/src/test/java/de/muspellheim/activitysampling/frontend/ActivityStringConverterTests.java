@@ -12,7 +12,7 @@ import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class ActivityStringConverterTests {
+class ActivityStringConverterTests {
   @Test
   void testToString() {
     var converter = new ActivityTemplateStringConverter();

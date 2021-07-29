@@ -8,10 +8,7 @@ package de.muspellheim.activitysampling.contract.messages.queries;
 import de.muspellheim.activitysampling.contract.data.Activity;
 import java.time.Duration;
 import java.util.List;
-import java.util.SortedSet;
+import java.util.Set;
 
 public record WorkingHoursThisWeekQueryResult(
-    int calendarWeek,
-    Duration totalWorkingHours,
-    List<Activity> activities,
-    SortedSet<String> tags) {}
+    int calendarWeek, Duration totalWorkingHours, List<Activity> activities, Set<String> tags) {}

@@ -9,10 +9,7 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.SortedSet;
+import java.util.Set;
 
 public record WorkingHoursTodayQueryResult(
-    LocalDate date,
-    Duration totalWorkingHours,
-    List<Activity> activities,
-    SortedSet<String> tags) {}
+    LocalDate date, Duration totalWorkingHours, List<Activity> activities, Set<String> tags) {}

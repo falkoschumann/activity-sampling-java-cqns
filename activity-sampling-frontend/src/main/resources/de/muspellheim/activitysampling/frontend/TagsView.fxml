@@ -13,7 +13,7 @@
          <root>
             <VBox>
                <children>
-                  <CheckBox fx:id="allTagsCheckBox" mnemonicParsing="false" onAction="#handleCheckAllTags" selected="true" text="%tags.allTagsCheckBox.text">
+                  <CheckBox fx:id="allTagsCheckBox" mnemonicParsing="false" selected="true" text="%tags.allTagsCheckBox.text">
                      <VBox.margin>
                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                      </VBox.margin>

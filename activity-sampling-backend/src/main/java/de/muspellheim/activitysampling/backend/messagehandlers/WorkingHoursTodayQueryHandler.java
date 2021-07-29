@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeSet;
 
 public class WorkingHoursTodayQueryHandler {
   private final LinkedList<Activity> activities = new LinkedList<>();
@@ -60,7 +59,6 @@ public class WorkingHoursTodayQueryHandler {
     var filtered =
         ActivityProjection.filterTags(activities.stream(), query.includedTags()).toList();
     var totalWorkingHours = ActivityProjection.totalWorkingHours(filtered.stream());
-    return new WorkingHoursTodayQueryResult(
-        today, totalWorkingHours, List.copyOf(filtered), new TreeSet<>(tags));
+    return new WorkingHoursTodayQueryResult(today, totalWorkingHours, List.copyOf(filtered), tags);
   }
 }

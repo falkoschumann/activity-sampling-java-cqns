@@ -35,7 +35,7 @@
                                  </accelerator>
                               </MenuItem>
                               <SeparatorMenuItem mnemonicParsing="false" />
-                          <MenuItem mnemonicParsing="false" onAction="#handleQuit" text="%mainView.fileMenu.close">
+                          <MenuItem mnemonicParsing="false" onAction="#handleClose" text="%mainView.fileMenu.close">
                                  <accelerator>
                                     <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                                  </accelerator>
