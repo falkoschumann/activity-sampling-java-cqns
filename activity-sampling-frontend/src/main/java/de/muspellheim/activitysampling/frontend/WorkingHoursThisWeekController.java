@@ -22,6 +22,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
@@ -35,6 +36,7 @@ public class WorkingHoursThisWeekController {
 
   @FXML private Stage stage;
   @FXML private TextField calendarWeekText;
+  @FXML private Label filteredLabel;
   @FXML private TreeTableView<Activity> activitiesTable;
   @FXML private TreeTableColumn<Activity, String> timestampColumn;
   @FXML private TreeTableColumn<Activity, Duration> periodColumn;
@@ -42,7 +44,6 @@ public class WorkingHoursThisWeekController {
   @FXML private TreeTableColumn<Activity, String> tagsColumn;
   @FXML private TextField totalWorkingHoursText;
 
-  // TODO Zeige an, wenn Stichworte gefiltert sind
   private TagsController tagsController;
   private final SortedMap<LocalDate, WeekdayTreeItem> weekdays = new TreeMap<>();
 
@@ -84,6 +85,7 @@ public class WorkingHoursThisWeekController {
 
     tagsController.setOnSelectedTagsChanged(
         t -> onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery(t)));
+    filteredLabel.visibleProperty().bind(tagsController.allSelectedProperty().not());
     Stages.hookCloseHandler(stage);
   }
 
@@ -147,8 +149,8 @@ public class WorkingHoursThisWeekController {
 
   void run() {
     stage.show();
-    // FIXME Hier müssen Stichworte zurückgesetzt werden
-    onWorkingHoursThisWeekQuery.accept(new WorkingHoursThisWeekQuery());
+    onWorkingHoursThisWeekQuery.accept(
+        new WorkingHoursThisWeekQuery(tagsController.getSelectedTags()));
   }
 
   @FXML

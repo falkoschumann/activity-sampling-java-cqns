@@ -109,4 +109,11 @@ class TagsModel {
             .collect(Collectors.toSet());
     onSelectedTagsChanged.accept(selectedTags);
   }
+
+  Set<String> getSelectedTags() {
+    return selected.entrySet().stream()
+        .filter(it -> it.getValue().get())
+        .map(Entry::getKey)
+        .collect(Collectors.toSet());
+  }
 }

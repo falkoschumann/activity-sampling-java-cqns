@@ -38,11 +38,19 @@ class MainWindowModel {
 
   private final StringProperty activity = new SimpleStringProperty("");
 
+  final String getActivity() {
+    return activity.get();
+  }
+
   final StringProperty activityProperty() {
     return activity;
   }
 
   private final ObjectProperty<List<String>> tags = new SimpleObjectProperty<>(List.of());
+
+  final List<String> getTags() {
+    return tags.get();
+  }
 
   final ObjectProperty<List<String>> tagsProperty() {
     return tags;
@@ -163,12 +171,15 @@ class MainWindowModel {
 
   private final ReadOnlyStringWrapper log = new ReadOnlyStringWrapper("");
 
+  final String getLog() {
+    return log.get();
+  }
+
   final ReadOnlyStringProperty logProperty() {
     return log.getReadOnlyProperty();
   }
 
-  public void updateWith(ActivityLogQueryResult result) {
-    // TODO Schreibe Test
+  void updateWith(ActivityLogQueryResult result) {
     activity.set(result.last().activity());
     recentActivities.set(result.recent());
     tags.set(result.last().tags());
@@ -220,7 +231,7 @@ class MainWindowModel {
     onLogActivityCommand.accept(command);
   }
 
-  public void dispose() {
+  void dispose() {
     trayIconVisible.set(false);
   }
 }

@@ -19,6 +19,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -31,6 +32,7 @@ public class WorkingHoursTodayController {
 
   @FXML private Stage stage;
   @FXML private TextField dateText;
+  @FXML private Label filteredLabel;
   @FXML private TableView<Activity> activitiesTable;
   @FXML private TableColumn<Activity, LocalTime> timestampColumn;
   @FXML private TableColumn<Activity, Duration> periodColumn;
@@ -38,7 +40,6 @@ public class WorkingHoursTodayController {
   @FXML private TableColumn<Activity, List<String>> tagsColumn;
   @FXML private TextField totalWorkingHoursText;
 
-  // TODO Zeige an, wenn Stichworte gefiltert sind
   private TagsController tagsController;
 
   static WorkingHoursTodayController create(Stage owner) {
@@ -67,6 +68,7 @@ public class WorkingHoursTodayController {
 
     tagsController.setOnSelectedTagsChanged(
         t -> onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery(t)));
+    filteredLabel.visibleProperty().bind(tagsController.allSelectedProperty().not());
     Stages.hookCloseHandler(stage);
   }
 
@@ -79,8 +81,7 @@ public class WorkingHoursTodayController {
 
   void run() {
     stage.show();
-    // FIXME Hier müssen Stichworte zurückgesetzt werden
-    onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery());
+    onWorkingHoursTodayQuery.accept(new WorkingHoursTodayQuery(tagsController.getSelectedTags()));
   }
 
   @FXML

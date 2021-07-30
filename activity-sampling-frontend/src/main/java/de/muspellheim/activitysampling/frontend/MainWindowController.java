@@ -69,6 +69,7 @@ public class MainWindowController {
   private WorkingHoursByActivityController workingHoursByActivityController;
   private WorkingHoursByNumberController workingHoursByNumberController;
 
+  private final Timer timer = new Timer(true);
   private MainWindowModel model;
 
   public static MainWindowController create(Stage stage) {
@@ -116,8 +117,14 @@ public class MainWindowController {
   }
 
   private void scrollLogToBottom() {
-    // FIXME Herunterscrollen funktioniert nicht
-    Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE));
+    timer.schedule(
+        new TimerTask() {
+          @Override
+          public void run() {
+            activityLogText.setScrollTop(Double.MAX_VALUE);
+          }
+        },
+        200);
   }
 
   private void updateRecentActivities() {

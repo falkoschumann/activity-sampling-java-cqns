@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Consumer;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -56,6 +57,14 @@ public class TagsController implements Initializable {
 
   public void setOnSelectedTagsChanged(Consumer<Set<String>> onSelectedTagsChanged) {
     model.setOnSelectedTagsChanged(onSelectedTagsChanged);
+  }
+
+  ReadOnlyBooleanProperty allSelectedProperty() {
+    return model.allSelectedProperty();
+  }
+
+  Set<String> getSelectedTags() {
+    return model.getSelectedTags();
   }
 
   void setTags(Set<String> tags) {

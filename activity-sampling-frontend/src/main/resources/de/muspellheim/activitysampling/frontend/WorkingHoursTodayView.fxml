@@ -22,6 +22,7 @@
                      <Label styleClass="base" text="%workingHoursToday.dateText.text" />
                      <TextField fx:id="dateText" editable="false" focusTraversable="false" prefWidth="100.0" />
                      <Pane HBox.hgrow="ALWAYS" />
+                     <Label fx:id="filteredLabel" text="%workingHoursToday.filtered.text" />
                      <Button mnemonicParsing="false" onAction="#handleSelectTags" text="%workingHoursToday.selectTagsButton.text" />
                   </children>
                   <VBox.margin>
