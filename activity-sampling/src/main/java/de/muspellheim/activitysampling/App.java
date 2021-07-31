@@ -6,14 +6,16 @@
 package de.muspellheim.activitysampling;
 
 import de.muspellheim.activitysampling.backend.EventStore;
-import de.muspellheim.activitysampling.backend.PreferencesStore;
+import de.muspellheim.activitysampling.backend.PreferencesRepository;
 import de.muspellheim.activitysampling.backend.adapters.CsvEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
-import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesStore;
-import de.muspellheim.activitysampling.backend.adapters.PrefsPreferencesStore;
+import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesRepository;
+import de.muspellheim.activitysampling.backend.adapters.PrefsPreferencesRepository;
 import de.muspellheim.activitysampling.backend.messagehandlers.ActivityLogQueryHandler;
+import de.muspellheim.activitysampling.backend.messagehandlers.ChangeMainWindowBoundsCommandHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.ChangePreferencesCommandHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.LogActivityCommandHandler;
+import de.muspellheim.activitysampling.backend.messagehandlers.MainWindowBoundsQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.PreferencesQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByActivityQueryHandler;
 import de.muspellheim.activitysampling.backend.messagehandlers.WorkingHoursByNumberQueryHandler;
@@ -31,8 +33,8 @@ import javafx.application.Platform;
 import javafx.stage.Stage;
 
 public class App extends Application {
+  private PreferencesRepository preferencesRepository;
   private EventStore eventStore;
-  private PreferencesStore preferencesStore;
 
   public static void main(String[] args) {
     Application.launch(args);
@@ -42,26 +44,33 @@ public class App extends Application {
   public void init() {
     if (getParameters().getUnnamed().contains("--demo")) {
       System.setProperty("demoMode", "true");
-      preferencesStore = new MemoryPreferencesStore().addExamples();
+      preferencesRepository = new MemoryPreferencesRepository().addExamples();
       eventStore = new MemoryEventStore().addExamples();
     } else {
-      preferencesStore = new PrefsPreferencesStore();
+      preferencesRepository = new PrefsPreferencesRepository();
       eventStore = new CsvEventStore();
     }
   }
 
   @Override
   public void start(Stage primaryStage) {
+    var changeMainWindowBoundsCommandHandler =
+        new ChangeMainWindowBoundsCommandHandler(preferencesRepository);
     var logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
-    var changePreferencesCommandHandler = new ChangePreferencesCommandHandler(preferencesStore);
+    var changePreferencesCommandHandler =
+        new ChangePreferencesCommandHandler(preferencesRepository);
     var activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
-    var preferencesQueryHandler = new PreferencesQueryHandler(preferencesStore);
+    var preferencesQueryHandler = new PreferencesQueryHandler(preferencesRepository);
+    var mainWindowBoundsQueryHandler = new MainWindowBoundsQueryHandler(preferencesRepository);
     var workingHoursTodayQueryHandler = new WorkingHoursTodayQueryHandler(eventStore);
     var workingHoursThisWeekQueryHandler = new WorkingHoursThisWeekQueryHandler(eventStore);
     var workingHoursByActivityQueryHandler = new WorkingHoursByActivityQueryHandler(eventStore);
     var workingHoursByNumberQueryHandler = new WorkingHoursByNumberQueryHandler(eventStore);
     var frontend = MainWindowController.create(primaryStage);
 
+    frontend.setOnChangeMainWindowBoundsCommand(
+        commandProcessor(
+            changeMainWindowBoundsCommandHandler::handle, App::noOperation, frontend::display));
     var activityLogQueryProcessor =
         queryProcessor(activityLogQueryHandler::handle, frontend::display);
     frontend.setOnLogActivityCommand(
@@ -76,6 +85,8 @@ public class App extends Application {
             changePreferencesCommandHandler::handle,
             () -> preferencesQueryProcessor.accept(new PreferencesQuery()),
             frontend::display));
+    frontend.setOnMainWindowBoundsQuery(
+        queryProcessor(mainWindowBoundsQueryHandler::handle, frontend::display));
     frontend.setOnPreferencesQuery(preferencesQueryProcessor);
     frontend.setOnActivityLogQuery(activityLogQueryProcessor);
     frontend.setOnWorkingHoursTodayQuery(

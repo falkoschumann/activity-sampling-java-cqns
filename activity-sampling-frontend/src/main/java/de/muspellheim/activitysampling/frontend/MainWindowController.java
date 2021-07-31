@@ -6,11 +6,15 @@
 package de.muspellheim.activitysampling.frontend;
 
 import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
+import de.muspellheim.activitysampling.contract.data.Bounds;
+import de.muspellheim.activitysampling.contract.messages.commands.ChangeMainWindowBoundsCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.MainWindowBoundsQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.MainWindowBoundsQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQuery;
@@ -43,12 +47,15 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import lombok.Getter;
 import lombok.Setter;
 
 public class MainWindowController {
+  @Getter @Setter private Consumer<ChangeMainWindowBoundsCommand> onChangeMainWindowBoundsCommand;
+  @Getter @Setter private Consumer<MainWindowBoundsQuery> onMainWindowBoundsQuery;
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
   @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
 
@@ -202,10 +209,10 @@ public class MainWindowController {
   }
 
   public void run() {
+    onMainWindowBoundsQuery.accept(new MainWindowBoundsQuery());
     onPreferencesQuery.accept(new PreferencesQuery());
     onActivityLogQuery.accept(new ActivityLogQuery());
     startPeriod();
-    stage.show();
   }
 
   private void startPeriod() {
@@ -223,6 +230,22 @@ public class MainWindowController {
         },
         0,
         1000);
+  }
+
+  public void display(MainWindowBoundsQueryResult result) {
+    if (!Bounds.NULL.equals(result.bounds())) {
+      var x = result.bounds().x();
+      var y = result.bounds().y();
+      var width = result.bounds().width();
+      var height = result.bounds().height();
+      if (!Screen.getScreensForRectangle(x, y, width, height).isEmpty()) {
+        stage.setX(x);
+        stage.setY(y);
+        stage.setWidth(width);
+        stage.setHeight(height);
+      }
+    }
+    stage.show();
   }
 
   public void display(PreferencesQueryResult result) {
@@ -270,6 +293,9 @@ public class MainWindowController {
 
   @FXML
   private void handleClose() {
+    onChangeMainWindowBoundsCommand.accept(
+        new ChangeMainWindowBoundsCommand(
+            new Bounds(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight())));
     stage.close();
   }
 

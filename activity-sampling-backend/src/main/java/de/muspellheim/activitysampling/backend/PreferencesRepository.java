@@ -5,10 +5,15 @@
 
 package de.muspellheim.activitysampling.backend;
 
+import de.muspellheim.activitysampling.contract.data.Bounds;
 import java.time.Duration;
 
-public interface PreferencesStore {
+public interface PreferencesRepository {
   Duration loadPeriodDuration();
 
   void savePeriodDuration(Duration periodDuration);
+
+  Bounds loadMainWindowBounds();
+
+  void storeMainWindowBounds(Bounds bounds);
 }

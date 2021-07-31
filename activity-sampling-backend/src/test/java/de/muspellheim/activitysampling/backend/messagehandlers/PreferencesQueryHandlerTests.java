@@ -7,7 +7,7 @@ package de.muspellheim.activitysampling.backend.messagehandlers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesStore;
+import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesRepository;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import java.time.Duration;
@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Test;
 public class PreferencesQueryHandlerTests {
   @Test
   void testHandle() {
-    var store = new MemoryPreferencesStore().addExamples();
-    var handler = new PreferencesQueryHandler(store);
+    var repository = new MemoryPreferencesRepository().addExamples();
+    var handler = new PreferencesQueryHandler(repository);
 
     var result = handler.handle(new PreferencesQuery());
 

@@ -5,19 +5,19 @@
 
 package de.muspellheim.activitysampling.backend.messagehandlers;
 
-import de.muspellheim.activitysampling.backend.PreferencesStore;
+import de.muspellheim.activitysampling.backend.PreferencesRepository;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 
 public class PreferencesQueryHandler {
-  private final PreferencesStore preferencesStore;
+  private final PreferencesRepository repository;
 
-  public PreferencesQueryHandler(PreferencesStore preferencesStore) {
-    this.preferencesStore = preferencesStore;
+  public PreferencesQueryHandler(PreferencesRepository repository) {
+    this.repository = repository;
   }
 
   public PreferencesQueryResult handle(PreferencesQuery query) {
-    var periodDuration = preferencesStore.loadPeriodDuration();
+    var periodDuration = repository.loadPeriodDuration();
     return new PreferencesQueryResult(periodDuration);
   }
 }
