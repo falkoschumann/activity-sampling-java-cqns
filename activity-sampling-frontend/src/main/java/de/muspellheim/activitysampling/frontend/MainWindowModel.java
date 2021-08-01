@@ -9,8 +9,10 @@ import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.LinkedHashSet;
@@ -19,13 +21,13 @@ import java.util.function.Consumer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -36,14 +38,33 @@ class MainWindowModel {
   @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
   @Getter @Setter private Runnable onPeriodEnded;
 
+  private Duration periodDuration = Duration.ZERO;
+  private LocalDateTime periodStart;
+  private LocalDateTime periodEnd;
+
   private final StringProperty activity = new SimpleStringProperty("");
 
   final String getActivity() {
     return activity.get();
   }
 
+  final void setActivity(String value) {
+    activity.set(value);
+  }
+
   final StringProperty activityProperty() {
     return activity;
+  }
+
+  private final ReadOnlyObjectWrapper<List<ActivityTemplate>> recentActivities =
+      new ReadOnlyObjectWrapper<>(List.of());
+
+  final List<ActivityTemplate> getRecentActivities() {
+    return recentActivities.get();
+  }
+
+  final ReadOnlyObjectProperty<List<ActivityTemplate>> recentActivitiesProperty() {
+    return recentActivities.getReadOnlyProperty();
   }
 
   private final ObjectProperty<List<String>> tags = new SimpleObjectProperty<>(List.of());
@@ -52,48 +73,51 @@ class MainWindowModel {
     return tags.get();
   }
 
+  final void setTags(List<String> value) {
+    tags.set(value);
+  }
+
   final ObjectProperty<List<String>> tagsProperty() {
     return tags;
   }
 
-  private final ObjectProperty<List<String>> recentTags = new SimpleObjectProperty<>(List.of());
+  private final ReadOnlyObjectWrapper<List<String>> recentTags =
+      new ReadOnlyObjectWrapper<>(List.of());
 
   final List<String> getRecentTags() {
     return recentTags.get();
   }
 
-  final ObjectProperty<List<String>> recentTagsProperty() {
-    return recentTags;
+  final ReadOnlyObjectProperty<List<String>> recentTagsProperty() {
+    return recentTags.getReadOnlyProperty();
   }
 
-  private final ObjectProperty<List<ActivityTemplate>> recentActivities =
-      new SimpleObjectProperty<>(List.of());
-
-  final List<ActivityTemplate> getRecentActivities() {
-    return recentActivities.get();
-  }
-
-  final ObjectProperty<List<ActivityTemplate>> recentActivitiesProperty() {
-    return recentActivities;
-  }
-
-  private final BooleanProperty formDisabled = new SimpleBooleanProperty(true);
+  private final ReadOnlyBooleanWrapper formDisabled = new ReadOnlyBooleanWrapper(true);
 
   final boolean isFormDisabled() {
     return formDisabled.get();
   }
 
-  final BooleanProperty formDisabledProperty() {
-    return formDisabled;
+  final ReadOnlyBooleanProperty formDisabledProperty() {
+    return formDisabled.getReadOnlyProperty();
   }
 
-  final BooleanBinding addTagButtonDisabled = formDisabled.or(recentTags.isEqualTo(List.of()));
+  private final BooleanBinding addTagButtonDisabled =
+      formDisabled.or(recentTags.isEqualTo(List.of()));
+
+  final boolean isAddTagButtonDisabled() {
+    return addTagButtonDisabled.get();
+  }
 
   final BooleanBinding addTagButtonDisabledBinding() {
     return addTagButtonDisabled;
   }
 
-  final BooleanBinding logButtonDisabled = formDisabled.or(activity.isEmpty());
+  private final BooleanBinding logButtonDisabled = formDisabled.or(activity.isEmpty());
+
+  final boolean isLogButtonDisabled() {
+    return logButtonDisabled.get();
+  }
 
   final BooleanBinding logButtonDisabledBinding() {
     return logButtonDisabled;
@@ -101,35 +125,29 @@ class MainWindowModel {
 
   private final ReadOnlyBooleanWrapper trayIconVisible = new ReadOnlyBooleanWrapper(false);
 
+  final boolean isTrayIconVisible() {
+    return trayIconVisible.get();
+  }
+
   final ReadOnlyBooleanProperty trayIconVisibleProperty() {
     return trayIconVisible.getReadOnlyProperty();
   }
 
-  @Getter private Duration periodDuration = Duration.ZERO;
+  private final ReadOnlyObjectWrapper<LocalTime> remainingTime =
+      new ReadOnlyObjectWrapper<>(LocalTime.of(0, 20));
 
-  final void setPeriodDuration(Duration value) {
-    periodDuration = value;
-    periodStart = null;
-  }
-
-  private LocalDateTime periodStart;
-  @Getter private LocalDateTime periodEnd;
-
-  private final ObjectProperty<Duration> remainingTime =
-      new SimpleObjectProperty<>(Duration.ofMinutes(20));
-
-  final Duration getRemainingTime() {
+  final LocalTime getRemainingTime() {
     return remainingTime.get();
   }
 
-  final ObjectProperty<Duration> remainingTimeProperty() {
-    return remainingTime;
+  final ReadOnlyObjectProperty<LocalTime> remainingTimeProperty() {
+    return remainingTime.getReadOnlyProperty();
   }
 
-  final DoubleBinding periodProgress =
+  private final DoubleBinding periodProgress =
       Bindings.createDoubleBinding(
           () -> {
-            var remainingSeconds = (double) remainingTime.get().getSeconds();
+            var remainingSeconds = (double) remainingTime.get().toSecondOfDay();
             var totalSeconds = (double) periodDuration.getSeconds();
             if (totalSeconds == 0) {
               return 0.0;
@@ -138,35 +156,12 @@ class MainWindowModel {
           },
           remainingTime);
 
+  final double getPeriodProgress() {
+    return periodProgress.get();
+  }
+
   final DoubleBinding periodProgressBinding() {
     return periodProgress;
-  }
-
-  void addTag(String tag) {
-    var s = new LinkedHashSet<>(tags.get());
-    s.add(tag);
-    tags.set(List.copyOf(s));
-  }
-
-  void progressPeriod(LocalDateTime timestamp) {
-    if (periodStart == null) {
-      periodStart = timestamp;
-      remainingTime.set(periodDuration);
-      return;
-    }
-
-    var elapsed = Duration.between(periodStart, timestamp);
-    var remaining = periodDuration.minus(elapsed);
-    if (remaining.toSeconds() <= 0) {
-      remainingTime.set(Duration.ZERO);
-      periodEnd = timestamp;
-      periodStart = null;
-      formDisabled.set(false);
-      trayIconVisible.set(true);
-      onPeriodEnded.run();
-    } else {
-      remainingTime.set(remaining);
-    }
   }
 
   private final ReadOnlyStringWrapper log = new ReadOnlyStringWrapper("");
@@ -179,7 +174,12 @@ class MainWindowModel {
     return log.getReadOnlyProperty();
   }
 
-  void updateWith(ActivityLogQueryResult result) {
+  void display(PreferencesQueryResult result) {
+    periodDuration = result.periodDuration();
+    periodStart = null;
+  }
+
+  void display(ActivityLogQueryResult result) {
     activity.set(result.last().activity());
     recentActivities.set(result.recent());
     tags.set(result.last().tags());
@@ -217,8 +217,34 @@ class MainWindowModel {
     log.set(logBuilder.toString());
   }
 
+  void progressPeriod(LocalDateTime timestamp) {
+    if (periodStart == null) {
+      periodStart = timestamp;
+      remainingTime.set(LocalTime.ofSecondOfDay(periodDuration.getSeconds()));
+      return;
+    }
+
+    var elapsed = Duration.between(periodStart, timestamp);
+    var remaining = periodDuration.minus(elapsed);
+    if (remaining.toSeconds() <= 0) {
+      remainingTime.set(LocalTime.MIN);
+      periodEnd = timestamp;
+      periodStart = null;
+      formDisabled.set(false);
+      trayIconVisible.set(true);
+      onPeriodEnded.run();
+    } else {
+      remainingTime.set(LocalTime.ofSecondOfDay(remaining.getSeconds()));
+    }
+  }
+
+  void addTag(String tag) {
+    var s = new LinkedHashSet<>(tags.get());
+    s.add(tag);
+    tags.set(List.copyOf(s));
+  }
+
   void logActivity(ActivityTemplate template) {
-    // TODO Schreibe Test
     activity.set(template.activity());
     tags.set(template.tags());
     logActivity();

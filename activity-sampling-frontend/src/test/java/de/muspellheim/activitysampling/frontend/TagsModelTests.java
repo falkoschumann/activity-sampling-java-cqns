@@ -31,6 +31,7 @@ class TagsModelTests {
     assertAll(
         () -> assertTrue(model.isAllSelected(), "allSelected"),
         () -> assertEquals(List.of(), model.getTags(), "tags"),
+        () -> assertEquals(Set.of(), model.getSelectedTags(), "selectedTags"),
         () -> assertNull(selectedTags, "onSelectedTags"));
   }
 
@@ -41,8 +42,7 @@ class TagsModelTests {
     assertAll(
         () -> assertTrue(model.isAllSelected(), "allSelected"),
         () -> assertEquals(List.of("Bar", "Foo"), model.getTags(), "tags"),
-        () -> assertTrue(model.getSelectedFor("Foo").get(), "Foo selected"),
-        () -> assertTrue(model.getSelectedFor("Bar").get(), "Bar selected"),
+        () -> assertEquals(Set.of("Bar", "Foo"), model.getSelectedTags(), "selectedTags"),
         () -> assertNull(selectedTags, "onSelectedTags"));
   }
 
@@ -55,8 +55,7 @@ class TagsModelTests {
     assertAll(
         () -> assertFalse(model.isAllSelected(), "allSelected"),
         () -> assertEquals(List.of("Bar", "Foo"), model.getTags(), "tags"),
-        () -> assertFalse(model.getSelectedFor("Foo").get(), "Foo selected"),
-        () -> assertTrue(model.getSelectedFor("Bar").get(), "Bar selected"),
+        () -> assertEquals(Set.of("Bar"), model.getSelectedTags(), "selectedTags"),
         () -> assertEquals(Set.of("Bar"), selectedTags, "onSelectedTags"));
   }
 
@@ -68,16 +67,14 @@ class TagsModelTests {
     assertAll(
         () -> assertFalse(model.isAllSelected(), "allSelected"),
         () -> assertEquals(List.of("Bar", "Foo"), model.getTags(), "tags"),
-        () -> assertFalse(model.getSelectedFor("Foo").get(), "Foo selected"),
-        () -> assertFalse(model.getSelectedFor("Bar").get(), "Bar selected"),
+        () -> assertEquals(Set.of(), model.getSelectedTags(), "selectedTags"),
         () -> assertEquals(Set.of(), selectedTags, "onSelectedTags"));
 
     model.setAllSelected(true);
     assertAll(
         () -> assertTrue(model.isAllSelected(), "allSelected"),
         () -> assertEquals(List.of("Bar", "Foo"), model.getTags(), "tags"),
-        () -> assertTrue(model.getSelectedFor("Foo").get(), "Foo selected"),
-        () -> assertTrue(model.getSelectedFor("Bar").get(), "Bar selected"),
+        () -> assertEquals(Set.of("Bar", "Foo"), model.getSelectedTags(), "selectedTags"),
         () -> assertEquals(Set.of("Foo", "Bar"), selectedTags, "onSelectedTags"));
   }
 
@@ -91,8 +88,7 @@ class TagsModelTests {
     assertAll(
         () -> assertFalse(model.isAllSelected(), "allSelected"),
         () -> assertEquals(List.of("Foo"), model.getTags(), "tags"),
-        () -> assertFalse(model.getSelectedFor("Foo").get(), "Foo selected"),
-        () -> assertNull(model.getSelectedFor("Bar"), "Bar selected"),
+        () -> assertEquals(Set.of(), model.getSelectedTags(), "selectedTags"),
         () -> assertEquals(Set.of("Bar"), selectedTags, "onSelectedTags"));
   }
 }

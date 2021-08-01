@@ -27,7 +27,6 @@ import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTod
 import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ResourceBundle;
@@ -49,7 +48,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -109,9 +107,7 @@ public class MainWindowController {
     tagsText.disableProperty().bind(model.formDisabledProperty());
     addTagButton.disableProperty().bind(model.addTagButtonDisabledBinding());
     logButton.disableProperty().bind(model.logButtonDisabledBinding());
-    remainingTimeLabel
-        .textProperty()
-        .bindBidirectional(model.remainingTimeProperty(), new RemainingTimeStringConverter());
+    remainingTimeLabel.textProperty().bind(model.remainingTimeProperty().asString());
     progressBar.progressProperty().bind(model.periodProgressBinding());
     activityLogText.textProperty().bind(model.logProperty());
     activityLogText.textProperty().addListener(o -> scrollLogToBottom());
@@ -250,11 +246,11 @@ public class MainWindowController {
 
   public void display(PreferencesQueryResult result) {
     preferencesController.display(result);
-    model.setPeriodDuration(result.periodDuration());
+    model.display(result);
   }
 
   public void display(ActivityLogQueryResult result) {
-    model.updateWith(result);
+    model.display(result);
   }
 
   public void display(WorkingHoursTodayQueryResult result) {
@@ -328,19 +324,5 @@ public class MainWindowController {
   @FXML
   private void handleLogActivity() {
     model.logActivity();
-  }
-
-  private static class RemainingTimeStringConverter extends StringConverter<Duration> {
-    @Override
-    public String toString(Duration object) {
-      return String.format(
-          "%1$02d:%2$02d:%3$02d",
-          object.toHoursPart(), object.toMinutesPart(), object.toSecondsPart());
-    }
-
-    @Override
-    public Duration fromString(String string) {
-      throw new UnsupportedOperationException();
-    }
   }
 }

@@ -13,78 +13,107 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.muspellheim.activitysampling.contract.data.Activity;
 import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
+import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class MainWindowModelTests {
-  private MainWindowModel fixture;
+  private MainWindowModel model;
+  private boolean periodEnded;
+  private LogActivityCommand logActivityCommand;
 
   @BeforeEach
   void init() {
-    fixture = new MainWindowModel();
-    fixture.setOnPeriodEnded(() -> {});
+    model = new MainWindowModel();
+    model.setOnPeriodEnded(() -> periodEnded = true);
+    model.setOnLogActivityCommand(c -> logActivityCommand = c);
   }
 
   @Test
   void testClockTicked_periodStarted() {
-    fixture.setPeriodDuration(Duration.ofMinutes(20));
+    model.display(new PreferencesQueryResult(Duration.ofMinutes(20)));
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 20);
-    fixture.progressPeriod(currentTime);
+    model.progressPeriod(currentTime);
 
     assertAll(
-        () -> assertEquals(Duration.ofMinutes(20), fixture.getRemainingTime(), "remainingTime"),
-        () -> assertNull(fixture.getPeriodEnd(), "periodEnd"),
-        () -> assertEquals(0.0, fixture.periodProgressBinding().get(), "periodProgress"),
-        () -> assertTrue(fixture.isFormDisabled(), "formDisabled"),
-        () -> assertTrue(fixture.logButtonDisabled.get(), "formUnsubmittable"));
+        () -> assertEquals("", model.getActivity(), "activity"),
+        () -> assertEquals(List.of(), model.getRecentActivities(), "recentActivities"),
+        () -> assertEquals(List.of(), model.getTags(), "tags"),
+        () -> assertEquals(List.of(), model.getRecentTags(), "recentTags"),
+        () -> assertTrue(model.isFormDisabled(), "formDisabled"),
+        () -> assertTrue(model.isAddTagButtonDisabled(), "addTagButtonDisabled"),
+        () -> assertTrue(model.isLogButtonDisabled(), "logButtonDisabled"),
+        () -> assertFalse(model.isTrayIconVisible(), "trayIconVisible"),
+        () -> assertEquals(LocalTime.of(0, 20), model.getRemainingTime(), "remainingTime"),
+        () -> assertEquals(0.0, model.getPeriodProgress(), "periodProgress"),
+        () -> assertEquals("", model.getLog(), "log"),
+        () -> assertFalse(periodEnded, "periodEnded"),
+        () -> assertNull(logActivityCommand, "onLogActivityCommand"));
   }
 
   @Test
   void testClockTicked_periodProgressed() {
-    fixture.setPeriodDuration(Duration.ofMinutes(20));
+    model.display(new PreferencesQueryResult(Duration.ofMinutes(20)));
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
-    fixture.progressPeriod(startTime);
+    model.progressPeriod(startTime);
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 31, 45);
-    fixture.progressPeriod(currentTime);
+    model.progressPeriod(currentTime);
 
     assertAll(
-        () ->
-            assertEquals(
-                Duration.ofMinutes(8).plusSeconds(15), fixture.getRemainingTime(), "remainingTime"),
-        () -> assertNull(fixture.getPeriodEnd(), "periodEnd"),
-        () -> assertEquals(0.5875, fixture.periodProgressBinding().get(), "periodProgress"),
-        () -> assertTrue(fixture.isFormDisabled(), "formDisabled"),
-        () -> assertTrue(fixture.logButtonDisabled.get(), "formUnsubmittable"));
+        () -> assertEquals("", model.getActivity(), "activity"),
+        () -> assertEquals(List.of(), model.getRecentActivities(), "recentActivities"),
+        () -> assertEquals(List.of(), model.getTags(), "tags"),
+        () -> assertEquals(List.of(), model.getRecentTags(), "recentTags"),
+        () -> assertTrue(model.isFormDisabled(), "formDisabled"),
+        () -> assertTrue(model.isAddTagButtonDisabled(), "addTagButtonDisabled"),
+        () -> assertTrue(model.isLogButtonDisabled(), "logButtonDisabled"),
+        () -> assertFalse(model.isTrayIconVisible(), "trayIconVisible"),
+        () -> assertEquals(LocalTime.of(0, 8, 15), model.getRemainingTime(), "remainingTime"),
+        () -> assertEquals(0.5875, model.getPeriodProgress(), "periodProgress"),
+        () -> assertEquals("", model.getLog(), "log"),
+        () -> assertFalse(periodEnded, "periodEnded"),
+        () -> assertNull(logActivityCommand, "onLogActivityCommand"));
   }
 
   @Test
   void testClockTicked_periodEnded() {
-    fixture.setPeriodDuration(Duration.ofMinutes(20));
+    model.display(new PreferencesQueryResult(Duration.ofMinutes(20)));
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
-    fixture.progressPeriod(startTime);
+    model.progressPeriod(startTime);
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 40);
-    fixture.progressPeriod(currentTime);
+    model.progressPeriod(currentTime);
 
     assertAll(
-        () -> assertEquals(Duration.ZERO, fixture.getRemainingTime(), "remainingTime"),
-        () -> assertEquals(currentTime, fixture.getPeriodEnd(), "periodEnd"),
-        () -> assertEquals(1.0, fixture.periodProgressBinding().get(), "periodProgress"),
-        () -> assertFalse(fixture.isFormDisabled(), "formDisabled"),
-        () -> assertTrue(fixture.logButtonDisabled.get(), "formUnsubmittable"));
+        () -> assertEquals("", model.getActivity(), "activity"),
+        () -> assertEquals(List.of(), model.getRecentActivities(), "recentActivities"),
+        () -> assertEquals(List.of(), model.getTags(), "tags"),
+        () -> assertEquals(List.of(), model.getRecentTags(), "recentTags"),
+        () -> assertFalse(model.isFormDisabled(), "formDisabled"),
+        () -> assertTrue(model.isAddTagButtonDisabled(), "addTagButtonDisabled"),
+        () -> assertTrue(model.isLogButtonDisabled(), "logButtonDisabled"),
+        () -> assertTrue(model.isTrayIconVisible(), "trayIconVisible"),
+        () -> assertEquals(LocalTime.MIN, model.getRemainingTime(), "remainingTime"),
+        () -> assertEquals(1.0, model.getPeriodProgress(), "periodProgress"),
+        () -> assertEquals("", model.getLog(), "log"),
+        () -> assertTrue(periodEnded, "periodEnded"),
+        () -> assertNull(logActivityCommand, "onLogActivityCommand"));
   }
 
   @Test
-  void testUpdateWith() {
+  void testDisplayActivityLogQueryResult() {
     Locale.setDefault(Locale.GERMANY);
-    fixture.updateWith(
+
+    model.display(
         new ActivityLogQueryResult(
             List.of(
                 new Activity(
@@ -114,15 +143,21 @@ class MainWindowModelTests {
             List.of("Bar", "Foo")));
 
     assertAll(
-        () -> assertEquals("A", fixture.getActivity(), "activity"),
+        () -> assertEquals("A", model.getActivity(), "activity"),
         () ->
             assertEquals(
                 List.of(
                     new ActivityTemplate("A", List.of("Foo", "Bar")), new ActivityTemplate("B")),
-                fixture.getRecentActivities(),
+                model.getRecentActivities(),
                 "recentActivities"),
-        () -> assertEquals(List.of("Foo", "Bar"), fixture.getTags(), "tags"),
-        () -> assertEquals(List.of("Bar", "Foo"), fixture.getRecentTags(), "recentTags"),
+        () -> assertEquals(List.of("Foo", "Bar"), model.getTags(), "tags"),
+        () -> assertEquals(List.of("Bar", "Foo"), model.getRecentTags(), "recentTags"),
+        () -> assertTrue(model.isFormDisabled(), "formDisabled"),
+        () -> assertTrue(model.isAddTagButtonDisabled(), "addTagButtonDisabled"),
+        () -> assertTrue(model.isLogButtonDisabled(), "logButtonDisabled"),
+        () -> assertFalse(model.isTrayIconVisible(), "trayIconVisible"),
+        () -> assertEquals(LocalTime.of(0, 20), model.getRemainingTime(), "remainingTime"),
+        () -> assertEquals(0.0, model.getPeriodProgress(), "periodProgress"),
         () ->
             assertEquals(
                 """
@@ -133,7 +168,67 @@ class MainWindowModelTests {
           13:52 - B
           14:20 - [Foo, Bar] A
           """,
-                fixture.getLog(),
-                "log"));
+                model.getLog(),
+                "log"),
+        () -> assertFalse(periodEnded, "periodEnded"),
+        () -> assertNull(logActivityCommand, "onLogActivityCommand"));
+  }
+
+  @Test
+  void testLogActivity() {
+    model.display(new PreferencesQueryResult(Duration.ofMinutes(20)));
+    var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
+    model.progressPeriod(startTime);
+    var currentTime = LocalDateTime.of(2020, 11, 8, 17, 40);
+    model.progressPeriod(currentTime);
+
+    model.logActivity(new ActivityTemplate("A", List.of("Foo")));
+
+    assertAll(
+        () -> assertEquals("A", model.getActivity(), "activity"),
+        () -> assertEquals(List.of(), model.getRecentActivities(), "recentActivities"),
+        () -> assertEquals(List.of("Foo"), model.getTags(), "tags"),
+        () -> assertEquals(List.of(), model.getRecentTags(), "recentTags"),
+        () -> assertTrue(model.isFormDisabled(), "formDisabled"),
+        () -> assertTrue(model.isAddTagButtonDisabled(), "addTagButtonDisabled"),
+        () -> assertTrue(model.isLogButtonDisabled(), "logButtonDisabled"),
+        () -> assertFalse(model.isTrayIconVisible(), "trayIconVisible"),
+        () -> assertEquals(LocalTime.MIN, model.getRemainingTime(), "remainingTime"),
+        () -> assertEquals(1.0, model.getPeriodProgress(), "periodProgress"),
+        () -> assertEquals("", model.getLog(), "log"),
+        () -> assertTrue(periodEnded, "periodEnded"),
+        () ->
+            assertEquals(
+                new LogActivityCommand(currentTime, Duration.ofMinutes(20), "A", List.of("Foo")),
+                logActivityCommand,
+                "onLogActivityCommand"));
+  }
+
+  @Test
+  void testAddTag() {
+    model.display(new PreferencesQueryResult(Duration.ofMinutes(20)));
+    var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
+    model.progressPeriod(startTime);
+    var currentTime = LocalDateTime.of(2020, 11, 8, 17, 40);
+    model.progressPeriod(currentTime);
+
+    model.setActivity("A");
+    model.setTags(List.of("Foo"));
+    model.addTag("Bar");
+
+    assertAll(
+        () -> assertEquals("A", model.getActivity(), "activity"),
+        () -> assertEquals(List.of(), model.getRecentActivities(), "recentActivities"),
+        () -> assertEquals(List.of("Foo", "Bar"), model.getTags(), "tags"),
+        () -> assertEquals(List.of(), model.getRecentTags(), "recentTags"),
+        () -> assertFalse(model.isFormDisabled(), "formDisabled"),
+        () -> assertTrue(model.isAddTagButtonDisabled(), "addTagButtonDisabled"),
+        () -> assertFalse(model.isLogButtonDisabled(), "logButtonDisabled"),
+        () -> assertTrue(model.isTrayIconVisible(), "trayIconVisible"),
+        () -> assertEquals(LocalTime.MIN, model.getRemainingTime(), "remainingTime"),
+        () -> assertEquals(1.0, model.getPeriodProgress(), "periodProgress"),
+        () -> assertEquals("", model.getLog(), "log"),
+        () -> assertTrue(periodEnded, "periodEnded"),
+        () -> assertNull(logActivityCommand, "onLogActivityCommand"));
   }
 }

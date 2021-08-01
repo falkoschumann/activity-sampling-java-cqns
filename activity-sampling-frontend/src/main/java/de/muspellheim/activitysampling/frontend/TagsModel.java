@@ -22,7 +22,7 @@ import lombok.Setter;
 class TagsModel {
   private boolean internalUpdate = false;
 
-  @Getter @Setter Consumer<Set<String>> onSelectedTagsChanged;
+  @Getter @Setter private Consumer<Set<String>> onSelectedTagsChanged;
 
   private final BooleanProperty allSelected =
       new SimpleBooleanProperty(true) {
@@ -55,7 +55,7 @@ class TagsModel {
 
   private final Map<String, BooleanProperty> selected = new TreeMap<>();
 
-  public BooleanProperty getSelectedFor(String tag) {
+  final BooleanProperty getSelectedFor(String tag) {
     return selected.get(tag);
   }
 
