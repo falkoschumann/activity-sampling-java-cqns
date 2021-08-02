@@ -71,6 +71,9 @@ public class CsvEventStoreTests {
             "d5abc0dd-60b0-4a3b-9b2f-8b02005fb256",
             LocalDateTime.of(2020, 12, 30, 21, 20).atZone(ZoneId.systemDefault()).toInstant(),
             Duration.ofMinutes(20),
+            "",
+            "TodoMVC",
+            "Design",
             "Create a TodoMVC template",
             List.of("Test", "TodoMVC")));
   }

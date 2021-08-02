@@ -124,7 +124,7 @@ public class MainWindowController {
         new TimerTask() {
           @Override
           public void run() {
-            activityLogText.setScrollTop(Double.MAX_VALUE);
+            Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE));
           }
         },
         200);

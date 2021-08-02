@@ -19,6 +19,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Beschränke Auswahl aus letzten Stichworte.
 - Begrenze Anzahl dargestellter Aktivitäten im Log.
 
+### Fixed
+
+- Log wurde bei Aktualisierung nicht zuverlässig zum Ende gescrollt.
+
 ## [1.1.0] - 2021-06-27
 
 ### Added

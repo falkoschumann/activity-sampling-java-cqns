@@ -42,6 +42,9 @@ public class CsvEventStore extends AbstractEventStore {
     ID,
     Timestamp,
     Period,
+    Client,
+    Project,
+    Task,
     Activity,
     Tags
   }
@@ -98,7 +101,14 @@ public class CsvEventStore extends AbstractEventStore {
       var printer = new CSVPrinter(out, CSV_FORMAT);
       String formattedTags = String.join(", ", event.tags());
       printer.printRecord(
-          event.id(), formattedTimestamp, formattedPeriod, event.activity(), formattedTags);
+          event.id(),
+          formattedTimestamp,
+          formattedPeriod,
+          event.client(),
+          event.project(),
+          event.task(),
+          event.activity(),
+          formattedTags);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -140,16 +150,20 @@ public class CsvEventStore extends AbstractEventStore {
     var period =
         Duration.ofSeconds(
             LocalTime.parse(record.get(Headers.Period), PERIOD_FORMATTER).toSecondOfDay());
+    var client = record.get(Headers.Client);
+    var project = record.get(Headers.Project);
+    var task = record.get(Headers.Task);
     var activity = record.get(Headers.Activity);
-    var tags = record.get(Headers.Tags).isEmpty() ? null : record.get(Headers.Tags);
-    return new ActivityLoggedEvent(id, timestamp, period, activity, mapTags(tags));
+    var tags = record.get(Headers.Tags).isEmpty() ? "" : record.get(Headers.Tags);
+    return new ActivityLoggedEvent(
+        id, timestamp, period, client, project, task, activity, mapTags(tags));
   }
 
   private static List<String> mapTags(String tags) {
-    if (tags == null) {
+    if (tags.isBlank()) {
       return List.of();
     }
 
-    return List.of(tags.split(",")).stream().map(String::strip).collect(Collectors.toList());
+    return Stream.of(tags.split(",")).map(String::strip).collect(Collectors.toList());
   }
 }
