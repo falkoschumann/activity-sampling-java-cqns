@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.muspellheim.activitysampling.backend.events.ActivityLoggedEvent;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,31 +20,29 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class CsvEventStoreTests {
-  private static final String OUT_FILE = "build/event-store/event-stream.csv";
-  private static final String SOLL_FILE = "src/test/resources/event-stream.csv";
+  private static final Path OUT_FILE = Paths.get("build/event-store/event-stream.csv");
+  private static final Path SOLL_FILE = Paths.get("src/test/resources/event-stream.csv");
 
   @BeforeAll
   static void setUpBeforeAll() throws Exception {
-    Files.deleteIfExists(Paths.get(OUT_FILE));
-    Files.createDirectories(Paths.get(OUT_FILE).getParent());
+    Files.deleteIfExists(OUT_FILE);
+    Files.createDirectories(OUT_FILE.getParent());
   }
 
   @Test
   void record() throws Exception {
-    var eventStore = new CsvEventStore();
-    eventStore.setUri(OUT_FILE);
+    var eventStore = new CsvEventStore(OUT_FILE);
     var events = createEvents();
 
     eventStore.record(events.get(0));
     eventStore.record(events.get(1));
 
-    assertEquals(Files.readAllLines(Paths.get(SOLL_FILE)), Files.readAllLines(Paths.get(OUT_FILE)));
+    assertEquals(Files.readAllLines(SOLL_FILE), Files.readAllLines(OUT_FILE));
   }
 
   @Test
   void replay_EventType() {
-    var eventStore = new CsvEventStore();
-    eventStore.setUri(SOLL_FILE);
+    var eventStore = new CsvEventStore(SOLL_FILE);
 
     var events = eventStore.replay(ActivityLoggedEvent.class);
 
@@ -52,8 +51,7 @@ public class CsvEventStoreTests {
 
   @Test
   void replay_EventTypeCollection() {
-    var eventStore = new CsvEventStore();
-    eventStore.setUri(SOLL_FILE);
+    var eventStore = new CsvEventStore(SOLL_FILE);
 
     var events = eventStore.replay(List.of(ActivityLoggedEvent.class));
 

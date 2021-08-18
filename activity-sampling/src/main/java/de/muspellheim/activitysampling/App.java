@@ -103,6 +103,7 @@ public class App extends Application {
 
   private static <C, S> Consumer<C> commandProcessor(
       Function<C, S> commandHandler, Runnable onSuccess, Consumer<Failure> onFailure) {
+    // TODO Catch exceptions
     return command ->
         CompletableFuture.supplyAsync(() -> commandHandler.apply(command))
             .thenAcceptAsync(
@@ -120,6 +121,7 @@ public class App extends Application {
 
   private static <Q, R> Consumer<Q> queryProcessor(
       Function<Q, R> queryHandler, Consumer<R> projector) {
+    // TODO Catch exceptions
     return query ->
         CompletableFuture.supplyAsync(() -> queryHandler.apply(query))
             .thenAcceptAsync(projector, Platform::runLater);

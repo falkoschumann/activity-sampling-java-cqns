@@ -12,4 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 public record WorkingHoursTodayQueryResult(
-    LocalDate date, Duration totalWorkingHours, List<Activity> activities, Set<String> tags) {}
+    LocalDate date,
+    Duration totalWorkingHours,
+    List<Activity> activities, // TODO Ersetze durch Timesheets
+    @Deprecated Set<String> tags) {}

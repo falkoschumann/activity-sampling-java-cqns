@@ -49,18 +49,19 @@ public class CsvEventStore extends AbstractEventStore {
     Tags
   }
 
+  private final Path file;
+
   public CsvEventStore() {
-    var path = Paths.get(System.getProperty("user.home"), ".activity-sampling", "event-stream.csv");
-    setUri(path.toString());
+    this(Paths.get(System.getProperty("user.home"), ".activity-sampling", "event-stream.csv"));
   }
 
-  private Path getFile() {
-    return Paths.get(getUri());
+  public CsvEventStore(Path file) {
+    this.file = file;
   }
 
   @Override
   public void record(Event event) {
-    if (Files.notExists(getFile())) {
+    if (Files.notExists(file)) {
       createFile();
     }
     writeActivity((ActivityLoggedEvent) event);
@@ -69,17 +70,14 @@ public class CsvEventStore extends AbstractEventStore {
 
   private void createFile() {
     try {
-      Files.createDirectories(getFile().getParent());
+      Files.createDirectories(file.getParent());
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
 
     try (var out =
         Files.newBufferedWriter(
-            getFile(),
-            StandardCharsets.UTF_8,
-            StandardOpenOption.CREATE,
-            StandardOpenOption.WRITE)) {
+            file, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
       CSV_FORMAT.withHeader(Headers.class).print(out);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -89,10 +87,7 @@ public class CsvEventStore extends AbstractEventStore {
   private void writeActivity(ActivityLoggedEvent event) {
     try (var out =
         Files.newBufferedWriter(
-            getFile(),
-            StandardCharsets.UTF_8,
-            StandardOpenOption.APPEND,
-            StandardOpenOption.WRITE)) {
+            file, StandardCharsets.UTF_8, StandardOpenOption.APPEND, StandardOpenOption.WRITE)) {
       var formattedTimestamp =
           LocalDateTime.ofInstant(event.timestamp(), ZoneId.systemDefault())
               .format(TIMESTAMP_FORMATTER);
@@ -117,7 +112,7 @@ public class CsvEventStore extends AbstractEventStore {
   @Override
   public Stream<? extends Event> replay() {
     try {
-      var reader = Files.newBufferedReader(getFile(), StandardCharsets.UTF_8);
+      var reader = Files.newBufferedReader(file, StandardCharsets.UTF_8);
       var parser =
           new CSVParser(reader, CSV_FORMAT.withHeader(Headers.class).withSkipHeaderRecord());
       var iterator = parser.iterator();

@@ -10,4 +10,4 @@ import java.util.List;
 import java.util.SortedSet;
 
 public record WorkingHoursByActivityQueryResult(
-    List<WorkingHours> workingHours, SortedSet<String> tags) {}
+    List<WorkingHours> workingHours, @Deprecated SortedSet<String> tags) {}

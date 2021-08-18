@@ -10,10 +10,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public interface EventStore {
-  String getUri();
-
-  void setUri(String uri);
-
   void addRecordedObserver(Consumer<Event> handler);
 
   void removeRecordedObserver(Consumer<Event> handler);

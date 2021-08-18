@@ -2,20 +2,20 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Scene?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.stage.Stage?>
 
@@ -73,35 +73,29 @@
                   </MenuBar>
                   <VBox prefHeight="640.0" prefWidth="360.0" spacing="12.0" VBox.vgrow="ALWAYS">
                      <children>
-                        <VBox spacing="4.0">
+                        <GridPane hgap="8.0" vgap="4.0">
+                          <columnConstraints>
+                            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" />
+                            <ColumnConstraints hgrow="SOMETIMES" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+                            <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+                            <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+                              <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+                              <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+                          </rowConstraints>
                            <children>
-                              <Label text="%mainView.activityLabel.text" />
-                              <TextField fx:id="activityText" disable="true" onAction="#handleLogActivity" promptText="%mainView.activityText.promptText" />
+                              <Label text="%mainView.clientLabel.text" />
+                              <ComboBox fx:id="clientCombo" disable="true" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" />
+                              <Label text="%mainView.projectLabel.text" GridPane.rowIndex="1" />
+                              <ComboBox fx:id="projectCombo" disable="true" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Label text="%mainView.taskLabel.text" GridPane.rowIndex="2" />
+                              <ComboBox fx:id="taskCombo" disable="true" editable="true" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <Label text="%mainView.notesLabel.text" GridPane.rowIndex="3" />
+                              <TextField fx:id="notesText" disable="true" onAction="#handleLogActivity" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                            </children>
-                        </VBox>
-                        <VBox spacing="4.0">
-                           <children>
-                              <Label text="%mainView.tagsLabel.text" />
-                              <HBox spacing="8.0">
-                                 <children>
-                                    <TextField fx:id="tagsText" disable="true" onAction="#handleLogActivity" promptText="%mainView.tagsText.promptText" HBox.hgrow="ALWAYS" />
-                                    <MenuButton fx:id="addTagButton" contentDisplay="GRAPHIC_ONLY" disable="true" mnemonicParsing="false" text="MenuButton">
-                                      <items>
-                                        <MenuItem mnemonicParsing="false" text="Foo" />
-                                        <MenuItem mnemonicParsing="false" text="Bar" />
-                                      </items>
-                                       <graphic>
-                                          <ImageView pickOnBounds="true" preserveRatio="true">
-                                             <image>
-                                                <Image url="@add.png" />
-                                             </image>
-                                          </ImageView>
-                                       </graphic>
-                                    </MenuButton>
-                                 </children>
-                              </HBox>
-                           </children>
-                        </VBox>
+                        </GridPane>
                         <SplitMenuButton fx:id="logButton" alignment="CENTER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogActivity" text="%mainView.logButton.text">
                           <items>
                             <MenuItem mnemonicParsing="false" text="Lorem Ipsum" />

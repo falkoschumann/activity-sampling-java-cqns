@@ -126,12 +126,14 @@ class MainWindowModelTests {
                     "d5abc0dd-60b0-4a3b-9b2f-8b02005fb256",
                     LocalDateTime.of(2020, 12, 30, 21, 20),
                     Duration.ofMinutes(20),
-                    "B"),
+                    "B",
+                    List.of()),
                 new Activity(
                     "e9ed7915-8109-402d-b9e6-2d5764ef688d",
                     LocalDateTime.of(2021, 1, 4, 13, 52),
                     Duration.ofMinutes(20),
-                    "B"),
+                    "B",
+                    List.of()),
                 new Activity(
                     "d36a20db-56ae-48af-9221-0630911cdb8d",
                     LocalDateTime.of(2021, 1, 4, 14, 20),

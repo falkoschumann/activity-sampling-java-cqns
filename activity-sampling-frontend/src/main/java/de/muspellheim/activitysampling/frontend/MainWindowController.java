@@ -38,9 +38,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SplitMenuButton;
@@ -59,9 +59,10 @@ public class MainWindowController {
 
   @FXML private Stage stage;
   @FXML private MenuBar menuBar;
-  @FXML private TextField activityText;
-  @FXML private TextField tagsText;
-  @FXML private MenuButton addTagButton;
+  @FXML private ComboBox<String> clientCombo;
+  @FXML private ComboBox<String> projectCombo;
+  @FXML private ComboBox<String> taskCombo;
+  @FXML private TextField notesText;
   @FXML private SplitMenuButton logButton;
   @FXML private Label remainingTimeLabel;
   @FXML private ProgressBar progressBar;
@@ -101,11 +102,11 @@ public class MainWindowController {
     workingHoursByNumberController = WorkingHoursByNumberController.create(stage);
     model = new MainWindowModel();
 
-    activityText.textProperty().bindBidirectional(model.activityProperty());
-    activityText.disableProperty().bind(model.formDisabledProperty());
-    tagsText.textProperty().bindBidirectional(model.tagsProperty(), new TagsStringConverter());
-    tagsText.disableProperty().bind(model.formDisabledProperty());
-    addTagButton.disableProperty().bind(model.addTagButtonDisabledBinding());
+    // activityText.textProperty().bindBidirectional(model.activityProperty());
+    // activityText.disableProperty().bind(model.formDisabledProperty());
+    // tagsText.textProperty().bindBidirectional(model.tagsProperty(), new TagsStringConverter());
+    // tagsText.disableProperty().bind(model.formDisabledProperty());
+    // addTagButton.disableProperty().bind(model.addTagButtonDisabledBinding());
     logButton.disableProperty().bind(model.logButtonDisabledBinding());
     remainingTimeLabel.textProperty().bind(model.remainingTimeProperty().asString());
     progressBar.progressProperty().bind(model.periodProgressBinding());
@@ -153,6 +154,7 @@ public class MainWindowController {
   }
 
   private void updateRecentTags() {
+    /*
     addTagButton
         .getItems()
         .setAll(
@@ -164,12 +166,13 @@ public class MainWindowController {
                       return menuItem;
                     })
                 .toList());
+     */
   }
 
   private void handlePeriodEnded() {
     Platform.runLater(
         () -> {
-          activityText.requestFocus();
+          // activityText.requestFocus();
           trayIconViewController.showQuestion();
         });
   }
@@ -269,7 +272,9 @@ public class MainWindowController {
     workingHoursByNumberController.display(result);
   }
 
+  @Deprecated
   public void display(Failure failure) {
+    // TODO Ersetze durch Exception
     var index = failure.errorMessage().indexOf(": ");
     var header = index == -1 ? null : failure.errorMessage().substring(0, index);
     var content =

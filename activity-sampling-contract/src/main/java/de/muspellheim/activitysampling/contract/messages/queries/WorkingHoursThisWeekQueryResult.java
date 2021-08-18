@@ -11,4 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 public record WorkingHoursThisWeekQueryResult(
-    int calendarWeek, Duration totalWorkingHours, List<Activity> activities, Set<String> tags) {}
+    int calendarWeek,
+    Duration totalWorkingHours,
+    List<Activity> activities, // TODO Ersetze durch Timesheets
+    @Deprecated Set<String> tags) {}

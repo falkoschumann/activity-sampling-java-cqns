@@ -7,7 +7,6 @@ package de.muspellheim.activitysampling.backend.messagehandlers;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import de.muspellheim.activitysampling.backend.Event;
 import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
@@ -26,38 +25,34 @@ class LogActivityCommandHandlerTests {
   @Test
   void testHandle() {
     var eventStore = new MemoryEventStore();
-    var handler = new LogActivityCommandHandler(eventStore);
+    var handler = new LogActivityCommandHandler(eventStore, () -> "#1");
 
     var status =
         handler.handle(
             new LogActivityCommand(
                 LocalDateTime.of(2020, 11, 22, 17, 47, 17),
                 Duration.ofMinutes(20),
-                "Lorem ipsum",
-                List.of("Foobar")));
+                "ACME Ltd.",
+                "Foobar",
+                "Design",
+                "Lorem ipsum"));
 
     List<Event> events = eventStore.replay().collect(Collectors.toList());
     assertAll(
         () -> assertEquals(new Success(), status, "Command status"),
-        () -> assertEquals(1, events.size(), "Number of events"),
-        () -> assertNotNull(events.get(0).id(), "Event id"),
         () ->
             assertEquals(
-                LocalDateTime.of(2020, 11, 22, 17, 47, 17)
-                    .atZone(ZoneId.systemDefault())
-                    .toInstant(),
-                events.get(0).timestamp(),
-                "Event timestamp"),
-        () ->
-            assertEquals(
-                Duration.ofMinutes(20),
-                ((ActivityLoggedEvent) events.get(0)).period(),
-                "Event period"),
-        () ->
-            assertEquals(
-                "Lorem ipsum", ((ActivityLoggedEvent) events.get(0)).activity(), "Event activity"),
-        () ->
-            assertEquals(
-                List.of("Foobar"), ((ActivityLoggedEvent) events.get(0)).tags(), "Event tags"));
+                List.of(
+                    new ActivityLoggedEvent(
+                        "#1",
+                        LocalDateTime.of(2020, 11, 22, 17, 47, 17)
+                            .atZone(ZoneId.systemDefault())
+                            .toInstant(),
+                        Duration.ofMinutes(20),
+                        "ACME Ltd.",
+                        "Foobar",
+                        "Design",
+                        "Lorem ipsum")),
+                events));
   }
 }

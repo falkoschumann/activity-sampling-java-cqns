@@ -21,7 +21,7 @@ class ActivityStringConverterTests {
         () ->
             assertEquals(
                 "Lorem ipsum",
-                converter.toString(new ActivityTemplate("Lorem ipsum")),
+                converter.toString(new ActivityTemplate("Lorem ipsum", List.of())),
                 "without tag"),
         () ->
             assertEquals(
@@ -42,7 +42,7 @@ class ActivityStringConverterTests {
     assertAll(
         () ->
             assertEquals(
-                new ActivityTemplate("Lorem ipsum"),
+                new ActivityTemplate("Lorem ipsum", List.of()),
                 converter.fromString("Lorem ipsum"),
                 "without tag"),
         () ->

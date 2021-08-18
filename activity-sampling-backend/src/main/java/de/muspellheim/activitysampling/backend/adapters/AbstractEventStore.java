@@ -10,12 +10,8 @@ import de.muspellheim.activitysampling.backend.EventStore;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
-import lombok.Getter;
-import lombok.Setter;
 
 public abstract class AbstractEventStore implements EventStore {
-  @Getter @Setter private String uri;
-
   private final List<Consumer<Event>> recordedObserver = new CopyOnWriteArrayList<>();
 
   @Override

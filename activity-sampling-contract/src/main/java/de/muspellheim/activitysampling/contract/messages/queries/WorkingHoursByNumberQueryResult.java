@@ -10,6 +10,6 @@ import java.util.List;
 import java.util.SortedSet;
 
 public record WorkingHoursByNumberQueryResult(
-    List<WorkingHoursCategory> catogories, SortedSet<String> tags) {
+    List<WorkingHoursCategory> catogories, @Deprecated SortedSet<String> tags) {
   public static record WorkingHoursCategory(Duration workingHours, int number) {}
 }

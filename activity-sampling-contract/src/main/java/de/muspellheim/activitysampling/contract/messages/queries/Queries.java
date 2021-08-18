@@ -5,6 +5,7 @@
 
 package de.muspellheim.activitysampling.contract.messages.queries;
 
+@Deprecated
 public final class Queries {
   private Queries() {}
 

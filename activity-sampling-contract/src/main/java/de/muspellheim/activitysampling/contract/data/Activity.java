@@ -11,16 +11,45 @@ import java.util.List;
 import java.util.Objects;
 
 public record Activity(
-    String id, LocalDateTime timestamp, Duration period, String activity, List<String> tags) {
+    String id,
+    LocalDateTime timestamp,
+    Duration period,
+    String client,
+    String project,
+    String task,
+    String notes,
+    @Deprecated List<String> tags) {
   public Activity {
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(timestamp, "timestamp");
     Objects.requireNonNull(period, "period");
-    Objects.requireNonNull(activity, "activity");
-    Objects.requireNonNull(tags, "tags");
+    Objects.requireNonNull(notes, "notes");
   }
 
+  public Activity(
+      String id,
+      LocalDateTime timestamp,
+      Duration period,
+      String client,
+      String project,
+      String task,
+      String notes) {
+    this(id, timestamp, period, client, project, task, notes, List.of());
+  }
+
+  @Deprecated
   public Activity(String id, LocalDateTime timestamp, Duration period, String activity) {
-    this(id, timestamp, period, activity, List.of());
+    this(id, timestamp, period, null, null, null, activity, List.of());
+  }
+
+  @Deprecated
+  public Activity(
+      String id, LocalDateTime timestamp, Duration period, String activity, List<String> tags) {
+    this(id, timestamp, period, null, null, null, activity, tags);
+  }
+
+  @Deprecated
+  public String activity() {
+    return notes;
   }
 }

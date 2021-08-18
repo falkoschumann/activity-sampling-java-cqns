@@ -22,15 +22,28 @@ public class MemoryEventStore extends AbstractEventStore {
         List.of(
             new ActivityLoggedEvent(
                 "a7caf1b0-886e-406f-8fbc-71da9f34714e",
-                LocalDateTime.of(2020, 12, 30, 17, 52).atZone(ZoneId.systemDefault()).toInstant(),
+                LocalDateTime.of(2021, 8, 18, 19, 18).atZone(ZoneId.systemDefault()).toInstant(),
                 Duration.ofMinutes(20),
-                "Taste JavaScript"),
+                "Wayne Enterprises",
+                "Batmobil",
+                "Design",
+                "Black car"),
             new ActivityLoggedEvent(
                 "d5abc0dd-60b0-4a3b-9b2f-8b02005fb256",
-                LocalDateTime.of(2020, 12, 30, 21, 20).atZone(ZoneId.systemDefault()).toInstant(),
+                LocalDateTime.of(2021, 8, 18, 19, 38).atZone(ZoneId.systemDefault()).toInstant(),
                 Duration.ofMinutes(20),
-                "Create a TodoMVC template",
-                List.of("Test", "TodoMVC"))));
+                "Axis Chemical Co.",
+                null,
+                null,
+                "Double the production of Smylex"),
+            new ActivityLoggedEvent(
+                "e9ed7915-8109-402d-b9e6-2d5764ef688d",
+                LocalDateTime.of(2021, 8, 18, 19, 58).atZone(ZoneId.systemDefault()).toInstant(),
+                Duration.ofMinutes(20),
+                null,
+                "Activity Sampling",
+                "Analyze",
+                "Write user stories")));
     return this;
   }
 
