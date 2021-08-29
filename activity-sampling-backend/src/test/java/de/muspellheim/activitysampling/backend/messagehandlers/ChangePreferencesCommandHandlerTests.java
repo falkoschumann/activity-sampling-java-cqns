@@ -14,9 +14,9 @@ import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
-public class ChangePreferencesCommandHandlerTests {
+class ChangePreferencesCommandHandlerTests {
   @Test
-  void testHandle() {
+  void handle() {
     var repository = new MemoryPreferencesRepository();
     var handler = new ChangePreferencesCommandHandler(repository);
 

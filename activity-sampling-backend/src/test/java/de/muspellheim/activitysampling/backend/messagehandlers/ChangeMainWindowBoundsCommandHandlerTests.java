@@ -5,6 +5,7 @@
 
 package de.muspellheim.activitysampling.backend.messagehandlers;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesRepository;
@@ -13,16 +14,19 @@ import de.muspellheim.activitysampling.contract.messages.commands.ChangeMainWind
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import org.junit.jupiter.api.Test;
 
-public class ChangeMainWindowBoundsCommandHandlerTests {
+class ChangeMainWindowBoundsCommandHandlerTests {
   @Test
-  void testHandle() {
+  void handle() {
     var repository = new MemoryPreferencesRepository();
     repository.addExamples();
     var handler = new ChangeMainWindowBoundsCommandHandler(repository);
 
     var status = handler.handle(new ChangeMainWindowBoundsCommand(new Bounds(1, 2, 3, 4)));
 
-    assertEquals(new Success(), status, "command status");
-    assertEquals(new Bounds(1, 2, 3, 4), repository.loadMainWindowBounds(), "main window bounds");
+    assertAll(
+        () -> assertEquals(new Success(), status, "command status"),
+        () ->
+            assertEquals(
+                new Bounds(1, 2, 3, 4), repository.loadMainWindowBounds(), "main window bounds"));
   }
 }

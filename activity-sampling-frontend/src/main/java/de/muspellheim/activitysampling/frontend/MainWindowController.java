@@ -11,27 +11,21 @@ import de.muspellheim.activitysampling.contract.messages.commands.ChangeMainWind
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.MainWindowBoundsQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.MainWindowBoundsQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByActivityQueryResult;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursByNumberQueryResult;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursThisWeekQueryResult;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.WorkingHoursTodayQueryResult;
+import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQuery;
+import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -53,9 +47,12 @@ import lombok.Setter;
 
 public class MainWindowController {
   @Getter @Setter private Consumer<ChangeMainWindowBoundsCommand> onChangeMainWindowBoundsCommand;
+  @Getter @Setter private Consumer<ChangePreferencesCommand> onChangePreferencesCommand;
+  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
+  @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
   @Getter @Setter private Consumer<MainWindowBoundsQuery> onMainWindowBoundsQuery;
   @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
-  @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
+  @Getter @Setter private Consumer<TimeReportQuery> onTimeReportQuery;
 
   @FXML private Stage stage;
   @FXML private MenuBar menuBar;
@@ -66,17 +63,14 @@ public class MainWindowController {
   @FXML private SplitMenuButton logButton;
   @FXML private Label remainingTimeLabel;
   @FXML private ProgressBar progressBar;
-  @FXML private TextArea activityLogText;
+  @FXML private TextArea logText;
 
   private TrayIconController trayIconViewController;
   private PreferencesController preferencesController;
-  private WorkingHoursTodayController workingHoursTodayController;
-  private WorkingHoursThisWeekController workingHoursThisWeekController;
-  private WorkingHoursByActivityController workingHoursByActivityController;
-  private WorkingHoursByNumberController workingHoursByNumberController;
+  private TimeReportController timeReportController;
 
-  private final Timer timer = new Timer(true);
-  private MainWindowModel model;
+  private Duration periodDuration;
+  private LocalDateTime timestamp;
 
   public static MainWindowController create(Stage stage) {
     try {
@@ -96,199 +90,118 @@ public class MainWindowController {
     menuBar.setUseSystemMenuBar(true);
     trayIconViewController = new TrayIconController();
     preferencesController = PreferencesController.create(stage);
-    workingHoursTodayController = WorkingHoursTodayController.create(stage);
-    workingHoursThisWeekController = WorkingHoursThisWeekController.create(stage);
-    workingHoursByActivityController = WorkingHoursByActivityController.create(stage);
-    workingHoursByNumberController = WorkingHoursByNumberController.create(stage);
-    model = new MainWindowModel();
+    timeReportController = TimeReportController.create(stage);
 
-    // activityText.textProperty().bindBidirectional(model.activityProperty());
-    // activityText.disableProperty().bind(model.formDisabledProperty());
-    // tagsText.textProperty().bindBidirectional(model.tagsProperty(), new TagsStringConverter());
-    // tagsText.disableProperty().bind(model.formDisabledProperty());
-    // addTagButton.disableProperty().bind(model.addTagButtonDisabledBinding());
-    logButton.disableProperty().bind(model.logButtonDisabledBinding());
-    remainingTimeLabel.textProperty().bind(model.remainingTimeProperty().asString());
-    progressBar.progressProperty().bind(model.periodProgressBinding());
-    activityLogText.textProperty().bind(model.logProperty());
-    activityLogText.textProperty().addListener(o -> scrollLogToBottom());
-    trayIconViewController.visibleProperty().bind(model.trayIconVisibleProperty());
-    trayIconViewController.setOnActivitySelected(model::logActivity);
-    model.recentActivitiesProperty().addListener(o -> updateRecentActivities());
-    model.recentTagsProperty().addListener(o -> updateRecentTags());
-    model.setOnPeriodEnded(this::handlePeriodEnded);
-    stage.setOnHiding(e -> model.dispose());
-  }
-
-  private void scrollLogToBottom() {
-    timer.schedule(
-        new TimerTask() {
-          @Override
-          public void run() {
-            Platform.runLater(() -> activityLogText.setScrollTop(Double.MAX_VALUE));
-          }
-        },
-        200);
-  }
-
-  private void updateRecentActivities() {
-    {
-      var recent =
-          model.getRecentActivities().stream()
-              .map(it -> new ActivityTemplate(it.activity(), it.tags()))
-              .toList();
-      var converter = new ActivityTemplateStringConverter();
-      logButton
-          .getItems()
-          .setAll(
-              recent.stream()
-                  .map(
-                      it -> {
-                        var menuItem = new MenuItem(converter.toString(it));
-                        menuItem.setOnAction(e -> model.logActivity(it));
-                        return menuItem;
-                      })
-                  .toList());
-      trayIconViewController.setRecent(recent);
-    }
-  }
-
-  private void updateRecentTags() {
-    /*
-    addTagButton
-        .getItems()
-        .setAll(
-            model.getRecentTags().stream()
-                .map(
-                    it -> {
-                      var menuItem = new MenuItem(it);
-                      menuItem.setOnAction(e -> model.addTag(it));
-                      return menuItem;
-                    })
-                .toList());
-     */
-  }
-
-  private void handlePeriodEnded() {
-    Platform.runLater(
-        () -> {
-          // activityText.requestFocus();
-          trayIconViewController.showQuestion();
-        });
-  }
-
-  public void setOnChangePreferencesCommand(
-      Consumer<ChangePreferencesCommand> onChangePreferencesCommand) {
-    preferencesController.setOnChangePreferencesCommand(onChangePreferencesCommand);
-  }
-
-  public void setOnLogActivityCommand(Consumer<LogActivityCommand> onLogActivityCommand) {
-    model.setOnLogActivityCommand(onLogActivityCommand);
-  }
-
-  public void setOnWorkingHoursTodayQuery(
-      Consumer<WorkingHoursTodayQuery> onWorkingHoursTodayQuery) {
-    workingHoursTodayController.setOnWorkingHoursTodayQuery(onWorkingHoursTodayQuery);
-  }
-
-  public void setOnWorkingHoursThisWeekQuery(
-      Consumer<WorkingHoursThisWeekQuery> onWorkingHoursThisWeekQuery) {
-    workingHoursThisWeekController.setOnWorkingHoursThisWeekQuery(onWorkingHoursThisWeekQuery);
-  }
-
-  public void setOnWorkingHoursByActivityQuery(
-      Consumer<WorkingHoursByActivityQuery> onWorkingHoursByActivityQuery) {
-    workingHoursByActivityController.setOnWorkingHoursByActivityQuery(
-        onWorkingHoursByActivityQuery);
-  }
-
-  public void setOnWorkingHoursByNumberQuery(
-      Consumer<WorkingHoursByNumberQuery> onWorkingHoursByNumberQuery) {
-    workingHoursByNumberController.setOnWorkingHoursByNumberQuery(onWorkingHoursByNumberQuery);
+    trayIconViewController.setOnActivitySelected(this::logActivity);
   }
 
   public void run() {
     onMainWindowBoundsQuery.accept(new MainWindowBoundsQuery());
     onPreferencesQuery.accept(new PreferencesQuery());
     onActivityLogQuery.accept(new ActivityLogQuery());
-    startPeriod();
-  }
-
-  private void startPeriod() {
-    var systemClock = new Timer(true);
-    systemClock.schedule(
-        new TimerTask() {
-          @Override
-          public void run() {
-            Platform.runLater(
-                () -> {
-                  var currentTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-                  model.progressPeriod(currentTime);
-                });
-          }
-        },
-        0,
-        1000);
-  }
-
-  public void display(MainWindowBoundsQueryResult result) {
-    if (!Bounds.NULL.equals(result.bounds())) {
-      var x = result.bounds().x();
-      var y = result.bounds().y();
-      var width = result.bounds().width();
-      var height = result.bounds().height();
-      if (!Screen.getScreensForRectangle(x, y, width, height).isEmpty()) {
-        stage.setX(x);
-        stage.setY(y);
-        stage.setWidth(width);
-        stage.setHeight(height);
-      }
-    }
-    stage.show();
-  }
-
-  public void display(PreferencesQueryResult result) {
-    preferencesController.display(result);
-    model.display(result);
   }
 
   public void display(ActivityLogQueryResult result) {
-    model.display(result);
+    Platform.runLater(
+        () -> {
+          clientCombo.getItems().setAll(result.recentClients());
+          projectCombo.getItems().setAll(result.recentProjects());
+          taskCombo.getItems().setAll(result.recentTasks());
+          logText.setText(result.log());
+          logText.positionCaret(logText.getText().length());
+
+          if (result.last() != null) {
+            clientCombo.setValue(result.last().client());
+            projectCombo.setValue(result.last().project());
+            taskCombo.setValue(result.last().task());
+            notesText.setText(result.last().notes());
+          }
+
+          var menuItems =
+              result.recent().stream()
+                  .map(
+                      it -> {
+                        var menuItem = new MenuItem(it.toString());
+                        menuItem.setOnAction(e -> logActivity(it));
+                        return menuItem;
+                      })
+                  .toList();
+          logButton.getItems().setAll(menuItems);
+
+          trayIconViewController.setRecent(result.recent());
+        });
   }
 
-  public void display(WorkingHoursTodayQueryResult result) {
-    workingHoursTodayController.display(result);
+  public void display(MainWindowBoundsQueryResult result) {
+    Platform.runLater(
+        () -> {
+          if (!Bounds.NULL.equals(result.bounds())) {
+            var x = result.bounds().x();
+            var y = result.bounds().y();
+            var width = result.bounds().width();
+            var height = result.bounds().height();
+            if (!Screen.getScreensForRectangle(x, y, width, height).isEmpty()) {
+              stage.setX(x);
+              stage.setY(y);
+              stage.setWidth(width);
+              stage.setHeight(height);
+            }
+          }
+          stage.show();
+        });
   }
 
-  public void display(WorkingHoursThisWeekQueryResult result) {
-    workingHoursThisWeekController.display(result);
+  public void display(PreferencesQueryResult result) {
+    Platform.runLater(
+        () -> {
+          periodDuration = result.periodDuration();
+          preferencesController.display(result);
+        });
   }
 
-  public void display(WorkingHoursByActivityQueryResult result) {
-    workingHoursByActivityController.display(result);
+  public void display(TimeReportQueryResult result) {
+    Platform.runLater(() -> timeReportController.display(result));
   }
 
-  public void display(WorkingHoursByNumberQueryResult result) {
-    workingHoursByNumberController.display(result);
+  public void display(PeriodProgressedNotification notification) {
+    Platform.runLater(
+        () -> {
+          remainingTimeLabel.setText(
+              DateTimeFormatter.ofPattern("HH:mm:ss").format(notification.remaining()));
+          progressBar.setProgress(notification.progress());
+          if (notification.end() != null) {
+            timestamp = notification.end();
+            clientCombo.setDisable(false);
+            projectCombo.setDisable(false);
+            taskCombo.setDisable(false);
+            notesText.setDisable(false);
+            logButton.setDisable(false);
+            trayIconViewController.show();
+          }
+        });
   }
 
   @Deprecated
   public void display(Failure failure) {
-    // TODO Ersetze durch Exception
-    var index = failure.errorMessage().indexOf(": ");
-    var header = index == -1 ? null : failure.errorMessage().substring(0, index);
-    var content =
-        index == -1 ? failure.errorMessage() : failure.errorMessage().substring(index + 1);
+    // TODO Ersetze durch Exception: Exception für Ausnahmen, Failure für erwartete Fehler
+    Platform.runLater(
+        () -> {
+          var index = failure.errorMessage().indexOf(": ");
+          var header = index == -1 ? null : failure.errorMessage().substring(0, index);
+          var content =
+              index == -1 ? failure.errorMessage() : failure.errorMessage().substring(index + 1);
 
-    var alert = new Alert(AlertType.ERROR);
-    alert.initOwner(stage);
-    alert.setHeaderText(header);
-    alert.setContentText(content);
-    alert.show();
+          var alert = new Alert(AlertType.ERROR);
+          alert.initOwner(stage);
+          alert.setHeaderText(header);
+          alert.setContentText(content);
+          alert.show();
+        });
   }
 
   @FXML
   private void handleOpenPreferences() {
+    preferencesController.setOnChangePreferencesCommand(onChangePreferencesCommand);
     preferencesController.run();
   }
 
@@ -301,23 +214,9 @@ public class MainWindowController {
   }
 
   @FXML
-  private void handleWorkingHoursToday() {
-    workingHoursTodayController.run();
-  }
-
-  @FXML
-  private void handleWorkingHoursThisWeek() {
-    workingHoursThisWeekController.run();
-  }
-
-  @FXML
-  private void handleWorkingHoursByActivity() {
-    workingHoursByActivityController.run();
-  }
-
-  @FXML
-  private void handleWorkingHoursByNumber() {
-    workingHoursByNumberController.run();
+  private void handleOpenTimeReport() {
+    timeReportController.setOnTimesheetQuery(onTimeReportQuery);
+    timeReportController.run();
   }
 
   @FXML
@@ -328,6 +227,27 @@ public class MainWindowController {
 
   @FXML
   private void handleLogActivity() {
-    model.logActivity();
+    onLogActivityCommand.accept(
+        new LogActivityCommand(
+            timestamp,
+            periodDuration,
+            clientCombo.getValue(),
+            projectCombo.getValue(),
+            taskCombo.getValue(),
+            notesText.getText()));
+    clientCombo.setDisable(true);
+    projectCombo.setDisable(true);
+    taskCombo.setDisable(true);
+    notesText.setDisable(true);
+    logButton.setDisable(true);
+    trayIconViewController.hide();
+  }
+
+  private void logActivity(ActivityTemplate activity) {
+    clientCombo.setValue(activity.client());
+    projectCombo.setValue(activity.project());
+    taskCombo.setValue(activity.task());
+    notesText.setText(activity.notes());
+    handleLogActivity();
   }
 }

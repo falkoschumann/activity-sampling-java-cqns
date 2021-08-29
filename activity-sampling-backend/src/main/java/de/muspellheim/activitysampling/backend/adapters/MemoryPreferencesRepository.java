@@ -10,12 +10,12 @@ import de.muspellheim.activitysampling.contract.data.Bounds;
 import java.time.Duration;
 
 public class MemoryPreferencesRepository implements PreferencesRepository {
-  private Duration periodDuration;
+  private Duration periodDuration = Duration.ofMinutes(20);
   private Bounds mainWindowBounds = Bounds.NULL;
 
   public MemoryPreferencesRepository addExamples() {
     periodDuration = Duration.ofMinutes(2);
-    mainWindowBounds = new Bounds(36, 24, 640, 480);
+    mainWindowBounds = new Bounds(360, 240, 640, 480);
     return this;
   }
 

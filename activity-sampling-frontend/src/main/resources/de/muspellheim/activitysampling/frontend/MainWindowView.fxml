@@ -42,26 +42,13 @@
                               </MenuItem>
                         </items>
                       </Menu>
-                        <Menu mnemonicParsing="false" text="%mainView.statisticsMenu">
+                        <Menu mnemonicParsing="false" text="%mainView.reportingMenu">
                           <items>
-                              <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursToday" text="%mainView.statisticsMenu.workingHoursToday">
+                              <MenuItem mnemonicParsing="false" onAction="#handleOpenTimeReport" text="%mainView.reportingMenu.timeReport">
                                  <accelerator>
                                     <KeyCodeCombination alt="UP" code="DIGIT1" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                                  </accelerator>
                               </MenuItem>
-                              <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursThisWeek" text="%mainView.statisticsMenu.workingHoursThisWeek">
-                                 <accelerator>
-                                    <KeyCodeCombination alt="UP" code="DIGIT2" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
-                                 </accelerator>
-                              </MenuItem>
-                            <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByActivity" text="%mainView.statisticsMenu.workingHoursByActivity">
-                                 <accelerator>
-                                    <KeyCodeCombination alt="UP" code="DIGIT3" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
-                                 </accelerator></MenuItem>
-                              <MenuItem mnemonicParsing="false" onAction="#handleWorkingHoursByNumber" text="%mainView.statisticsMenu.workingHoursByNumber">
-                                 <accelerator>
-                                    <KeyCodeCombination alt="UP" code="DIGIT4" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
-                                 </accelerator></MenuItem>
                           </items>
                         </Menu>
                       <Menu mnemonicParsing="false" text="%mainView.helpMenu">
@@ -76,7 +63,7 @@
                         <GridPane hgap="8.0" vgap="4.0">
                           <columnConstraints>
                             <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" />
-                            <ColumnConstraints hgrow="SOMETIMES" />
+                            <ColumnConstraints hgrow="ALWAYS" />
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
@@ -108,7 +95,7 @@
                               <ProgressBar fx:id="progressBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                            </children>
                         </VBox>
-                        <TextArea fx:id="activityLogText" editable="false" VBox.vgrow="ALWAYS" />
+                        <TextArea fx:id="logText" editable="false" VBox.vgrow="ALWAYS" />
                      </children>
                      <VBox.margin>
                         <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />

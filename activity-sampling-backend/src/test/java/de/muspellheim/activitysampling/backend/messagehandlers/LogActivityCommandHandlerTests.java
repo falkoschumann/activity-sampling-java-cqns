@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 class LogActivityCommandHandlerTests {
 
   @Test
-  void testHandle() {
+  void handle() {
     var eventStore = new MemoryEventStore();
     var handler = new LogActivityCommandHandler(eventStore, () -> "#1");
 

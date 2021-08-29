@@ -13,9 +13,9 @@ import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuer
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
-public class PreferencesQueryHandlerTests {
+class PreferencesQueryHandlerTests {
   @Test
-  void testHandle() {
+  void handle() {
     var repository = new MemoryPreferencesRepository().addExamples();
     var handler = new PreferencesQueryHandler(repository);
 

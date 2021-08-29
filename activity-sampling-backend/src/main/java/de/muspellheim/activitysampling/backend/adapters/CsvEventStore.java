@@ -21,10 +21,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.commons.csv.CSVFormat;
@@ -45,8 +43,7 @@ public class CsvEventStore extends AbstractEventStore {
     Client,
     Project,
     Task,
-    Activity,
-    Tags
+    Notes
   }
 
   private final Path file;
@@ -94,7 +91,6 @@ public class CsvEventStore extends AbstractEventStore {
       var formattedPeriod =
           LocalTime.ofSecondOfDay(event.period().toSeconds()).format(PERIOD_FORMATTER);
       var printer = new CSVPrinter(out, CSV_FORMAT);
-      String formattedTags = String.join(", ", event.tags());
       printer.printRecord(
           event.id(),
           formattedTimestamp,
@@ -102,8 +98,7 @@ public class CsvEventStore extends AbstractEventStore {
           event.client(),
           event.project(),
           event.task(),
-          event.activity(),
-          formattedTags);
+          event.notes());
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -148,17 +143,7 @@ public class CsvEventStore extends AbstractEventStore {
     var client = record.get(Headers.Client);
     var project = record.get(Headers.Project);
     var task = record.get(Headers.Task);
-    var activity = record.get(Headers.Activity);
-    var tags = record.get(Headers.Tags).isEmpty() ? "" : record.get(Headers.Tags);
-    return new ActivityLoggedEvent(
-        id, timestamp, period, client, project, task, activity, mapTags(tags));
-  }
-
-  private static List<String> mapTags(String tags) {
-    if (tags.isBlank()) {
-      return List.of();
-    }
-
-    return Stream.of(tags.split(",")).map(String::strip).collect(Collectors.toList());
+    var notes = record.get(Headers.Notes);
+    return new ActivityLoggedEvent(id, timestamp, period, client, project, task, notes);
   }
 }

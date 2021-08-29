@@ -13,15 +13,15 @@ import de.muspellheim.activitysampling.contract.messages.queries.MainWindowBound
 import de.muspellheim.activitysampling.contract.messages.queries.MainWindowBoundsQueryResult;
 import org.junit.jupiter.api.Test;
 
-public class MainWindowBoundsQueryHandlerTests {
+class MainWindowBoundsQueryHandlerTests {
   @Test
-  void testHandle() {
+  void handle() {
     var repository = new MemoryPreferencesRepository();
     repository.addExamples();
     var handler = new MainWindowBoundsQueryHandler(repository);
 
     var result = handler.handle(new MainWindowBoundsQuery());
 
-    assertEquals(new MainWindowBoundsQueryResult(new Bounds(36, 24, 640, 480)), result);
+    assertEquals(new MainWindowBoundsQueryResult(new Bounds(360, 240, 640, 480)), result);
   }
 }

@@ -8,7 +8,6 @@ package de.muspellheim.activitysampling.backend.messagehandlers;
 import de.muspellheim.activitysampling.backend.PreferencesRepository;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
-import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
 
 public class ChangePreferencesCommandHandler {
@@ -19,11 +18,7 @@ public class ChangePreferencesCommandHandler {
   }
 
   public CommandStatus handle(ChangePreferencesCommand command) {
-    try {
-      repository.savePeriodDuration(command.periodDuration());
-      return new Success();
-    } catch (Exception e) {
-      return new Failure("Storing preferences failed: " + e.getMessage());
-    }
+    repository.savePeriodDuration(command.periodDuration());
+    return new Success();
   }
 }

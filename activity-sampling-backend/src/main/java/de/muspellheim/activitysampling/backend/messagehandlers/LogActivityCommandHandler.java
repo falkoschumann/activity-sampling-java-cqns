@@ -36,8 +36,7 @@ public class LogActivityCommandHandler {
             command.client(),
             command.project(),
             command.task(),
-            command.notes(),
-            command.tags()));
+            command.notes()));
     return new Success();
   }
 }
