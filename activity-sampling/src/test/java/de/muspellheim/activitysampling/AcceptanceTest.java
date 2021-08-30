@@ -34,33 +34,54 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Locale;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.TestMethodOrder;
 
-class RequestHandlerTests {
-  private PeriodProgressedNotification periodProgressedNotification;
+@TestInstance(Lifecycle.PER_CLASS)
+@TestMethodOrder(OrderAnnotation.class)
+class AcceptanceTest {
+  private static RequestHandler requestHandler;
+  private static PeriodProgressedNotification periodProgressedNotification;
 
-  @Test
-  void acceptanceTest_emptyEventStore() {
+  @BeforeAll
+  static void initAll() {
+    Locale.setDefault(Locale.GERMANY);
     // TODO Teste gegen "richtigen" Event Store
     var eventStore = new MemoryEventStore();
     // TODO Teste gegen "richtigen" Preferences Repository
     var preferencesRepository = new MemoryPreferencesRepository();
-    var handler = new RequestHandler(eventStore, preferencesRepository);
-    handler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
+    requestHandler = new RequestHandler(eventStore, preferencesRepository);
+    requestHandler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
+  }
 
-    var mainWindowBoundsQueryResult = handler.handle(new MainWindowBoundsQuery());
+  @Test
+  @Order(1)
+  void startUp_InitialValues() {
+    var mainWindowBoundsQueryResult = requestHandler.handle(new MainWindowBoundsQuery());
     assertEquals(new MainWindowBoundsQueryResult(Bounds.NULL), mainWindowBoundsQueryResult);
 
-    var preferencesQueryResult = handler.handle(new PreferencesQuery());
+    var preferencesQueryResult = requestHandler.handle(new PreferencesQuery());
     assertEquals(new PreferencesQueryResult(Duration.ofMinutes(20)), preferencesQueryResult);
 
-    var activityLogQueryResult = handler.handle(new ActivityLogQuery());
+    var activityLogQueryResult = requestHandler.handle(new ActivityLogQuery());
     assertEquals(
         new ActivityLogQueryResult("", List.of(), null, List.of(), List.of(), List.of()),
         activityLogQueryResult);
+  }
 
-    var timeReportQueryResult =
-        handler.handle(new TimeReportQuery(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 8, 29)));
+  @Test
+  @Order(2)
+  void timeReport_Empty() {
+    var result =
+        requestHandler.handle(
+            new TimeReportQuery(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 8, 29)));
+
     assertEquals(
         new TimeReportQueryResult(
             LocalDate.of(2021, 1, 1),
@@ -70,37 +91,67 @@ class RequestHandlerTests {
             List.of(),
             List.of(),
             List.of()),
-        timeReportQueryResult);
+        result);
+  }
 
-    handler.handle(new ChangeMainWindowBoundsCommand(new Bounds(40, 60, 400, 600)));
-    mainWindowBoundsQueryResult = handler.handle(new MainWindowBoundsQuery());
-    assertEquals(
-        new MainWindowBoundsQueryResult(new Bounds(40, 60, 400, 600)), mainWindowBoundsQueryResult);
+  @Test
+  @Order(3)
+  void changeMainWindowBounds() {
+    requestHandler.handle(new ChangeMainWindowBoundsCommand(new Bounds(40, 60, 400, 600)));
 
-    preferencesQueryResult = handler.handle(new ChangePreferencesCommand(Duration.ofMinutes(12)));
+    var result = requestHandler.handle(new MainWindowBoundsQuery());
+    assertEquals(new MainWindowBoundsQueryResult(new Bounds(40, 60, 400, 600)), result);
+  }
+
+  @Test
+  @Order(4)
+  void changePreferences() {
+    // TODO Ändere period duration während period läuft
+    var preferencesQueryResult =
+        requestHandler.handle(new ChangePreferencesCommand(Duration.ofMinutes(12)));
+
     assertEquals(new PreferencesQueryResult(Duration.ofMinutes(12)), preferencesQueryResult);
+  }
 
+  @Test
+  @Order(5)
+  void clockTicked_Period1Started() {
     assertNull(periodProgressedNotification);
-    handler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 25)));
+    requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 25)));
+
     assertEquals(
         new PeriodProgressedNotification(LocalTime.of(0, 12), 0.0, null),
         periodProgressedNotification);
+  }
 
-    handler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 34)));
+  @Test
+  @Order(6)
+  void clockTicked_Period1Progressed() {
+    requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 34)));
+
     assertEquals(
         new PeriodProgressedNotification(LocalTime.of(0, 3), 0.75, null),
         periodProgressedNotification);
+  }
 
+  @Test
+  @Order(7)
+  void clockTicked_Period1Ended() {
     // TODO PeriodProgressedNotification ohne timestamp?
-    handler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 37)));
+    requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 37)));
+
     assertEquals(
         new PeriodProgressedNotification(
             LocalTime.of(0, 0), 1.0, LocalDateTime.of(2021, 8, 29, 18, 37)),
         periodProgressedNotification);
+  }
 
+  @Test
+  @Order(8)
+  void logActivity1() {
     // TODO LogActivityCommand ohne timestamp und duration?
-    activityLogQueryResult =
-        handler.handle(
+    var result =
+        requestHandler.handle(
             new LogActivityCommand(
                 LocalDateTime.of(2021, 8, 29, 18, 37),
                 Duration.ofMinutes(12),
@@ -108,6 +159,7 @@ class RequestHandlerTests {
                 "Foobar",
                 "Analyze",
                 "Analyze requirements"));
+
     assertEquals(
         new ActivityLogQueryResult(
             """
@@ -119,26 +171,45 @@ class RequestHandlerTests {
             List.of("ACME Ltd."),
             List.of("Foobar"),
             List.of("Analyze")),
-        activityLogQueryResult);
+        result);
+  }
 
-    handler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 43)));
+  @Test
+  @Order(9)
+  void clockTicked_Period2Progressed() {
+    requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 43)));
+
     assertEquals(
         new PeriodProgressedNotification(LocalTime.of(0, 6), 0.5, null),
         periodProgressedNotification);
+  }
 
-    handler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 49)));
+  @Test
+  @Order(10)
+  void clockTicked_Period2Ended() {
+    requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 49)));
+
     assertEquals(
         new PeriodProgressedNotification(
             LocalTime.of(0, 0), 1.0, LocalDateTime.of(2021, 8, 29, 18, 49)),
         periodProgressedNotification);
+  }
 
-    handler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 52)));
+  @Test
+  @Order(11)
+  void clockTicked_Period3Progressed() {
+    requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 52)));
+
     assertEquals(
         new PeriodProgressedNotification(LocalTime.of(0, 9), 0.25, null),
         periodProgressedNotification);
+  }
 
-    activityLogQueryResult =
-        handler.handle(
+  @Test
+  @Order(12)
+  void logActivity2() {
+    var result =
+        requestHandler.handle(
             new LogActivityCommand(
                 LocalDateTime.of(2021, 8, 29, 18, 49),
                 Duration.ofMinutes(12),
@@ -146,6 +217,7 @@ class RequestHandlerTests {
                 "Foobar",
                 "Design",
                 "Design architecture"));
+
     assertEquals(
         new ActivityLogQueryResult(
             """
@@ -160,10 +232,16 @@ class RequestHandlerTests {
             List.of("ACME Ltd."),
             List.of("Foobar"),
             List.of("Analyze", "Design")),
-        activityLogQueryResult);
+        result);
+  }
 
-    timeReportQueryResult =
-        handler.handle(new TimeReportQuery(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 8, 29)));
+  @Test
+  @Order(13)
+  void timeReport() {
+    var result =
+        requestHandler.handle(
+            new TimeReportQuery(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 8, 29)));
+
     assertEquals(
         new TimeReportQueryResult(
             LocalDate.of(2021, 1, 1),
@@ -193,8 +271,6 @@ class RequestHandlerTests {
                     Duration.ofMinutes(12),
                     null,
                     null))),
-        timeReportQueryResult);
+        result);
   }
-
-  // TODO Teste mit Events im Event Store
 }
