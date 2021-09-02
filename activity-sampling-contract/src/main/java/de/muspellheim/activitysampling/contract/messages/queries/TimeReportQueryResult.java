@@ -43,14 +43,14 @@ public record TimeReportQueryResult(
     }
   }
 
-  public static record TaskEntry(String task, String project, String client, Duration hours) {
+  public static record TaskEntry(String task, Duration hours) {
     public TaskEntry {
-      Objects.requireNonNull(client, "client");
-      Objects.requireNonNull(project, "project");
       Objects.requireNonNull(task, "task");
       Objects.requireNonNull(hours, "hours");
     }
   }
+
+  // TODO TeamEntry(name, hours)
 
   public static record TimesheetEntry(
       LocalDate date,

@@ -77,8 +77,8 @@ class TimeReportQueryHandlerTests {
                 new ProjectEntry("Batmobil", "Wayne Enterprises", Duration.ofMinutes(60)),
                 new ProjectEntry("Gotham", "Axis Chemical Co.", Duration.ofMinutes(20))),
             List.of(
-                new TaskEntry("Design", "Batmobil", "Wayne Enterprises", Duration.ofMinutes(60)),
-                new TaskEntry("Production", "Gotham", "Axis Chemical Co.", Duration.ofMinutes(20))),
+                new TaskEntry("Design", Duration.ofMinutes(60)),
+                new TaskEntry("Production", Duration.ofMinutes(20))),
             List.of(
                 new TimesheetEntry(
                     LocalDate.of(2021, 8, 18),

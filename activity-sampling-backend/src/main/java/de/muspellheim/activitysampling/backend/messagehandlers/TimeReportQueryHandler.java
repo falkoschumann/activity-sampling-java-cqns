@@ -127,7 +127,7 @@ public class TimeReportQueryHandler {
           d.totalHours = e.hours();
           d.clients.add(new ClientEntry(e.client(), e.hours()));
           d.projects.add(new ProjectEntry(e.project(), e.client(), e.hours()));
-          d.tasks.add(new TaskEntry(e.task(), e.project(), e.client(), e.hours()));
+          d.tasks.add(new TaskEntry(e.task(), e.hours()));
           d.timesheet.add(e);
         } else {
           d.totalHours = d.totalHours.plus(e.hours());
@@ -178,28 +178,15 @@ public class TimeReportQueryHandler {
           var taskIndex = -1;
           for (var i = 0; i < d.tasks.size(); i++) {
             var entry = d.tasks.get(i);
-            if (Objects.equals(entry.client(), e.client())
-                && Objects.equals(entry.project(), e.project())
-                && Objects.equals(entry.task(), e.task())) {
+            if (Objects.equals(entry.task(), e.task())) {
               taskIndex = i;
               break;
             }
           }
           if (taskIndex == -1) {
-            var entry = new TaskEntry(e.task(), e.project(), e.client(), e.hours());
+            var entry = new TaskEntry(e.task(), e.hours());
             d.tasks.add(entry);
-            d.tasks.sort(
-                (e1, e2) -> {
-                  var tc = e1.task().compareToIgnoreCase(e2.task());
-                  if (tc != 0) {
-                    return tc;
-                  }
-                  var pc = e1.project().compareToIgnoreCase(e2.project());
-                  if (pc != 0) {
-                    return pc;
-                  }
-                  return e1.client().compareToIgnoreCase(e2.client());
-                });
+            d.tasks.sort((e1, e2) -> e1.task().compareToIgnoreCase(e2.task()));
           } else {
             var entry = addHours(d.tasks.get(taskIndex), e.hours());
             d.tasks.set(taskIndex, entry);
@@ -217,8 +204,7 @@ public class TimeReportQueryHandler {
     }
 
     private static TaskEntry addHours(TaskEntry entry, Duration value) {
-      return new TaskEntry(
-          entry.task(), entry.project(), entry.client(), entry.hours().plus(value));
+      return new TaskEntry(entry.task(), entry.hours().plus(value));
     }
 
     @Override

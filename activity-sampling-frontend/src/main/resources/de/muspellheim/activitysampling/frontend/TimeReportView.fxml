@@ -48,8 +48,6 @@
                      <TableView fx:id="tasksTable" visible="false">
                         <columns>
                            <TableColumn fx:id="tasksTaskColumn" prefWidth="200.0" text="Task" />
-                           <TableColumn fx:id="tasksProjectColumn" prefWidth="200.0" text="Project" />
-                           <TableColumn fx:id="tasksClientColumn" prefWidth="200.0" text="Client" />
                            <TableColumn fx:id="tasksHoursColumn" prefWidth="100.0" text="Hours" />
                         </columns>
                      </TableView>

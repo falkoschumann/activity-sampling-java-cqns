@@ -250,8 +250,8 @@ class AcceptanceTest {
             List.of(new ClientEntry("ACME Ltd.", Duration.ofMinutes(24))),
             List.of(new ProjectEntry("Foobar", "ACME Ltd.", Duration.ofMinutes(24))),
             List.of(
-                new TaskEntry("Analyze", "Foobar", "ACME Ltd.", Duration.ofMinutes(12)),
-                new TaskEntry("Design", "Foobar", "ACME Ltd.", Duration.ofMinutes(12))),
+                new TaskEntry("Analyze", Duration.ofMinutes(12)),
+                new TaskEntry("Design", Duration.ofMinutes(12))),
             List.of(
                 new TimesheetEntry(
                     LocalDate.of(2021, 8, 29),

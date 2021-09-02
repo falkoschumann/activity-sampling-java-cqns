@@ -50,8 +50,6 @@ public class TimeReportController implements Initializable {
   @FXML TableColumn<ProjectEntry, Duration> projectsHoursColumn;
 
   @FXML TableView<TaskEntry> tasksTable;
-  @FXML TableColumn<TaskEntry, String> tasksClientColumn;
-  @FXML TableColumn<TaskEntry, String> tasksProjectColumn;
   @FXML TableColumn<TaskEntry, String> tasksTaskColumn;
   @FXML TableColumn<TaskEntry, Duration> tasksHoursColumn;
 
@@ -106,8 +104,6 @@ public class TimeReportController implements Initializable {
     projectsClientColumn.setCellValueFactory(new ComponentValueFactory<>("client"));
     projectsProjectColumn.setCellValueFactory(new ComponentValueFactory<>("project"));
     projectsHoursColumn.setCellValueFactory(new ComponentValueFactory<>("hours"));
-    tasksClientColumn.setCellValueFactory(new ComponentValueFactory<>("client"));
-    tasksProjectColumn.setCellValueFactory(new ComponentValueFactory<>("project"));
     tasksTaskColumn.setCellValueFactory(new ComponentValueFactory<>("task"));
     tasksHoursColumn.setCellValueFactory(new ComponentValueFactory<>("hours"));
     timesheetDateColumn.setCellValueFactory(new ComponentValueFactory<>("date"));
