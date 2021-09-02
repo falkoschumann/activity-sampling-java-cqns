@@ -25,7 +25,7 @@ public class ProgressPeriodCommandHandler {
     setDuration(duration);
   }
 
-  public void setDuration(Duration duration) {
+  public final void setDuration(Duration duration) {
     this.duration = duration;
     start = null;
   }
