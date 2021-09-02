@@ -61,7 +61,7 @@ jacocoTestReport {
 }
 
 pmd {
-  ignoreFailures = true
+  //ignoreFailures = true
   consoleOutput = true
   toolVersion = "6.38.0" // Support für Java 16 ab 6.32
   rulesMinimumPriority = 2

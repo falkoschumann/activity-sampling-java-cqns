@@ -93,6 +93,7 @@ public class MainWindowController {
     timeReportController = TimeReportController.create(stage);
 
     trayIconViewController.setOnActivitySelected(this::logActivity);
+    Platform.runLater(() -> stage.setOnHiding(e -> trayIconViewController.hide()));
   }
 
   public void run() {
