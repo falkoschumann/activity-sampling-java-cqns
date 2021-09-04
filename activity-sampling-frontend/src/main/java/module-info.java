@@ -2,8 +2,8 @@ module de.muspellheim.activitysampling.frontend {
   requires static lombok;
   requires transitive de.muspellheim.activitysampling.contract;
   requires java.desktop;
-  requires transitive javafx.controls;
-  requires transitive javafx.fxml;
+  requires javafx.controls;
+  requires javafx.fxml;
   requires jdk.localedata;
 
   exports de.muspellheim.activitysampling.frontend;

@@ -16,6 +16,14 @@ application {
   mainClass = "de.muspellheim.activitysampling.App"
 }
 
+jlink {
+  jpackage {
+    imageOptions += [
+      "--add-launcher", "Hello World Demo=$projectDir/src/main/demo/launcher.properties"
+    ]
+  }
+}
+
 if (Os.isFamily(Os.FAMILY_MAC)) {
   jlink {
     jpackage {

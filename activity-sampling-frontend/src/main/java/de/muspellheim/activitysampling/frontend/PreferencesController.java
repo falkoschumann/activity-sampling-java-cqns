@@ -60,7 +60,7 @@ public class PreferencesController implements Initializable {
                 Duration.ofMinutes(20),
                 Duration.ofMinutes(30),
                 Duration.ofHours(1)));
-    if (Boolean.parseBoolean(System.getProperty("demoMode"))) {
+    if (Boolean.parseBoolean(System.getProperty("activitysampling.demo"))) {
       periods.add(0, Duration.ofMinutes(2));
     }
     periodDurationChoice.getItems().setAll(periods);

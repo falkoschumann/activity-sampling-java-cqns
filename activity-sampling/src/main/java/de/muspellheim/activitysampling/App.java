@@ -27,7 +27,7 @@ public class App extends Application {
   @Override
   public void init() {
     if (getParameters().getUnnamed().contains("--demo")) {
-      System.setProperty("demoMode", "true");
+      System.setProperty("activitysampling.demo", "true");
       preferencesRepository = new MemoryPreferencesRepository().addExamples();
       eventStore = new MemoryEventStore().addExamples();
     } else {

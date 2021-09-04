@@ -1,31 +1,40 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
+  id "muspellheim.java-common-conventions"
   id "application"
   id "org.beryx.jlink"
-  id "muspellheim.java-common-conventions"
 }
 
 jlink {
   options = [
+    "--strip-native-commands",
     "--strip-debug",
-    "--compress",
-    "2",
-    "--no-header-files",
     "--no-man-pages",
-    "--include-locales",
-    "en,de"
+    "--no-header-files",
+    "--compress", "2",
+    "--include-locales", "en,de",
   ]
+  jpackage {
+    imageOptions += [
+      "--description", "The application periodically asks the user for his current activity and creates a log of his activities per day.",
+      "--vendor", "Muspellheim",
+    ]
+    installerOptions = [
+      "--license-file", "$rootDir/LICENSE.txt",
+    ]
+  }
 }
 
 if (Os.isFamily(Os.FAMILY_MAC)) {
   jlink {
     jpackage {
-      icon = "src/main/macos/AppIcon.icns"
+      icon = "src/main/mac/app-icon.icns"
       imageOptions += [
         "--copyright", "Copyright © ${copyrightYear} Falko Schumann",
         "--mac-sign",
         "--mac-signing-key-user-name", "Falko Schumann (QC6EN37P56)",
+        "--resource-dir", "$projectDir/src/main/mac",
       ]
       installerType = "dmg"
     }
@@ -35,14 +44,12 @@ if (Os.isFamily(Os.FAMILY_MAC)) {
 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
   jlink {
     jpackage {
-      icon = "src/main/win/app.ico"
+      icon = "src/main/win/app-icon.ico"
       imageOptions = [
         "--copyright", "Copyright (c) ${copyrightYear} Falko Schumann",
       ]
       installerType = "msi"
       installerOptions = [
-        "--copyright", "Copyright (c) ${copyrightYear} Falko Schumann",
-        "--license-file", "../LICENSE.txt",
         "--win-dir-chooser",
         "--win-menu",
         "--win-menu-group", "Muspellheim",

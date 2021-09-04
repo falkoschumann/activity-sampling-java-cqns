@@ -26,6 +26,7 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVFormat.Builder;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
@@ -75,7 +76,8 @@ public class CsvEventStore extends AbstractEventStore {
     try (var out =
         Files.newBufferedWriter(
             file, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-      CSV_FORMAT.withHeader(Headers.class).print(out);
+      var format = Builder.create(CSV_FORMAT).setHeader(Headers.class).build();
+      format.print(out);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -108,8 +110,9 @@ public class CsvEventStore extends AbstractEventStore {
   public Stream<? extends Event> replay() {
     try {
       var reader = Files.newBufferedReader(file, StandardCharsets.UTF_8);
-      var parser =
-          new CSVParser(reader, CSV_FORMAT.withHeader(Headers.class).withSkipHeaderRecord());
+      var format =
+          Builder.create(CSV_FORMAT).setHeader(Headers.class).setSkipHeaderRecord(true).build();
+      var parser = new CSVParser(reader, format);
       var iterator = parser.iterator();
       var spliterator =
           Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED | Spliterator.NONNULL);
