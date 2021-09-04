@@ -43,9 +43,10 @@ class TrayIconController {
     EventQueue.invokeLater(
         () -> {
           var menu = new PopupMenu();
+          var stringConverter = new ActivityTemplateStringConverter();
           value.forEach(
               it -> {
-                MenuItem menuItem = new MenuItem(it.toString());
+                MenuItem menuItem = new MenuItem(stringConverter.toString(it));
                 menuItem.addActionListener(e -> onActivitySelected.accept(it));
                 menu.add(menuItem);
               });

@@ -8,7 +8,7 @@ package de.muspellheim.activitysampling;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import de.muspellheim.activitysampling.backend.adapters.MemoryEventStore;
+import de.muspellheim.activitysampling.backend.adapters.CsvEventStore;
 import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesRepository;
 import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
 import de.muspellheim.activitysampling.contract.data.Bounds;
@@ -29,6 +29,9 @@ import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQuery
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.ProjectEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.TaskEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.TimesheetEntry;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,14 +49,17 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestInstance(Lifecycle.PER_CLASS)
 @TestMethodOrder(OrderAnnotation.class)
 class AcceptanceTest {
+  private static final Path EVENT_STREAM_FILE = Paths.get("build/event-store/event-stream.csv");
+
   private static RequestHandler requestHandler;
   private static PeriodProgressedNotification periodProgressedNotification;
 
   @BeforeAll
-  static void initAll() {
+  static void initAll() throws Exception {
     Locale.setDefault(Locale.GERMANY);
-    // TODO Teste gegen "richtigen" Event Store
-    var eventStore = new MemoryEventStore();
+    Files.deleteIfExists(EVENT_STREAM_FILE);
+    Files.createDirectories(EVENT_STREAM_FILE.getParent());
+    var eventStore = new CsvEventStore(EVENT_STREAM_FILE);
     // TODO Teste gegen "richtigen" Preferences Repository
     var preferencesRepository = new MemoryPreferencesRepository();
     requestHandler = new RequestHandler(eventStore, preferencesRepository);
@@ -164,7 +170,7 @@ class AcceptanceTest {
         new ActivityLogQueryResult(
             """
           Sonntag, 29. August 2021
-          18:37 - Analyze requirements
+          18:37 - Foobar (ACME Ltd.) Analyze - Analyze requirements
           """,
             List.of(new ActivityTemplate("ACME Ltd.", "Foobar", "Analyze", "Analyze requirements")),
             new ActivityTemplate("ACME Ltd.", "Foobar", "Analyze", "Analyze requirements"),
@@ -216,19 +222,19 @@ class AcceptanceTest {
                 "ACME Ltd.",
                 "Foobar",
                 "Design",
-                "Design architecture"));
+                null));
 
     assertEquals(
         new ActivityLogQueryResult(
             """
         Sonntag, 29. August 2021
-        18:37 - Analyze requirements
-        18:49 - Design architecture
+        18:37 - Foobar (ACME Ltd.) Analyze - Analyze requirements
+        18:49 - Foobar (ACME Ltd.) Design
         """,
             List.of(
-                new ActivityTemplate("ACME Ltd.", "Foobar", "Design", "Design architecture"),
+                new ActivityTemplate("ACME Ltd.", "Foobar", "Design", null),
                 new ActivityTemplate("ACME Ltd.", "Foobar", "Analyze", "Analyze requirements")),
-            new ActivityTemplate("ACME Ltd.", "Foobar", "Design", "Design architecture"),
+            new ActivityTemplate("ACME Ltd.", "Foobar", "Design", null),
             List.of("ACME Ltd."),
             List.of("Foobar"),
             List.of("Analyze", "Design")),
@@ -267,10 +273,38 @@ class AcceptanceTest {
                     "ACME Ltd.",
                     "Foobar",
                     "Design",
-                    "Design architecture",
+                    null,
                     Duration.ofMinutes(12),
                     null,
                     null))),
+        result);
+  }
+
+  @Test
+  @Order(14)
+  void replayEvents() {
+    var eventStore = new CsvEventStore(EVENT_STREAM_FILE);
+    // TODO Teste gegen "richtigen" Preferences Repository
+    var preferencesRepository = new MemoryPreferencesRepository();
+    requestHandler = new RequestHandler(eventStore, preferencesRepository);
+    requestHandler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
+
+    var result = requestHandler.handle(new ActivityLogQuery());
+
+    assertEquals(
+        new ActivityLogQueryResult(
+            """
+    Sonntag, 29. August 2021
+    18:37 - Foobar (ACME Ltd.) Analyze - Analyze requirements
+    18:49 - Foobar (ACME Ltd.) Design
+    """,
+            List.of(
+                new ActivityTemplate("ACME Ltd.", "Foobar", "Design", null),
+                new ActivityTemplate("ACME Ltd.", "Foobar", "Analyze", "Analyze requirements")),
+            new ActivityTemplate("ACME Ltd.", "Foobar", "Design", null),
+            List.of("ACME Ltd."),
+            List.of("Foobar"),
+            List.of("Analyze", "Design")),
         result);
   }
 }

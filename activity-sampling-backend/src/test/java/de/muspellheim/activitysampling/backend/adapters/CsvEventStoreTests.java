@@ -24,7 +24,7 @@ public class CsvEventStoreTests {
   private static final Path SOLL_FILE = Paths.get("src/test/resources/event-stream.csv");
 
   @BeforeAll
-  static void setUpBeforeAll() throws Exception {
+  static void initAll() throws Exception {
     Files.deleteIfExists(OUT_FILE);
     Files.createDirectories(OUT_FILE.getParent());
   }

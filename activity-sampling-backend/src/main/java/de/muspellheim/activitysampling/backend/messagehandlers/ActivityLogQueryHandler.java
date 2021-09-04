@@ -87,20 +87,25 @@ public class ActivityLogQueryHandler {
       var activity = activities.get(i);
       var date = LocalDateTime.ofInstant(activity.timestamp(), ZoneId.systemDefault());
       if (i == 0) {
-        log.append(dateFormatter.format(date));
-        log.append("\n");
+        log.append(dateFormatter.format(date)).append("\n");
       } else {
         var lastActivity = activities.get(i - 1);
         var lastDate = LocalDateTime.ofInstant(lastActivity.timestamp(), ZoneId.systemDefault());
         if (!lastDate.toLocalDate().equals(date.toLocalDate())) {
-          log.append(dateFormatter.format(date));
-          log.append("\n");
+          log.append(dateFormatter.format(date)).append("\n");
         }
       }
 
-      log.append(timeFormatter.format(date));
-      log.append(" - ");
-      log.append(activity.notes());
+      log.append(timeFormatter.format(date))
+          .append(" - ")
+          .append(activity.project())
+          .append(" (")
+          .append(activity.client())
+          .append(") ")
+          .append(activity.task());
+      if (activity.notes() != null) {
+        log.append(" - ").append(activity.notes());
+      }
       log.append("\n");
     }
     return log.toString();

@@ -17,7 +17,7 @@ public record ActivityLoggedEvent(
     String client,
     String project,
     String task,
-    String notes) // TODO Notes sind optional für Zeiterfassung
+    String notes)
     implements Event {
   public ActivityLoggedEvent {
     Objects.requireNonNull(id, "id");
@@ -26,6 +26,5 @@ public record ActivityLoggedEvent(
     Objects.requireNonNull(client, "client");
     Objects.requireNonNull(project, "project");
     Objects.requireNonNull(task, "task");
-    Objects.requireNonNull(notes, "notes");
   }
 }

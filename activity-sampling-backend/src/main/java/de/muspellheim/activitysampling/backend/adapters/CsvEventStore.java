@@ -32,7 +32,8 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
 public class CsvEventStore extends AbstractEventStore {
-  private static final CSVFormat CSV_FORMAT = CSVFormat.RFC4180;
+  private static final CSVFormat CSV_FORMAT =
+      CSVFormat.Builder.create(CSVFormat.RFC4180).setNullString("").build();
   private static final DateTimeFormatter TIMESTAMP_FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
   private static final DateTimeFormatter PERIOD_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");

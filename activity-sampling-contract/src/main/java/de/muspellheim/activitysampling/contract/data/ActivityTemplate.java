@@ -14,6 +14,5 @@ public record ActivityTemplate(String client, String project, String task, Strin
     Objects.requireNonNull(client, "client");
     Objects.requireNonNull(project, "project");
     Objects.requireNonNull(task, "task");
-    Objects.requireNonNull(notes, "notes");
   }
 }

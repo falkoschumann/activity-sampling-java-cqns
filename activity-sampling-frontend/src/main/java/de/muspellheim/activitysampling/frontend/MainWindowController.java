@@ -118,11 +118,12 @@ public class MainWindowController {
             notesText.setText(result.last().notes());
           }
 
+          var stringConverter = new ActivityTemplateStringConverter();
           var menuItems =
               result.recent().stream()
                   .map(
                       it -> {
-                        var menuItem = new MenuItem(it.toString());
+                        var menuItem = new MenuItem(stringConverter.toString(it));
                         menuItem.setOnAction(e -> logActivity(it));
                         return menuItem;
                       })

@@ -63,9 +63,9 @@ class ActivityLogQueryHandlerTests {
         new ActivityLogQueryResult(
             """
           Mittwoch, 18. August 2021
-          19:18 - Create black car
-          19:38 - Double the production of Smylex
-          19:58 - Write user stories
+          19:18 - Batmobil (Wayne Enterprises) Design - Create black car
+          19:38 - Gotham (Axis Chemical Co.) Production - Double the production of Smylex
+          19:58 - Activity Sampling (Muspellheim) Analyze - Write user stories
           """,
             List.of(
                 new ActivityTemplate(

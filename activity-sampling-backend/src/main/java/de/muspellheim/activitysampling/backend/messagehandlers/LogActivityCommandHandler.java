@@ -28,7 +28,11 @@ public class LogActivityCommandHandler {
   }
 
   public CommandStatus handle(LogActivityCommand command) {
-    eventStore.record(
+    var notes = command.notes();
+    if (notes != null && notes.isBlank()) {
+      notes = null;
+    }
+    var event =
         new ActivityLoggedEvent(
             idGenerator.get(),
             command.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
@@ -36,7 +40,8 @@ public class LogActivityCommandHandler {
             command.client(),
             command.project(),
             command.task(),
-            command.notes()));
+            notes);
+    eventStore.record(event);
     return new Success();
   }
 }
