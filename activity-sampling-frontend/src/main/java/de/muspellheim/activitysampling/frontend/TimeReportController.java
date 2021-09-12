@@ -116,7 +116,7 @@ public class TimeReportController implements Initializable {
     timesheetLastNameColumn.setCellValueFactory(new ComponentValueFactory<>("lastName"));
 
     reportChoice.valueProperty().addListener(o -> update());
-    Stages.hookCloseHandler(stage);
+    Stages.hookWindowCloseHandler(stage);
   }
 
   public void run() {

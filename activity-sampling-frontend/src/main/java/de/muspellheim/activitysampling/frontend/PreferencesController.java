@@ -65,7 +65,7 @@ public class PreferencesController implements Initializable {
     }
     periodDurationChoice.getItems().setAll(periods);
 
-    Stages.hookCloseHandler(stage, this::handleClose);
+    Stages.hookWindowCloseHandler(stage, this::handleClose);
   }
 
   public void display(PreferencesQueryResult result) {

@@ -107,9 +107,11 @@ public class MainWindowController {
         () -> {
           clientCombo.getItems().setAll(result.recentClients());
           projectCombo.getItems().setAll(result.recentProjects());
+          // TODO Aktualisiere AutoCompleteComboBoxListener.data
+          System.out.println("Recent tasks: " + result.recentTasks());
           taskCombo.getItems().setAll(result.recentTasks());
           logText.setText(result.log());
-          logText.positionCaret(logText.getText().length());
+          Platform.runLater(() -> logText.positionCaret(result.log().length()));
 
           if (result.last() != null) {
             clientCombo.setValue(result.last().client());

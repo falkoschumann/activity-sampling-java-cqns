@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.stage.Stage?>
 
-<fx:root fx:id="stage" minHeight="420.0" minWidth="240.0" title="%mainView.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainWindowController">
+<fx:root fx:id="stage" minHeight="640.0" minWidth="360.0" title="%mainView.title" type="Stage" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.muspellheim.activitysampling.frontend.MainWindowController">
    <scene>
       <Scene stylesheets="@style.css">
          <root>
@@ -58,12 +58,12 @@
                       </Menu>
                     </menus>
                   </MenuBar>
-                  <VBox prefHeight="640.0" prefWidth="360.0" spacing="12.0" VBox.vgrow="ALWAYS">
+                  <VBox spacing="12.0" VBox.vgrow="ALWAYS">
                      <children>
                         <GridPane hgap="8.0" vgap="4.0">
                           <columnConstraints>
-                            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" />
-                            <ColumnConstraints hgrow="ALWAYS" />
+                            <ColumnConstraints halignment="RIGHT" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" />
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
