@@ -88,6 +88,10 @@ public class MainWindowController {
   @FXML
   private void initialize() {
     menuBar.setUseSystemMenuBar(true);
+    // new AutoCompleteComboBoxListener<>(clientCombo);
+    // new AutoCompleteComboBoxListener<>(projectCombo);
+    // new AutoCompleteComboBoxListener<>(taskCombo);
+
     trayIconViewController = new TrayIconController();
     preferencesController = PreferencesController.create(stage);
     timeReportController = TimeReportController.create(stage);
