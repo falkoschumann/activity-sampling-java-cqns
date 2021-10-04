@@ -10,7 +10,7 @@ image::system-context-activity-sampling.png[System-Context-Diagramm für Activit
 === Protokolliere Aktivität
 
 * Frage Nutzer zyklisch nach aktueller Aktivität (Default: alle 20 min)
-* Archiviere Zeitstempel, Intervall, Kunde, Projekt, Aktivität und optional Anmerkungen
+* Archiviere Zeitstempel, Intervall, Kunde, Projekt, Kategorie und Aktivität
 * Sichere Protokoll als CSV-Datei
 
 === Parametriere Nachfrage
