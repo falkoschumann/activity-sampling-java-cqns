@@ -1,6 +1,6 @@
 plugins {
-  id "groovy-gradle-plugin"
-  id "java-gradle-plugin"
+  id 'groovy-gradle-plugin'
+  id 'java-gradle-plugin'
 }
 
 repositories {
@@ -9,19 +9,19 @@ repositories {
 }
 
 dependencies {
-  implementation "com.diffplug.spotless:spotless-plugin-gradle:5.14.3"
-  implementation "io.freefair.gradle:lombok-plugin:6.1.0"
-  implementation "org.beryx:badass-jlink-plugin:2.24.1"
-  implementation "org.openjfx:javafx-plugin:0.0.10"
-  implementation "org.ow2.asm:asm:8.0.1"
+  implementation 'com.diffplug.spotless:spotless-plugin-gradle:5.16.0'
+  implementation 'io.freefair.gradle:lombok-plugin:6.2.0'
+  implementation 'org.beryx:badass-jlink-plugin:2.24.2'
+  implementation 'org.openjfx:javafx-plugin:0.0.10'
+  implementation 'org.ow2.asm:asm:8.0.1'
 }
 
 // See also https://docs.gradle.org/current/samples/sample_java_modules_with_transform.html
 gradlePlugin {
   plugins {
-    register("extra-java-module-info") {
-      id = "extra-java-module-info"
-      implementationClass = "org.gradle.sample.transform.javamodules.ExtraModuleInfoPlugin"
+    register('extra-java-module-info') {
+      id = 'extra-java-module-info'
+      implementationClass = 'org.gradle.sample.transform.javamodules.ExtraModuleInfoPlugin'
     }
   }
 }

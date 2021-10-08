@@ -1,8 +1,8 @@
-rootProject.name = "activity-sampling-java"
+rootProject.name = 'activity-sampling-java'
 
 include(
-  "activity-sampling",
-  "activity-sampling-frontend",
-  "activity-sampling-backend",
-  "activity-sampling-contract"
+  'activity-sampling',
+  'activity-sampling-frontend',
+  'activity-sampling-backend',
+  'activity-sampling-contract'
 )

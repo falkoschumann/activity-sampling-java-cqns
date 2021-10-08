@@ -1,11 +1,11 @@
 import java.time.LocalDate
 
 plugins {
-  id "java"
-  id "jacoco"
-  id "pmd"
-  id "com.diffplug.spotless"
-  id "io.freefair.lombok"
+  id 'java'
+  id 'jacoco'
+  id 'pmd'
+  id 'com.diffplug.spotless'
+  id 'io.freefair.lombok'
 }
 
 version = rootProject.version
@@ -19,13 +19,13 @@ repositories {
 }
 
 dependencies {
-  testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.2"
-  testImplementation "org.hamcrest:hamcrest:2.2"
-  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+  testImplementation 'org.hamcrest:hamcrest:2.2'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
 tasks.compileJava {
-  options.encoding = "UTF-8"
+  options.encoding = 'UTF-8'
 }
 
 java {
@@ -37,22 +37,22 @@ java {
 
 tasks {
   processResources {
-    filesMatching("**/*.properties") {
+    filesMatching('**/*.properties') {
       expand([version: version, copyrightYear: copyrightYear])
     }
   }
 }
 
 compileTestJava {
-  options.encoding = "UTF-8"
+  options.encoding = 'UTF-8'
 }
 
 test {
   useJUnitPlatform()
   testLogging {
-    events "passed", "skipped", "failed"
+    events 'passed', 'skipped', 'failed'
     showExceptions = true
-    exceptionFormat = "full"
+    exceptionFormat = 'full'
   }
   finalizedBy jacocoTestReport
 }
@@ -64,7 +64,7 @@ jacocoTestReport {
 pmd {
   //ignoreFailures = true
   consoleOutput = true
-  toolVersion = "6.38.0" // Support für Java 16 ab 6.32
+  toolVersion = '6.38.0' // Support für Java 16 ab 6.32
   rulesMinimumPriority = 2
   ruleSets = []
   ruleSetFiles = files("${rootDir}/config/pmd-ruleset.xml")
@@ -73,6 +73,6 @@ pmd {
 spotless {
   java {
     googleJavaFormat()
-    licenseHeaderFile "config/LicenseHeader.txt"
+    licenseHeaderFile 'config/LicenseHeader.txt'
   }
 }

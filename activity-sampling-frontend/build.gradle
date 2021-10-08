@@ -1,8 +1,8 @@
 plugins {
-  id "muspellheim.java-library-conventions"
-  id "muspellheim.java-openjfx-conventions"
+  id 'muspellheim.java-library-conventions'
+  id 'muspellheim.java-openjfx-conventions'
 }
 
 dependencies {
-  api project(":activity-sampling-contract")
+  api project(':activity-sampling-contract')
 }

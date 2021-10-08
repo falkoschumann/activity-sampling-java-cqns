@@ -1,10 +1,10 @@
 plugins {
-  id "extra-java-module-info"
+  id 'extra-java-module-info'
 }
 
 extraJavaModuleInfo {
-  module("commons-csv-1.9.0.jar", "org.apache.commons.csv", "1.9.0") {
-    exports("org.apache.commons.csv")
-    requiresStatic("java.sql")
+  module('commons-csv-1.9.0.jar', 'org.apache.commons.csv', '1.9.0') {
+    exports('org.apache.commons.csv')
+    requiresStatic('java.sql')
   }
 }

@@ -1,8 +1,8 @@
 plugins {
-  id "org.openjfx.javafxplugin"
+  id 'org.openjfx.javafxplugin'
 }
 
 javafx {
-  version = "16"
-  modules "javafx.controls", "javafx.fxml"
+  version = '17.0.0.1'
+  modules 'javafx.controls', 'javafx.fxml'
 }
