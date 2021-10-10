@@ -9,7 +9,6 @@ import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
 import de.muspellheim.activitysampling.contract.data.Bounds;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeMainWindowBoundsCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
-import de.muspellheim.activitysampling.contract.messages.commands.Failure;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
@@ -107,104 +106,85 @@ public class MainWindowController {
   }
 
   public void display(ActivityLogQueryResult result) {
-    Platform.runLater(
-        () -> {
-          clientCombo.getItems().setAll(result.recentClients());
-          projectCombo.getItems().setAll(result.recentProjects());
-          // TODO Aktualisiere AutoCompleteComboBoxListener.data
-          System.out.println("Recent tasks: " + result.recentTasks());
-          taskCombo.getItems().setAll(result.recentTasks());
-          logText.setText(result.log());
-          Platform.runLater(() -> logText.positionCaret(result.log().length()));
+    clientCombo.getItems().setAll(result.recentClients());
+    projectCombo.getItems().setAll(result.recentProjects());
+    // TODO Aktualisiere AutoCompleteComboBoxListener.data
+    System.out.println("Recent tasks: " + result.recentTasks());
+    taskCombo.getItems().setAll(result.recentTasks());
+    logText.setText(result.log());
+    Platform.runLater(() -> logText.positionCaret(result.log().length()));
 
-          if (result.last() != null) {
-            clientCombo.setValue(result.last().client());
-            projectCombo.setValue(result.last().project());
-            taskCombo.setValue(result.last().task());
-            notesText.setText(result.last().notes());
-          }
+    if (result.last() != null) {
+      clientCombo.setValue(result.last().client());
+      projectCombo.setValue(result.last().project());
+      taskCombo.setValue(result.last().task());
+      notesText.setText(result.last().notes());
+    }
 
-          var stringConverter = new ActivityTemplateStringConverter();
-          var menuItems =
-              result.recent().stream()
-                  .map(
-                      it -> {
-                        var menuItem = new MenuItem(stringConverter.toString(it));
-                        menuItem.setOnAction(e -> logActivity(it));
-                        return menuItem;
-                      })
-                  .toList();
-          logButton.getItems().setAll(menuItems);
+    var stringConverter = new ActivityTemplateStringConverter();
+    var menuItems =
+        result.recent().stream()
+            .map(
+                it -> {
+                  var menuItem = new MenuItem(stringConverter.toString(it));
+                  menuItem.setOnAction(e -> logActivity(it));
+                  return menuItem;
+                })
+            .toList();
+    logButton.getItems().setAll(menuItems);
 
-          trayIconViewController.setRecent(result.recent());
-        });
+    trayIconViewController.setRecent(result.recent());
   }
 
   public void display(MainWindowBoundsQueryResult result) {
-    Platform.runLater(
-        () -> {
-          if (!Bounds.NULL.equals(result.bounds())) {
-            var x = result.bounds().x();
-            var y = result.bounds().y();
-            var width = result.bounds().width();
-            var height = result.bounds().height();
-            if (!Screen.getScreensForRectangle(x, y, width, height).isEmpty()) {
-              stage.setX(x);
-              stage.setY(y);
-              stage.setWidth(width);
-              stage.setHeight(height);
-            }
-          }
-          stage.show();
-        });
+    if (!Bounds.NULL.equals(result.bounds())) {
+      var x = result.bounds().x();
+      var y = result.bounds().y();
+      var width = result.bounds().width();
+      var height = result.bounds().height();
+      if (!Screen.getScreensForRectangle(x, y, width, height).isEmpty()) {
+        stage.setX(x);
+        stage.setY(y);
+        stage.setWidth(width);
+        stage.setHeight(height);
+      }
+    }
+    stage.show();
   }
 
   public void display(PreferencesQueryResult result) {
-    Platform.runLater(
-        () -> {
-          periodDuration = result.periodDuration();
-          preferencesController.display(result);
-        });
+    periodDuration = result.periodDuration();
+    preferencesController.display(result);
   }
 
   public void display(TimeReportQueryResult result) {
-    Platform.runLater(() -> timeReportController.display(result));
+    timeReportController.display(result);
   }
 
   public void display(PeriodProgressedNotification notification) {
-    Platform.runLater(
-        () -> {
-          remainingTimeLabel.setText(
-              DateTimeFormatter.ofPattern("HH:mm:ss").format(notification.remaining()));
-          progressBar.setProgress(notification.progress());
-          if (notification.end() != null) {
-            timestamp = notification.end();
-            clientCombo.setDisable(false);
-            projectCombo.setDisable(false);
-            taskCombo.setDisable(false);
-            notesText.setDisable(false);
-            logButton.setDisable(false);
-            trayIconViewController.show();
-          }
-        });
+    remainingTimeLabel.setText(
+        DateTimeFormatter.ofPattern("HH:mm:ss").format(notification.remaining()));
+    progressBar.setProgress(notification.progress());
+    if (notification.end() != null) {
+      timestamp = notification.end();
+      clientCombo.setDisable(false);
+      projectCombo.setDisable(false);
+      taskCombo.setDisable(false);
+      notesText.setDisable(false);
+      logButton.setDisable(false);
+      trayIconViewController.show();
+    }
   }
 
-  @Deprecated
-  public void display(Failure failure) {
-    // TODO Ersetze durch Exception: Exception für Ausnahmen, Failure für erwartete Fehler
-    Platform.runLater(
-        () -> {
-          var index = failure.errorMessage().indexOf(": ");
-          var header = index == -1 ? null : failure.errorMessage().substring(0, index);
-          var content =
-              index == -1 ? failure.errorMessage() : failure.errorMessage().substring(index + 1);
+  public void display(Throwable exception) {
+    exception.printStackTrace();
 
-          var alert = new Alert(AlertType.ERROR);
-          alert.initOwner(stage);
-          alert.setHeaderText(header);
-          alert.setContentText(content);
-          alert.show();
-        });
+    var alert = new Alert(AlertType.ERROR);
+    alert.initOwner(stage);
+    alert.setTitle("Error");
+    alert.setHeaderText("An unexpected Error occurred");
+    alert.setContentText(exception.getLocalizedMessage());
+    alert.show();
   }
 
   @FXML

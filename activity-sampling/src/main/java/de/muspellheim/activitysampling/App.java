@@ -13,7 +13,11 @@ import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesReposit
 import de.muspellheim.activitysampling.backend.adapters.PrefsPreferencesRepository;
 import de.muspellheim.activitysampling.backend.adapters.SystemClock;
 import de.muspellheim.activitysampling.frontend.MainWindowController;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -28,11 +32,11 @@ public class App extends Application {
   public void init() {
     if (getParameters().getUnnamed().contains("--demo")) {
       System.setProperty("activitysampling.demo", "true");
-      preferencesRepository = new MemoryPreferencesRepository().addExamples();
       eventStore = new MemoryEventStore().addExamples();
+      preferencesRepository = new MemoryPreferencesRepository().addExamples();
     } else {
-      preferencesRepository = new PrefsPreferencesRepository();
       eventStore = new CsvEventStore();
+      preferencesRepository = new PrefsPreferencesRepository();
     }
   }
 
@@ -42,17 +46,49 @@ public class App extends Application {
     var requestHandler = new RequestHandler(eventStore, preferencesRepository);
     var frontend = MainWindowController.create(primaryStage);
 
-    systemClock.setOnClockTickedNotification(requestHandler::handle);
+    frontend.setOnChangeMainWindowBoundsCommand(handle(requestHandler::handle, frontend::display));
+    frontend.setOnChangePreferencesCommand(
+        handle(requestHandler::handle, frontend::display, frontend::display));
+    frontend.setOnLogActivityCommand(
+        handle(requestHandler::handle, frontend::display, frontend::display));
+    frontend.setOnActivityLogQuery(
+        handle(requestHandler::handle, frontend::display, frontend::display));
+    frontend.setOnMainWindowBoundsQuery(
+        handle(requestHandler::handle, frontend::display, frontend::display));
+    frontend.setOnPreferencesQuery(
+        handle(requestHandler::handle, frontend::display, frontend::display));
+    frontend.setOnTimeReportQuery(
+        handle(requestHandler::handle, frontend::display, frontend::display));
+    systemClock.setOnClockTickedNotification(handle(requestHandler::handle, frontend::display));
     requestHandler.setOnPeriodProgressedNotification(frontend::display);
-    frontend.setOnChangeMainWindowBoundsCommand(requestHandler::handle);
-    frontend.setOnChangePreferencesCommand(c -> frontend.display(requestHandler.handle(c)));
-    frontend.setOnLogActivityCommand(c -> frontend.display(requestHandler.handle(c)));
-    frontend.setOnActivityLogQuery(q -> frontend.display(requestHandler.handle(q)));
-    frontend.setOnMainWindowBoundsQuery(q -> frontend.display(requestHandler.handle(q)));
-    frontend.setOnPreferencesQuery(q -> frontend.display(requestHandler.handle(q)));
-    frontend.setOnTimeReportQuery(q -> frontend.display(requestHandler.handle(q)));
 
     frontend.run();
     systemClock.run();
+  }
+
+  private static <I> Consumer<I> handle(Consumer<I> handler, Consumer<Throwable> onError) {
+    return request ->
+        CompletableFuture.runAsync(() -> handler.accept(request))
+            .exceptionallyAsync(
+                exception -> {
+                  onError.accept(exception);
+                  return null;
+                },
+                Platform::runLater);
+  }
+
+  private static <I, O> Consumer<I> handle(
+      Function<I, O> handler, Consumer<O> onSuccess, Consumer<Throwable> onError) {
+    return request ->
+        CompletableFuture.supplyAsync(() -> handler.apply(request))
+            .whenCompleteAsync(
+                (response, exception) -> {
+                  if (response != null) {
+                    onSuccess.accept(response);
+                  } else if (exception != null) {
+                    onError.accept(exception);
+                  }
+                },
+                Platform::runLater);
   }
 }

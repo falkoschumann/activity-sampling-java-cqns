@@ -68,7 +68,7 @@ class AcceptanceTest {
 
   @Test
   @Order(1)
-  void startUp_InitialValues() {
+  void step1_InitialValues() {
     var mainWindowBoundsQueryResult = requestHandler.handle(new MainWindowBoundsQuery());
     assertEquals(new MainWindowBoundsQueryResult(Bounds.NULL), mainWindowBoundsQueryResult);
 
@@ -83,7 +83,7 @@ class AcceptanceTest {
 
   @Test
   @Order(2)
-  void timeReport_Empty() {
+  void step2_TimeReportEmpty() {
     var result =
         requestHandler.handle(
             new TimeReportQuery(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 8, 29)));
@@ -102,7 +102,7 @@ class AcceptanceTest {
 
   @Test
   @Order(3)
-  void changeMainWindowBounds() {
+  void step3_ChangeMainWindowBounds() {
     requestHandler.handle(new ChangeMainWindowBoundsCommand(new Bounds(40, 60, 400, 600)));
 
     var result = requestHandler.handle(new MainWindowBoundsQuery());
@@ -111,7 +111,7 @@ class AcceptanceTest {
 
   @Test
   @Order(4)
-  void changePreferences() {
+  void step4_ChangePreferences() {
     // TODO Ändere period duration während period läuft
     var preferencesQueryResult =
         requestHandler.handle(new ChangePreferencesCommand(Duration.ofMinutes(12)));
@@ -121,7 +121,7 @@ class AcceptanceTest {
 
   @Test
   @Order(5)
-  void clockTicked_Period1Started() {
+  void step5_ClockTicked_Period1Started() {
     assertNull(periodProgressedNotification);
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 25)));
 
@@ -132,7 +132,7 @@ class AcceptanceTest {
 
   @Test
   @Order(6)
-  void clockTicked_Period1Progressed() {
+  void step6_clockTicked_Period1Progressed() {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 34)));
 
     assertEquals(
@@ -142,7 +142,7 @@ class AcceptanceTest {
 
   @Test
   @Order(7)
-  void clockTicked_Period1Ended() {
+  void step7_ClockTicked_Period1Ended() {
     // TODO PeriodProgressedNotification ohne timestamp?
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 37)));
 
@@ -154,7 +154,7 @@ class AcceptanceTest {
 
   @Test
   @Order(8)
-  void logActivity1() {
+  void step8_LogActivity1() {
     // TODO LogActivityCommand ohne timestamp und duration?
     var result =
         requestHandler.handle(
@@ -182,7 +182,7 @@ class AcceptanceTest {
 
   @Test
   @Order(9)
-  void clockTicked_Period2Progressed() {
+  void step9_ClockTicked_Period2Progressed() {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 43)));
 
     assertEquals(
@@ -192,7 +192,7 @@ class AcceptanceTest {
 
   @Test
   @Order(10)
-  void clockTicked_Period2Ended() {
+  void step10_ClockTicked_Period2Ended() {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 49)));
 
     assertEquals(
@@ -203,7 +203,7 @@ class AcceptanceTest {
 
   @Test
   @Order(11)
-  void clockTicked_Period3Progressed() {
+  void step11_ClockTicked_Period3Progressed() {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 52)));
 
     assertEquals(
@@ -213,7 +213,7 @@ class AcceptanceTest {
 
   @Test
   @Order(12)
-  void logActivity2() {
+  void step12_LogActivity2() {
     var result =
         requestHandler.handle(
             new LogActivityCommand(
@@ -243,7 +243,7 @@ class AcceptanceTest {
 
   @Test
   @Order(13)
-  void timeReport() {
+  void step13_TimeReport() {
     var result =
         requestHandler.handle(
             new TimeReportQuery(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 8, 29)));
@@ -282,7 +282,7 @@ class AcceptanceTest {
 
   @Test
   @Order(14)
-  void replayEvents() {
+  void step14_ReplayEvents() {
     var eventStore = new CsvEventStore(EVENT_STREAM_FILE);
     // TODO Teste gegen "richtigen" Preferences Repository
     var preferencesRepository = new MemoryPreferencesRepository();

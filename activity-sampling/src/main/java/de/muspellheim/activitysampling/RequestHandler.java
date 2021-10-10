@@ -68,9 +68,6 @@ class RequestHandler {
     clockTickedNotificationHandler.setOnProgressPeriodCommand(this::handle);
   }
 
-  // TODO Handle exception
-  // TODO Verarbeite asynchron in Queue?
-
   void handle(ChangeMainWindowBoundsCommand command) {
     changeMainWindowBoundsCommandHandler.handle(command);
   }
