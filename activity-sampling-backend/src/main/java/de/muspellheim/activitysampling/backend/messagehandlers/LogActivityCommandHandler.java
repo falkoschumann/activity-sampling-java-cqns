@@ -28,10 +28,6 @@ public class LogActivityCommandHandler {
   }
 
   public CommandStatus handle(LogActivityCommand command) {
-    var notes = command.notes();
-    if (notes != null && notes.isBlank()) {
-      notes = null;
-    }
     var event =
         new ActivityLoggedEvent(
             idGenerator.get(),
@@ -40,7 +36,7 @@ public class LogActivityCommandHandler {
             command.client(),
             command.project(),
             command.task(),
-            notes);
+            command.notes());
     eventStore.record(event);
     return new Success();
   }

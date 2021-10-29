@@ -58,15 +58,9 @@ public class ActivityLogQueryHandler {
       recent.removeLast();
     }
 
-    if (event.client() != null) {
-      recentClients.add(event.client());
-    }
-    if (event.project() != null) {
-      recentProjects.add(event.project());
-    }
-    if (event.task() != null) {
-      recentTasks.add(event.task());
-    }
+    recentClients.add(event.client());
+    recentProjects.add(event.project());
+    recentTasks.add(event.task());
   }
 
   public ActivityLogQueryResult handle(ActivityLogQuery query) {

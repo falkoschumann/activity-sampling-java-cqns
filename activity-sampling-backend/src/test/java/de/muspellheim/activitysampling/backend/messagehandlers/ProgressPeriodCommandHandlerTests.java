@@ -6,8 +6,10 @@
 package de.muspellheim.activitysampling.backend.messagehandlers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import de.muspellheim.activitysampling.contract.messages.commands.ProgressPeriodCommand;
+import de.muspellheim.activitysampling.contract.messages.notification.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -16,24 +18,27 @@ import org.junit.jupiter.api.Test;
 
 class ProgressPeriodCommandHandlerTests {
   private PeriodProgressedNotification periodProgressedNotification;
+  private PeriodEndedNotification periodEndedNotification;
 
   @Test
   void clockTicked_periodStarted() {
     var handler = new ProgressPeriodCommandHandler(Duration.ofMinutes(20));
     handler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
+    handler.setOnPeriodEndedNotification(n -> periodEndedNotification = n);
 
     var currentTime = LocalDateTime.of(2020, 11, 8, 17, 20);
     handler.handle(new ProgressPeriodCommand(currentTime));
 
     assertEquals(
-        new PeriodProgressedNotification(LocalTime.of(0, 20), 0.0, null),
-        periodProgressedNotification);
+        new PeriodProgressedNotification(LocalTime.of(0, 20), 0.0), periodProgressedNotification);
+    assertNull(periodEndedNotification);
   }
 
   @Test
   void clockTicked_periodProgressed() {
     var handler = new ProgressPeriodCommandHandler(Duration.ofMinutes(20));
     handler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
+    handler.setOnPeriodEndedNotification(n -> periodEndedNotification = n);
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
     handler.handle(new ProgressPeriodCommand(startTime));
 
@@ -41,14 +46,16 @@ class ProgressPeriodCommandHandlerTests {
     handler.handle(new ProgressPeriodCommand(currentTime));
 
     assertEquals(
-        new PeriodProgressedNotification(LocalTime.of(0, 8, 15), 0.5875, null),
+        new PeriodProgressedNotification(LocalTime.of(0, 8, 15), 0.5875),
         periodProgressedNotification);
+    assertNull(periodEndedNotification);
   }
 
   @Test
   void clockTicked_periodEnded() {
     var handler = new ProgressPeriodCommandHandler(Duration.ofMinutes(20));
     handler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
+    handler.setOnPeriodEndedNotification(n -> periodEndedNotification = n);
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
     handler.handle(new ProgressPeriodCommand(startTime));
 
@@ -56,8 +63,7 @@ class ProgressPeriodCommandHandlerTests {
     handler.handle(new ProgressPeriodCommand(currentTime));
 
     assertEquals(
-        new PeriodProgressedNotification(
-            LocalTime.of(0, 0), 1.0, LocalDateTime.of(2020, 11, 8, 17, 40)),
-        periodProgressedNotification);
+        new PeriodEndedNotification(LocalDateTime.of(2020, 11, 8, 17, 40)),
+        periodEndedNotification);
   }
 }

@@ -6,6 +6,7 @@
 package de.muspellheim.activitysampling.backend.messagehandlers;
 
 import de.muspellheim.activitysampling.contract.messages.commands.ProgressPeriodCommand;
+import de.muspellheim.activitysampling.contract.messages.notification.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import lombok.Setter;
 
 public class ProgressPeriodCommandHandler {
   @Getter @Setter Consumer<PeriodProgressedNotification> onPeriodProgressedNotification;
+  @Getter @Setter Consumer<PeriodEndedNotification> onPeriodEndedNotification;
 
   private Duration duration;
   private LocalDateTime start;
@@ -35,8 +37,7 @@ public class ProgressPeriodCommandHandler {
       if (end == null) {
         start = command.currentTime();
         onPeriodProgressedNotification.accept(
-            new PeriodProgressedNotification(
-                LocalTime.ofSecondOfDay(duration.getSeconds()), 0.0, null));
+            new PeriodProgressedNotification(LocalTime.ofSecondOfDay(duration.getSeconds()), 0.0));
         return;
       } else {
         start = end;
@@ -48,15 +49,14 @@ public class ProgressPeriodCommandHandler {
     if (remaining.toSeconds() <= 0) {
       start = null;
       end = command.currentTime();
-      onPeriodProgressedNotification.accept(
-          new PeriodProgressedNotification(LocalTime.of(0, 0), 1.0, command.currentTime()));
+      onPeriodEndedNotification.accept(new PeriodEndedNotification(command.currentTime()));
     } else {
       var remainingSeconds = (double) remaining.toSeconds();
       var totalSeconds = (double) duration.getSeconds();
       var progress = totalSeconds == 0 ? 0.0 : 1 - remainingSeconds / totalSeconds;
       onPeriodProgressedNotification.accept(
           new PeriodProgressedNotification(
-              LocalTime.ofSecondOfDay(remaining.getSeconds()), progress, null));
+              LocalTime.ofSecondOfDay(remaining.getSeconds()), progress));
     }
   }
 }

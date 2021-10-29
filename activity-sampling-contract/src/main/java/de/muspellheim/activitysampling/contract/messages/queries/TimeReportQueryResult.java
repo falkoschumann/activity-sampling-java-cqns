@@ -66,6 +66,7 @@ public record TimeReportQueryResult(
       Objects.requireNonNull(client, "client");
       Objects.requireNonNull(project, "project");
       Objects.requireNonNull(task, "task");
+      Objects.requireNonNull(notes, "notes");
       Objects.requireNonNull(hours, "hours");
     }
   }

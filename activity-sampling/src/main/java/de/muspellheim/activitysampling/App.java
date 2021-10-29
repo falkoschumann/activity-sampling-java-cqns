@@ -60,7 +60,9 @@ public class App extends Application {
     frontend.setOnTimeReportQuery(
         handle(requestHandler::handle, frontend::display, frontend::display));
     systemClock.setOnClockTickedNotification(handle(requestHandler::handle, frontend::display));
-    requestHandler.setOnPeriodProgressedNotification(frontend::display);
+    requestHandler.setOnPeriodProgressedNotification(
+        n -> Platform.runLater(() -> frontend.display(n)));
+    requestHandler.setOnPeriodEndedNotification(n -> Platform.runLater(() -> frontend.display(n)));
 
     frontend.run();
     systemClock.run();

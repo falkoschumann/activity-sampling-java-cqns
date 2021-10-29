@@ -10,6 +10,7 @@ import de.muspellheim.activitysampling.contract.data.Bounds;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeMainWindowBoundsCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
+import de.muspellheim.activitysampling.contract.messages.notification.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
@@ -165,15 +166,18 @@ public class MainWindowController {
     remainingTimeLabel.setText(
         DateTimeFormatter.ofPattern("HH:mm:ss").format(notification.remaining()));
     progressBar.setProgress(notification.progress());
-    if (notification.end() != null) {
-      timestamp = notification.end();
-      clientCombo.setDisable(false);
-      projectCombo.setDisable(false);
-      taskCombo.setDisable(false);
-      notesText.setDisable(false);
-      logButton.setDisable(false);
-      trayIconViewController.show();
-    }
+  }
+
+  public void display(PeriodEndedNotification notification) {
+    remainingTimeLabel.setText("00:00:00");
+    progressBar.setProgress(1.0);
+    timestamp = notification.end();
+    clientCombo.setDisable(false);
+    projectCombo.setDisable(false);
+    taskCombo.setDisable(false);
+    notesText.setDisable(false);
+    logButton.setDisable(false);
+    trayIconViewController.show();
   }
 
   public void display(Throwable exception) {

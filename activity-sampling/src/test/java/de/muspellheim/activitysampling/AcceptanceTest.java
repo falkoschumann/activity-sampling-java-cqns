@@ -16,6 +16,7 @@ import de.muspellheim.activitysampling.contract.messages.commands.ChangeMainWind
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.notification.ClockTickedNotification;
+import de.muspellheim.activitysampling.contract.messages.notification.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
@@ -53,6 +54,7 @@ class AcceptanceTest {
 
   private static RequestHandler requestHandler;
   private static PeriodProgressedNotification periodProgressedNotification;
+  private static PeriodEndedNotification periodEndedNotification;
 
   @BeforeAll
   static void initAll() throws Exception {
@@ -64,6 +66,7 @@ class AcceptanceTest {
     var preferencesRepository = new MemoryPreferencesRepository();
     requestHandler = new RequestHandler(eventStore, preferencesRepository);
     requestHandler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
+    requestHandler.setOnPeriodEndedNotification(n -> periodEndedNotification = n);
   }
 
   @Test
@@ -126,8 +129,8 @@ class AcceptanceTest {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 25)));
 
     assertEquals(
-        new PeriodProgressedNotification(LocalTime.of(0, 12), 0.0, null),
-        periodProgressedNotification);
+        new PeriodProgressedNotification(LocalTime.of(0, 12), 0.0), periodProgressedNotification);
+    assertNull(periodEndedNotification);
   }
 
   @Test
@@ -136,20 +139,18 @@ class AcceptanceTest {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 34)));
 
     assertEquals(
-        new PeriodProgressedNotification(LocalTime.of(0, 3), 0.75, null),
-        periodProgressedNotification);
+        new PeriodProgressedNotification(LocalTime.of(0, 3), 0.75), periodProgressedNotification);
+    assertNull(periodEndedNotification);
   }
 
   @Test
   @Order(7)
   void step7_ClockTicked_Period1Ended() {
-    // TODO PeriodProgressedNotification ohne timestamp?
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 37)));
 
     assertEquals(
-        new PeriodProgressedNotification(
-            LocalTime.of(0, 0), 1.0, LocalDateTime.of(2021, 8, 29, 18, 37)),
-        periodProgressedNotification);
+        new PeriodEndedNotification(LocalDateTime.of(2021, 8, 29, 18, 37)),
+        periodEndedNotification);
   }
 
   @Test
@@ -186,8 +187,7 @@ class AcceptanceTest {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 43)));
 
     assertEquals(
-        new PeriodProgressedNotification(LocalTime.of(0, 6), 0.5, null),
-        periodProgressedNotification);
+        new PeriodProgressedNotification(LocalTime.of(0, 6), 0.5), periodProgressedNotification);
   }
 
   @Test
@@ -196,9 +196,8 @@ class AcceptanceTest {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 49)));
 
     assertEquals(
-        new PeriodProgressedNotification(
-            LocalTime.of(0, 0), 1.0, LocalDateTime.of(2021, 8, 29, 18, 49)),
-        periodProgressedNotification);
+        new PeriodEndedNotification(LocalDateTime.of(2021, 8, 29, 18, 49)),
+        periodEndedNotification);
   }
 
   @Test
@@ -207,8 +206,7 @@ class AcceptanceTest {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 52)));
 
     assertEquals(
-        new PeriodProgressedNotification(LocalTime.of(0, 9), 0.25, null),
-        periodProgressedNotification);
+        new PeriodProgressedNotification(LocalTime.of(0, 9), 0.25), periodProgressedNotification);
   }
 
   @Test
@@ -222,19 +220,19 @@ class AcceptanceTest {
                 "ACME Ltd.",
                 "Foobar",
                 "Design",
-                null));
+                "Design something"));
 
     assertEquals(
         new ActivityLogQueryResult(
             """
         Sonntag, 29. August 2021
         18:37 - Foobar (ACME Ltd.) Analyze - Analyze requirements
-        18:49 - Foobar (ACME Ltd.) Design
+        18:49 - Foobar (ACME Ltd.) Design - Design something
         """,
             List.of(
-                new ActivityTemplate("ACME Ltd.", "Foobar", "Design", null),
+                new ActivityTemplate("ACME Ltd.", "Foobar", "Design", "Design something"),
                 new ActivityTemplate("ACME Ltd.", "Foobar", "Analyze", "Analyze requirements")),
-            new ActivityTemplate("ACME Ltd.", "Foobar", "Design", null),
+            new ActivityTemplate("ACME Ltd.", "Foobar", "Design", "Design something"),
             List.of("ACME Ltd."),
             List.of("Foobar"),
             List.of("Analyze", "Design")),
@@ -273,7 +271,7 @@ class AcceptanceTest {
                     "ACME Ltd.",
                     "Foobar",
                     "Design",
-                    null,
+                    "Design something",
                     Duration.ofMinutes(12),
                     null,
                     null))),
@@ -287,7 +285,6 @@ class AcceptanceTest {
     // TODO Teste gegen "richtigen" Preferences Repository
     var preferencesRepository = new MemoryPreferencesRepository();
     requestHandler = new RequestHandler(eventStore, preferencesRepository);
-    requestHandler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
 
     var result = requestHandler.handle(new ActivityLogQuery());
 
@@ -296,12 +293,12 @@ class AcceptanceTest {
             """
     Sonntag, 29. August 2021
     18:37 - Foobar (ACME Ltd.) Analyze - Analyze requirements
-    18:49 - Foobar (ACME Ltd.) Design
+    18:49 - Foobar (ACME Ltd.) Design - Design something
     """,
             List.of(
-                new ActivityTemplate("ACME Ltd.", "Foobar", "Design", null),
+                new ActivityTemplate("ACME Ltd.", "Foobar", "Design", "Design something"),
                 new ActivityTemplate("ACME Ltd.", "Foobar", "Analyze", "Analyze requirements")),
-            new ActivityTemplate("ACME Ltd.", "Foobar", "Design", null),
+            new ActivityTemplate("ACME Ltd.", "Foobar", "Design", "Design something"),
             List.of("ACME Ltd."),
             List.of("Foobar"),
             List.of("Analyze", "Design")),

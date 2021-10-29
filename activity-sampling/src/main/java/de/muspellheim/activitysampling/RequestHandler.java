@@ -21,6 +21,7 @@ import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferen
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.ProgressPeriodCommand;
 import de.muspellheim.activitysampling.contract.messages.notification.ClockTickedNotification;
+import de.muspellheim.activitysampling.contract.messages.notification.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
@@ -36,6 +37,7 @@ import lombok.Setter;
 
 class RequestHandler {
   @Getter @Setter private Consumer<PeriodProgressedNotification> onPeriodProgressedNotification;
+  @Getter @Setter private Consumer<PeriodEndedNotification> onPeriodEndedNotification;
 
   private final ChangeMainWindowBoundsCommandHandler changeMainWindowBoundsCommandHandler;
   private final LogActivityCommandHandler logActivityCommandHandler;
@@ -58,6 +60,8 @@ class RequestHandler {
         new ProgressPeriodCommandHandler(preferencesRepository.loadPeriodDuration());
     progressPeriodCommandHandler.setOnPeriodProgressedNotification(
         n -> onPeriodProgressedNotification.accept(n));
+    progressPeriodCommandHandler.setOnPeriodEndedNotification(
+        n -> onPeriodEndedNotification.accept(n));
 
     activityLogQueryHandler = new ActivityLogQueryHandler(eventStore);
     preferencesQueryHandler = new PreferencesQueryHandler(preferencesRepository);
