@@ -8,8 +8,8 @@ package de.muspellheim.activitysampling.contract.messages.commands;
 import java.time.Duration;
 import java.util.Objects;
 
-public record ChangePreferencesCommand(Duration periodDuration) {
+public record ChangePreferencesCommand(Duration period) {
   public ChangePreferencesCommand {
-    Objects.requireNonNull(periodDuration, "periodDuration");
+    Objects.requireNonNull(period, "period");
   }
 }

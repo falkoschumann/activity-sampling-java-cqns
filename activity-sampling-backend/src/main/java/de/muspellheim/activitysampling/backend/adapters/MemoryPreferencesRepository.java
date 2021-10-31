@@ -5,37 +5,37 @@
 
 package de.muspellheim.activitysampling.backend.adapters;
 
-import de.muspellheim.activitysampling.backend.PreferencesRepository;
 import de.muspellheim.activitysampling.contract.data.Bounds;
 import java.time.Duration;
 
-public class MemoryPreferencesRepository implements PreferencesRepository {
-  private Duration periodDuration = Duration.ofMinutes(20);
+public class MemoryPreferencesRepository extends AbstractPreferencesRepository {
+  private Duration period = Duration.ofMinutes(20);
   private Bounds mainWindowBounds = Bounds.NULL;
 
   public MemoryPreferencesRepository addExamples() {
-    periodDuration = Duration.ofMinutes(2);
+    period = Duration.ofMinutes(2);
     mainWindowBounds = new Bounds(360, 240, 640, 480);
     return this;
   }
 
   @Override
-  public Duration loadPeriodDuration() {
-    return periodDuration;
+  public Duration getPeriod() {
+    return period;
   }
 
   @Override
-  public void savePeriodDuration(Duration periodDuration) {
-    this.periodDuration = periodDuration;
+  public void setPeriod(Duration period) {
+    this.period = period;
+    notifyPeriodObservers(period);
   }
 
   @Override
-  public Bounds loadMainWindowBounds() {
+  public Bounds getMainWindowBounds() {
     return mainWindowBounds;
   }
 
   @Override
-  public void storeMainWindowBounds(Bounds bounds) {
+  public void setMainWindowBounds(Bounds bounds) {
     this.mainWindowBounds = bounds;
   }
 }

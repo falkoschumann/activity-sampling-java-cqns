@@ -18,7 +18,7 @@ public class ChangePreferencesCommandHandler {
   }
 
   public CommandStatus handle(ChangePreferencesCommand command) {
-    repository.savePeriodDuration(command.periodDuration());
+    repository.setPeriod(command.period());
     return new Success();
   }
 }

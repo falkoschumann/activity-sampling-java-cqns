@@ -5,7 +5,10 @@
 
 package de.muspellheim.activitysampling.backend.messagehandlers;
 
+import de.muspellheim.activitysampling.backend.PreferencesRepository;
+import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
 import de.muspellheim.activitysampling.contract.messages.commands.ProgressPeriodCommand;
+import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
 import java.time.Duration;
@@ -19,44 +22,46 @@ public class ProgressPeriodCommandHandler {
   @Getter @Setter Consumer<PeriodProgressedNotification> onPeriodProgressedNotification;
   @Getter @Setter Consumer<PeriodEndedNotification> onPeriodEndedNotification;
 
-  private Duration duration;
+  private Duration period;
   private LocalDateTime start;
   private LocalDateTime end;
 
-  public ProgressPeriodCommandHandler(Duration duration) {
-    setDuration(duration);
+  public ProgressPeriodCommandHandler(PreferencesRepository preferencesRepository) {
+    updatePeriod(preferencesRepository.getPeriod());
+    preferencesRepository.addPeriodChangedObserver(this::updatePeriod);
   }
 
-  public final void setDuration(Duration duration) {
-    this.duration = duration;
+  private void updatePeriod(Duration period) {
+    this.period = period;
     start = null;
   }
 
-  public void handle(ProgressPeriodCommand command) {
+  public CommandStatus handle(ProgressPeriodCommand command) {
     if (start == null) {
       if (end == null) {
         start = command.currentTime();
         onPeriodProgressedNotification.accept(
-            new PeriodProgressedNotification(LocalTime.ofSecondOfDay(duration.getSeconds()), 0.0));
-        return;
+            new PeriodProgressedNotification(LocalTime.ofSecondOfDay(period.getSeconds()), 0.0));
+        return new Success();
       } else {
         start = end;
       }
     }
 
     var elapsed = Duration.between(start, command.currentTime());
-    var remaining = duration.minus(elapsed);
+    var remaining = period.minus(elapsed);
     if (remaining.toSeconds() <= 0) {
       start = null;
       end = command.currentTime();
       onPeriodEndedNotification.accept(new PeriodEndedNotification(command.currentTime()));
     } else {
       var remainingSeconds = (double) remaining.toSeconds();
-      var totalSeconds = (double) duration.getSeconds();
+      var totalSeconds = (double) period.getSeconds();
       var progress = totalSeconds == 0 ? 0.0 : 1 - remainingSeconds / totalSeconds;
       onPeriodProgressedNotification.accept(
           new PeriodProgressedNotification(
               LocalTime.ofSecondOfDay(remaining.getSeconds()), progress));
     }
+    return new Success();
   }
 }

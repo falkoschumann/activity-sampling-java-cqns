@@ -24,8 +24,6 @@ class ChangePreferencesCommandHandlerTests {
 
     assertAll(
         () -> assertEquals(new Success(), result, "Command status"),
-        () ->
-            assertEquals(
-                Duration.ofMinutes(30), repository.loadPeriodDuration(), "Period duration"));
+        () -> assertEquals(Duration.ofMinutes(30), repository.getPeriod(), "Period duration"));
   }
 }

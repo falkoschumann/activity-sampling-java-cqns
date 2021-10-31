@@ -8,10 +8,10 @@ package de.muspellheim.activitysampling.backend.messagehandlers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesRepository;
 import de.muspellheim.activitysampling.contract.messages.commands.ProgressPeriodCommand;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,8 @@ class ProgressPeriodCommandHandlerTests {
 
   @Test
   void clockTicked_periodStarted() {
-    var handler = new ProgressPeriodCommandHandler(Duration.ofMinutes(20));
+    var preferencesRepository = new MemoryPreferencesRepository();
+    var handler = new ProgressPeriodCommandHandler(preferencesRepository);
     handler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
     handler.setOnPeriodEndedNotification(n -> periodEndedNotification = n);
 
@@ -36,7 +37,8 @@ class ProgressPeriodCommandHandlerTests {
 
   @Test
   void clockTicked_periodProgressed() {
-    var handler = new ProgressPeriodCommandHandler(Duration.ofMinutes(20));
+    var preferencesRepository = new MemoryPreferencesRepository();
+    var handler = new ProgressPeriodCommandHandler(preferencesRepository);
     handler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
     handler.setOnPeriodEndedNotification(n -> periodEndedNotification = n);
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);
@@ -53,7 +55,8 @@ class ProgressPeriodCommandHandlerTests {
 
   @Test
   void clockTicked_periodEnded() {
-    var handler = new ProgressPeriodCommandHandler(Duration.ofMinutes(20));
+    var preferencesRepository = new MemoryPreferencesRepository();
+    var handler = new ProgressPeriodCommandHandler(preferencesRepository);
     handler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
     handler.setOnPeriodEndedNotification(n -> periodEndedNotification = n);
     var startTime = LocalDateTime.of(2020, 11, 8, 17, 20);

@@ -69,7 +69,7 @@ public class MainWindowController {
   private PreferencesController preferencesController;
   private TimeReportController timeReportController;
 
-  private Duration periodDuration;
+  private Duration period;
   private LocalDateTime timestamp;
 
   public static MainWindowController create(Stage stage) {
@@ -154,7 +154,7 @@ public class MainWindowController {
   }
 
   public void display(PreferencesQueryResult result) {
-    periodDuration = result.periodDuration();
+    period = result.period();
     preferencesController.display(result);
   }
 
@@ -222,7 +222,7 @@ public class MainWindowController {
     onLogActivityCommand.accept(
         new LogActivityCommand(
             timestamp,
-            periodDuration,
+            period,
             clientCombo.getValue(),
             projectCombo.getValue(),
             taskCombo.getValue(),

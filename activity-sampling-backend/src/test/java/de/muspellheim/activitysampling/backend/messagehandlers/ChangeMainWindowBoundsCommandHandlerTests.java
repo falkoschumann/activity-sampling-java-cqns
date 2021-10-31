@@ -27,6 +27,6 @@ class ChangeMainWindowBoundsCommandHandlerTests {
         () -> assertEquals(new Success(), status, "command status"),
         () ->
             assertEquals(
-                new Bounds(1, 2, 3, 4), repository.loadMainWindowBounds(), "main window bounds"));
+                new Bounds(1, 2, 3, 4), repository.getMainWindowBounds(), "main window bounds"));
   }
 }

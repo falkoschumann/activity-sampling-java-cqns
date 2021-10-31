@@ -17,7 +17,7 @@ public class PreferencesQueryHandler {
   }
 
   public PreferencesQueryResult handle(PreferencesQuery query) {
-    var periodDuration = repository.loadPeriodDuration();
-    return new PreferencesQueryResult(periodDuration);
+    var period = repository.getPeriod();
+    return new PreferencesQueryResult(period);
   }
 }

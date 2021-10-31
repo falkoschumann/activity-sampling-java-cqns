@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-public abstract class AbstractEventStore implements EventStore {
+abstract class AbstractEventStore implements EventStore {
   private final List<Consumer<Event>> recordedObserver = new CopyOnWriteArrayList<>();
 
   @Override

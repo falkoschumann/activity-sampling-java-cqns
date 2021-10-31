@@ -10,9 +10,9 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public interface EventStore {
-  void addRecordedObserver(Consumer<Event> handler);
+  void addRecordedObserver(Consumer<Event> observer);
 
-  void removeRecordedObserver(Consumer<Event> handler);
+  void removeRecordedObserver(Consumer<Event> observer);
 
   void record(Event event);
 

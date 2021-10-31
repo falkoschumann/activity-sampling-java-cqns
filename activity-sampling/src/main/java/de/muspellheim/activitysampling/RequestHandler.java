@@ -56,8 +56,7 @@ class RequestHandler {
         new ChangeMainWindowBoundsCommandHandler(preferencesRepository);
     logActivityCommandHandler = new LogActivityCommandHandler(eventStore);
     changePreferencesCommandHandler = new ChangePreferencesCommandHandler(preferencesRepository);
-    progressPeriodCommandHandler =
-        new ProgressPeriodCommandHandler(preferencesRepository.loadPeriodDuration());
+    progressPeriodCommandHandler = new ProgressPeriodCommandHandler(preferencesRepository);
     progressPeriodCommandHandler.setOnPeriodProgressedNotification(
         n -> onPeriodProgressedNotification.accept(n));
     progressPeriodCommandHandler.setOnPeriodEndedNotification(
@@ -77,7 +76,6 @@ class RequestHandler {
   }
 
   PreferencesQueryResult handle(ChangePreferencesCommand command) {
-    progressPeriodCommandHandler.setDuration(command.periodDuration());
     changePreferencesCommandHandler.handle(command);
     return preferencesQueryHandler.handle(new PreferencesQuery());
   }

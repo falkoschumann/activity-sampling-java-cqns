@@ -7,13 +7,18 @@ package de.muspellheim.activitysampling.backend;
 
 import de.muspellheim.activitysampling.contract.data.Bounds;
 import java.time.Duration;
+import java.util.function.Consumer;
 
 public interface PreferencesRepository {
-  Duration loadPeriodDuration();
+  Duration getPeriod();
 
-  void savePeriodDuration(Duration periodDuration);
+  void setPeriod(Duration period);
 
-  Bounds loadMainWindowBounds();
+  void addPeriodChangedObserver(Consumer<Duration> observer);
 
-  void storeMainWindowBounds(Bounds bounds);
+  void removePeriodChangedObserver(Consumer<Duration> observer);
+
+  Bounds getMainWindowBounds();
+
+  void setMainWindowBounds(Bounds bounds);
 }

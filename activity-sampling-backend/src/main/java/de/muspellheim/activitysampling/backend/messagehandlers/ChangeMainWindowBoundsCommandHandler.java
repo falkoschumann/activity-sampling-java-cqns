@@ -18,7 +18,7 @@ public class ChangeMainWindowBoundsCommandHandler {
   }
 
   public CommandStatus handle(ChangeMainWindowBoundsCommand command) {
-    repository.storeMainWindowBounds(command.bounds());
+    repository.setMainWindowBounds(command.bounds());
     return new Success();
   }
 }

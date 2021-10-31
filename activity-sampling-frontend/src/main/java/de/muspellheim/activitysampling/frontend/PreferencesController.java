@@ -29,7 +29,7 @@ public class PreferencesController implements Initializable {
   @Getter @Setter private Consumer<ChangePreferencesCommand> onChangePreferencesCommand;
 
   @FXML private Stage stage;
-  @FXML private ChoiceBox<Duration> periodDurationChoice;
+  @FXML private ChoiceBox<Duration> periodChoice;
 
   private ResourceBundle resources;
 
@@ -51,8 +51,8 @@ public class PreferencesController implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     this.resources = resources;
-    periodDurationChoice.setConverter(new PeriodDurationStringConverter());
-    periodDurationChoice.setValue(Duration.ofMinutes(20));
+    periodChoice.setConverter(new PeriodStringConverter());
+    periodChoice.setValue(Duration.ofMinutes(20));
     var periods =
         new ArrayList<>(
             List.of(
@@ -63,13 +63,13 @@ public class PreferencesController implements Initializable {
     if (Boolean.parseBoolean(System.getProperty("activitysampling.demo"))) {
       periods.add(0, Duration.ofMinutes(2));
     }
-    periodDurationChoice.getItems().setAll(periods);
+    periodChoice.getItems().setAll(periods);
 
     Stages.hookWindowCloseHandler(stage, this::handleClose);
   }
 
   public void display(PreferencesQueryResult result) {
-    periodDurationChoice.setValue(result.periodDuration());
+    periodChoice.setValue(result.period());
   }
 
   public void run() {
@@ -78,20 +78,18 @@ public class PreferencesController implements Initializable {
 
   @FXML
   private void handleClose() {
-    onChangePreferencesCommand.accept(
-        new ChangePreferencesCommand(periodDurationChoice.getValue()));
+    onChangePreferencesCommand.accept(new ChangePreferencesCommand(periodChoice.getValue()));
     stage.close();
   }
 
-  private class PeriodDurationStringConverter extends StringConverter<Duration> {
+  private class PeriodStringConverter extends StringConverter<Duration> {
     @Override
     public String toString(Duration object) {
       if (object.toHoursPart() == 0) {
         return MessageFormat.format(
-            resources.getString("preferencesView.periodDurationChoice.item.minutes"),
-            object.toMinutes());
+            resources.getString("preferencesView.periodChoice.item.minutes"), object.toMinutes());
       } else {
-        return resources.getString("preferencesView.periodDurationChoice.item.hour");
+        return resources.getString("preferencesView.periodChoice.item.hour");
       }
     }
 
