@@ -1,8 +1,21 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
-  id 'org.openjfx.javafxplugin'
+  id 'java-library'
 }
 
-javafx {
-  version = '17.0.0.1'
-  modules 'javafx.controls', 'javafx.fxml'
+def javafxVersion = '17.0.0.1'
+def javafxModules = ['base', 'graphics', 'controls', 'fxml']
+
+def javafxPlatform = Os.isFamily(Os.FAMILY_MAC) ? 'mac' :
+  Os.isFamily(Os.FAMILY_WINDOWS) ? 'win' :
+    Os.isFamily(Os.FAMILY_UNIX) ? 'linux' : null
+if (javafxPlatform != null && Os.isArch('aarch64')) {
+  javafxPlatform += '-aarch64'
+}
+
+dependencies {
+  javafxModules.each {
+    api "org.openjfx:javafx-$it:$javafxVersion" + (javafxPlatform != null ? ":$javafxPlatform" : "")
+  }
 }

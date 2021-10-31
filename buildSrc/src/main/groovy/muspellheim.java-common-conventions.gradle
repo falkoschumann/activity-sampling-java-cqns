@@ -64,7 +64,7 @@ jacocoTestReport {
 pmd {
   //ignoreFailures = true
   consoleOutput = true
-  toolVersion = '6.38.0' // Support für Java 16 ab 6.32
+  toolVersion = '6.40.0'
   rulesMinimumPriority = 2
   ruleSets = []
   ruleSetFiles = files("${rootDir}/config/pmd-ruleset.xml")

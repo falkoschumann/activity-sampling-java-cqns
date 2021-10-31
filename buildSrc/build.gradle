@@ -9,10 +9,9 @@ repositories {
 }
 
 dependencies {
-  implementation 'com.diffplug.spotless:spotless-plugin-gradle:5.16.0'
+  implementation 'com.diffplug.spotless:spotless-plugin-gradle:5.17.1'
   implementation 'io.freefair.gradle:lombok-plugin:6.2.0'
-  implementation 'org.beryx:badass-jlink-plugin:2.24.2'
-  implementation 'org.openjfx:javafx-plugin:0.0.10'
+  implementation 'org.beryx:badass-jlink-plugin:2.24.4'
   implementation 'org.ow2.asm:asm:8.0.1'
 }
 
