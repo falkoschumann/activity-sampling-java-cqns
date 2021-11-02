@@ -25,8 +25,6 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
@@ -53,6 +51,7 @@ public class MainWindowController {
   private TrayIconController trayIconViewController;
 
   private MessageHandling messageHandling;
+
   private Duration period;
   private LocalDateTime timestamp;
 
@@ -165,17 +164,6 @@ public class MainWindowController {
           logButton.setDisable(false);
           trayIconViewController.show();
         });
-  }
-
-  private void display(Throwable exception) {
-    exception.printStackTrace();
-
-    var alert = new Alert(AlertType.ERROR);
-    alert.initOwner(stage);
-    alert.setTitle("Error");
-    alert.setHeaderText("An unexpected Error occurred");
-    alert.setContentText(exception.getLocalizedMessage());
-    alert.show();
   }
 
   @FXML

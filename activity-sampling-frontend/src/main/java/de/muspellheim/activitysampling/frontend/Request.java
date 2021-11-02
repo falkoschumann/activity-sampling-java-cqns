@@ -5,11 +5,14 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 
 public abstract class Request extends Task<Void> {
+  private static final ResourceBundle RESOURCES = ResourceBundle.getBundle("ActivitySampling");
+
   public static void runAsync(Runnable handler) {
     runAsync(
         new Request() {
@@ -29,11 +32,10 @@ public abstract class Request extends Task<Void> {
   protected void failed() {
     getException().printStackTrace();
 
-    // TODO Übersetze Texte
     var alert = new Alert(Alert.AlertType.ERROR);
-    alert.setTitle("Error");
-    alert.setHeaderText("An unexpected Error occurred");
-    alert.setContentText(getException().getMessage());
+    alert.setTitle(RESOURCES.getString("request.failed.title"));
+    alert.setHeaderText(Request.RESOURCES.getString("request.failed.headerText"));
+    alert.setContentText(getException().getLocalizedMessage());
     alert.show();
   }
 }
