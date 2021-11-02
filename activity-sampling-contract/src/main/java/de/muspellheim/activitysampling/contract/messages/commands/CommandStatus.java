@@ -5,4 +5,5 @@
 
 package de.muspellheim.activitysampling.contract.messages.commands;
 
-public sealed interface CommandStatus permits Success, Failure {}
+// public sealed interface CommandStatus permits Success, Failure {}
+public interface CommandStatus {}
