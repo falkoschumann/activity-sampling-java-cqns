@@ -5,6 +5,7 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.MessageHandling;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.ClientEntry;
@@ -17,7 +18,6 @@ import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -28,12 +28,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
-import lombok.Getter;
-import lombok.Setter;
 
 public class TimeReportController implements Initializable {
-  @Getter @Setter private Consumer<TimeReportQuery> onTimesheetQuery;
-
   @FXML Stage stage;
   @FXML DatePicker startDate;
   @FXML DatePicker endDate;
@@ -63,7 +59,9 @@ public class TimeReportController implements Initializable {
   @FXML TableColumn<TimesheetEntry, String> timesheetFirstNameColumn;
   @FXML TableColumn<TimesheetEntry, String> timesheetLastNameColumn;
 
-  static TimeReportController create(Stage owner) {
+  private MessageHandling messageHandling;
+
+  static TimeReportController create(Stage owner, MessageHandling messageHandling) {
     try {
       var location = PreferencesController.class.getResource("TimeReportView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
@@ -72,6 +70,7 @@ public class TimeReportController implements Initializable {
 
       var controller = (TimeReportController) loader.getController();
       controller.stage.initOwner(owner);
+      controller.messageHandling = messageHandling;
       return controller;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -120,8 +119,10 @@ public class TimeReportController implements Initializable {
   }
 
   public void run() {
+    var result =
+        messageHandling.handle(new TimeReportQuery(startDate.getValue(), endDate.getValue()));
+    display(result);
     stage.show();
-    onTimesheetQuery.accept(new TimeReportQuery(startDate.getValue(), endDate.getValue()));
   }
 
   public void display(TimeReportQueryResult result) {
@@ -166,7 +167,9 @@ public class TimeReportController implements Initializable {
 
   @FXML
   private void handleSearch() {
-    onTimesheetQuery.accept(new TimeReportQuery(startDate.getValue(), endDate.getValue()));
+    var result =
+        messageHandling.handle(new TimeReportQuery(startDate.getValue(), endDate.getValue()));
+    display(result);
   }
 
   private enum Report {

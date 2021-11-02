@@ -53,7 +53,7 @@ public class ProgressPeriodCommandHandler {
     if (remaining.toSeconds() <= 0) {
       start = null;
       end = command.currentTime();
-      onPeriodEndedNotification.accept(new PeriodEndedNotification(command.currentTime()));
+      onPeriodEndedNotification.accept(new PeriodEndedNotification(command.currentTime(), period));
     } else {
       var remainingSeconds = (double) remaining.toSeconds();
       var totalSeconds = (double) period.getSeconds();

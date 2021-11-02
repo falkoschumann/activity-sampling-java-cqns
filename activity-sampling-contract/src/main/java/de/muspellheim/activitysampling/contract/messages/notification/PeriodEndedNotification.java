@@ -5,11 +5,13 @@
 
 package de.muspellheim.activitysampling.contract.messages.notification;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public record PeriodEndedNotification(LocalDateTime end) {
+public record PeriodEndedNotification(LocalDateTime timestamp, Duration period) {
   public PeriodEndedNotification {
-    Objects.requireNonNull(end, "end");
+    Objects.requireNonNull(timestamp, "timestamp");
+    Objects.requireNonNull(period, "period");
   }
 }

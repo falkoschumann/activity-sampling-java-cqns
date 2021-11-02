@@ -149,7 +149,7 @@ class AcceptanceTest {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 37)));
 
     assertEquals(
-        new PeriodEndedNotification(LocalDateTime.of(2021, 8, 29, 18, 37)),
+        new PeriodEndedNotification(LocalDateTime.of(2021, 8, 29, 18, 37), Duration.ofMinutes(12)),
         periodEndedNotification);
   }
 
@@ -196,7 +196,7 @@ class AcceptanceTest {
     requestHandler.handle(new ClockTickedNotification(LocalDateTime.of(2021, 8, 29, 18, 49)));
 
     assertEquals(
-        new PeriodEndedNotification(LocalDateTime.of(2021, 8, 29, 18, 49)),
+        new PeriodEndedNotification(LocalDateTime.of(2021, 8, 29, 18, 49), Duration.ofMinutes(12)),
         periodEndedNotification);
   }
 

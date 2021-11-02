@@ -5,10 +5,10 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.MessageHandling;
 import de.muspellheim.activitysampling.contract.data.ActivityTemplate;
 import de.muspellheim.activitysampling.contract.data.Bounds;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangeMainWindowBoundsCommand;
-import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
@@ -16,17 +16,12 @@ import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQuer
 import de.muspellheim.activitysampling.contract.messages.queries.ActivityLogQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.MainWindowBoundsQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.MainWindowBoundsQueryResult;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
-import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQuery;
-import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -42,18 +37,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import lombok.Getter;
-import lombok.Setter;
 
 public class MainWindowController {
-  @Getter @Setter private Consumer<ChangeMainWindowBoundsCommand> onChangeMainWindowBoundsCommand;
-  @Getter @Setter private Consumer<ChangePreferencesCommand> onChangePreferencesCommand;
-  @Getter @Setter private Consumer<LogActivityCommand> onLogActivityCommand;
-  @Getter @Setter private Consumer<ActivityLogQuery> onActivityLogQuery;
-  @Getter @Setter private Consumer<MainWindowBoundsQuery> onMainWindowBoundsQuery;
-  @Getter @Setter private Consumer<PreferencesQuery> onPreferencesQuery;
-  @Getter @Setter private Consumer<TimeReportQuery> onTimeReportQuery;
-
   @FXML private Stage stage;
   @FXML private MenuBar menuBar;
   @FXML private ComboBox<String> clientCombo;
@@ -66,20 +51,22 @@ public class MainWindowController {
   @FXML private TextArea logText;
 
   private TrayIconController trayIconViewController;
-  private PreferencesController preferencesController;
-  private TimeReportController timeReportController;
 
+  private MessageHandling messageHandling;
   private Duration period;
   private LocalDateTime timestamp;
 
-  public static MainWindowController create(Stage stage) {
+  public static MainWindowController create(Stage stage, MessageHandling messageHandling) {
     try {
       var location = MainWindowController.class.getResource("MainWindowView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
       var loader = new FXMLLoader(location, resources);
       loader.setRoot(stage);
       loader.load();
-      return loader.getController();
+
+      var controller = (MainWindowController) loader.getController();
+      controller.messageHandling = messageHandling;
+      return controller;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -87,26 +74,28 @@ public class MainWindowController {
 
   @FXML
   private void initialize() {
+    // Build
     menuBar.setUseSystemMenuBar(true);
     // new AutoCompleteComboBoxListener<>(clientCombo);
     // new AutoCompleteComboBoxListener<>(projectCombo);
     // new AutoCompleteComboBoxListener<>(taskCombo);
 
     trayIconViewController = new TrayIconController();
-    preferencesController = PreferencesController.create(stage);
-    timeReportController = TimeReportController.create(stage);
 
+    // Bind
     trayIconViewController.setOnActivitySelected(this::logActivity);
     Platform.runLater(() -> stage.setOnHiding(e -> trayIconViewController.hide()));
   }
 
   public void run() {
-    onMainWindowBoundsQuery.accept(new MainWindowBoundsQuery());
-    onPreferencesQuery.accept(new PreferencesQuery());
-    onActivityLogQuery.accept(new ActivityLogQuery());
+    messageHandling.setOnPeriodProgressedNotification(this::display);
+    messageHandling.setOnPeriodEndedNotification(this::display);
+
+    display(messageHandling.handle(new MainWindowBoundsQuery()));
+    display(messageHandling.handle(new ActivityLogQuery()));
   }
 
-  public void display(ActivityLogQueryResult result) {
+  private void display(ActivityLogQueryResult result) {
     clientCombo.getItems().setAll(result.recentClients());
     projectCombo.getItems().setAll(result.recentProjects());
     // TODO Aktualisiere AutoCompleteComboBoxListener.data
@@ -137,7 +126,7 @@ public class MainWindowController {
     trayIconViewController.setRecent(result.recent());
   }
 
-  public void display(MainWindowBoundsQueryResult result) {
+  private void display(MainWindowBoundsQueryResult result) {
     if (!Bounds.NULL.equals(result.bounds())) {
       var x = result.bounds().x();
       var y = result.bounds().y();
@@ -153,34 +142,32 @@ public class MainWindowController {
     stage.show();
   }
 
-  public void display(PreferencesQueryResult result) {
-    period = result.period();
-    preferencesController.display(result);
+  private void display(PeriodProgressedNotification notification) {
+    Platform.runLater(
+        () -> {
+          remainingTimeLabel.setText(
+              DateTimeFormatter.ofPattern("HH:mm:ss").format(notification.remaining()));
+          progressBar.setProgress(notification.progress());
+        });
   }
 
-  public void display(TimeReportQueryResult result) {
-    timeReportController.display(result);
+  private void display(PeriodEndedNotification notification) {
+    Platform.runLater(
+        () -> {
+          remainingTimeLabel.setText("00:00:00");
+          progressBar.setProgress(1.0);
+          timestamp = notification.timestamp();
+          period = notification.period();
+          clientCombo.setDisable(false);
+          projectCombo.setDisable(false);
+          taskCombo.setDisable(false);
+          notesText.setDisable(false);
+          logButton.setDisable(false);
+          trayIconViewController.show();
+        });
   }
 
-  public void display(PeriodProgressedNotification notification) {
-    remainingTimeLabel.setText(
-        DateTimeFormatter.ofPattern("HH:mm:ss").format(notification.remaining()));
-    progressBar.setProgress(notification.progress());
-  }
-
-  public void display(PeriodEndedNotification notification) {
-    remainingTimeLabel.setText("00:00:00");
-    progressBar.setProgress(1.0);
-    timestamp = notification.end();
-    clientCombo.setDisable(false);
-    projectCombo.setDisable(false);
-    taskCombo.setDisable(false);
-    notesText.setDisable(false);
-    logButton.setDisable(false);
-    trayIconViewController.show();
-  }
-
-  public void display(Throwable exception) {
+  private void display(Throwable exception) {
     exception.printStackTrace();
 
     var alert = new Alert(AlertType.ERROR);
@@ -193,13 +180,13 @@ public class MainWindowController {
 
   @FXML
   private void handleOpenPreferences() {
-    preferencesController.setOnChangePreferencesCommand(onChangePreferencesCommand);
-    preferencesController.run();
+    var controller = PreferencesController.create(stage, messageHandling);
+    controller.run();
   }
 
   @FXML
   private void handleClose() {
-    onChangeMainWindowBoundsCommand.accept(
+    messageHandling.handle(
         new ChangeMainWindowBoundsCommand(
             new Bounds(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight())));
     stage.close();
@@ -207,8 +194,8 @@ public class MainWindowController {
 
   @FXML
   private void handleOpenTimeReport() {
-    timeReportController.setOnTimesheetQuery(onTimeReportQuery);
-    timeReportController.run();
+    var controller = TimeReportController.create(stage, messageHandling);
+    controller.run();
   }
 
   @FXML
@@ -219,7 +206,7 @@ public class MainWindowController {
 
   @FXML
   private void handleLogActivity() {
-    onLogActivityCommand.accept(
+    messageHandling.handle(
         new LogActivityCommand(
             timestamp,
             period,
@@ -233,6 +220,9 @@ public class MainWindowController {
     notesText.setDisable(true);
     logButton.setDisable(true);
     trayIconViewController.hide();
+
+    var result = messageHandling.handle(new ActivityLogQuery());
+    display(result);
   }
 
   private void logActivity(ActivityTemplate activity) {

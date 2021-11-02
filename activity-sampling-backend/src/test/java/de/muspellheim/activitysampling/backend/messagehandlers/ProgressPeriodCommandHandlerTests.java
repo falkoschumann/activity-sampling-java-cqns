@@ -12,6 +12,7 @@ import de.muspellheim.activitysampling.backend.adapters.MemoryPreferencesReposit
 import de.muspellheim.activitysampling.contract.messages.commands.ProgressPeriodCommand;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodEndedNotification;
 import de.muspellheim.activitysampling.contract.messages.notification.PeriodProgressedNotification;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import org.junit.jupiter.api.Test;
@@ -66,7 +67,7 @@ class ProgressPeriodCommandHandlerTests {
     handler.handle(new ProgressPeriodCommand(currentTime));
 
     assertEquals(
-        new PeriodEndedNotification(LocalDateTime.of(2020, 11, 8, 17, 40)),
+        new PeriodEndedNotification(LocalDateTime.of(2020, 11, 8, 17, 40), Duration.ofMinutes(20)),
         periodEndedNotification);
   }
 }

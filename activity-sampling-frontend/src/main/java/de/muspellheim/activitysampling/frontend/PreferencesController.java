@@ -5,35 +5,31 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import de.muspellheim.activitysampling.contract.MessageHandling;
 import de.muspellheim.activitysampling.contract.messages.commands.ChangePreferencesCommand;
+import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQuery;
 import de.muspellheim.activitysampling.contract.messages.queries.PreferencesQueryResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
-import lombok.Getter;
-import lombok.Setter;
 
-public class PreferencesController implements Initializable {
-  @Getter @Setter private Consumer<ChangePreferencesCommand> onChangePreferencesCommand;
-
+public class PreferencesController {
   @FXML private Stage stage;
   @FXML private ChoiceBox<Duration> periodChoice;
+  @FXML private ResourceBundle resources;
 
-  private ResourceBundle resources;
+  private MessageHandling messageHandling;
 
-  public static PreferencesController create(Stage owner) {
+  public static PreferencesController create(Stage owner, MessageHandling messageHandling) {
     try {
       var location = PreferencesController.class.getResource("PreferencesView.fxml");
       var resources = ResourceBundle.getBundle("ActivitySampling");
@@ -42,15 +38,15 @@ public class PreferencesController implements Initializable {
 
       var controller = (PreferencesController) loader.getController();
       controller.stage.initOwner(owner);
+      controller.messageHandling = messageHandling;
       return controller;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
   }
 
-  @Override
-  public void initialize(URL location, ResourceBundle resources) {
-    this.resources = resources;
+  @FXML
+  private void initialize() {
     periodChoice.setConverter(new PeriodStringConverter());
     periodChoice.setValue(Duration.ofMinutes(20));
     var periods =
@@ -68,17 +64,19 @@ public class PreferencesController implements Initializable {
     Stages.hookWindowCloseHandler(stage, this::handleClose);
   }
 
-  public void display(PreferencesQueryResult result) {
+  private void display(PreferencesQueryResult result) {
     periodChoice.setValue(result.period());
   }
 
   public void run() {
+    var result = messageHandling.handle(new PreferencesQuery());
+    display(result);
     stage.show();
   }
 
   @FXML
   private void handleClose() {
-    onChangePreferencesCommand.accept(new ChangePreferencesCommand(periodChoice.getValue()));
+    messageHandling.handle(new ChangePreferencesCommand(periodChoice.getValue()));
     stage.close();
   }
 
