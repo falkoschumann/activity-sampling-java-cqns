@@ -47,6 +47,7 @@ public class PreferencesController {
 
   @FXML
   private void initialize() {
+    // Build
     periodChoice.setConverter(new PeriodStringConverter());
     periodChoice.setValue(Duration.ofMinutes(20));
     var periods =
@@ -61,11 +62,8 @@ public class PreferencesController {
     }
     periodChoice.getItems().setAll(periods);
 
+    // Bind
     Stages.hookWindowCloseHandler(stage, this::handleClose);
-  }
-
-  private void display(PreferencesQueryResult result) {
-    periodChoice.setValue(result.period());
   }
 
   public void run() {
@@ -78,6 +76,10 @@ public class PreferencesController {
   private void handleClose() {
     messageHandling.handle(new ChangePreferencesCommand(periodChoice.getValue()));
     stage.close();
+  }
+
+  private void display(PreferencesQueryResult result) {
+    periodChoice.setValue(result.period());
   }
 
   private class PeriodStringConverter extends StringConverter<Duration> {

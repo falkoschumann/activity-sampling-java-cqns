@@ -15,12 +15,15 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 
 class TrayIconController {
   @Getter @Setter private Consumer<ActivityTemplate> onActivitySelected;
+
+  private final ResourceBundle resources = ResourceBundle.getBundle("ActivitySampling");
 
   private TrayIcon trayIcon;
 
@@ -71,7 +74,7 @@ class TrayIconController {
             }
           }
 
-          trayIcon.displayMessage("What are you working on?", null, MessageType.NONE);
+          trayIcon.displayMessage(resources.getString("trayIcon.message"), null, MessageType.NONE);
         });
   }
 

@@ -14,13 +14,11 @@ import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQuery
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.TimesheetEntry;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
@@ -29,7 +27,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
-public class TimeReportController implements Initializable {
+public class TimeReportController {
   @FXML Stage stage;
   @FXML DatePicker startDate;
   @FXML DatePicker endDate;
@@ -59,6 +57,8 @@ public class TimeReportController implements Initializable {
   @FXML TableColumn<TimesheetEntry, String> timesheetFirstNameColumn;
   @FXML TableColumn<TimesheetEntry, String> timesheetLastNameColumn;
 
+  @FXML private ResourceBundle resources;
+
   private MessageHandling messageHandling;
 
   static TimeReportController create(Stage owner, MessageHandling messageHandling) {
@@ -77,27 +77,12 @@ public class TimeReportController implements Initializable {
     }
   }
 
-  @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  @FXML
+  public void initialize() {
+    // Build
     reportChoice.getItems().setAll(Report.values());
     reportChoice.setValue(Report.TIMESHEET);
-    reportChoice.setConverter(
-        new StringConverter<>() {
-          @Override
-          public String toString(Report object) {
-            return switch (object) {
-              case CLIENTS -> resources.getString("timeReportView.clients");
-              case PROJECTS -> resources.getString("timeReportView.projects");
-              case TASKS -> resources.getString("timeReportView.tasks");
-              case TIMESHEET -> resources.getString("timeReportView.timesheet");
-            };
-          }
-
-          @Override
-          public Report fromString(String string) {
-            throw new UnsupportedOperationException();
-          }
-        });
+    reportChoice.setConverter(new ReportStringConverter());
     clientsClientColumn.setCellValueFactory(new ComponentValueFactory<>("client"));
     clientsHoursColumn.setCellValueFactory(new ComponentValueFactory<>("hours"));
     projectsClientColumn.setCellValueFactory(new ComponentValueFactory<>("client"));
@@ -114,15 +99,23 @@ public class TimeReportController implements Initializable {
     timesheetFirstNameColumn.setCellValueFactory(new ComponentValueFactory<>("firstName"));
     timesheetLastNameColumn.setCellValueFactory(new ComponentValueFactory<>("lastName"));
 
+    // Bind
     reportChoice.valueProperty().addListener(o -> update());
     Stages.hookWindowCloseHandler(stage);
   }
 
   public void run() {
-    var result =
-        messageHandling.handle(new TimeReportQuery(startDate.getValue(), endDate.getValue()));
-    display(result);
+    Request.runAsync(
+        () -> messageHandling.handle(new TimeReportQuery(startDate.getValue(), endDate.getValue())),
+        this::display);
     stage.show();
+  }
+
+  @FXML
+  private void handleSearch() {
+    Request.runAsync(
+        () -> messageHandling.handle(new TimeReportQuery(startDate.getValue(), endDate.getValue())),
+        this::display);
   }
 
   public void display(TimeReportQueryResult result) {
@@ -165,17 +158,27 @@ public class TimeReportController implements Initializable {
     }
   }
 
-  @FXML
-  private void handleSearch() {
-    var result =
-        messageHandling.handle(new TimeReportQuery(startDate.getValue(), endDate.getValue()));
-    display(result);
-  }
-
   private enum Report {
     CLIENTS,
     PROJECTS,
     TASKS,
     TIMESHEET
+  }
+
+  private class ReportStringConverter extends StringConverter<Report> {
+    @Override
+    public String toString(Report object) {
+      return switch (object) {
+        case CLIENTS -> resources.getString("timeReportView.clients");
+        case PROJECTS -> resources.getString("timeReportView.projects");
+        case TASKS -> resources.getString("timeReportView.tasks");
+        case TIMESHEET -> resources.getString("timeReportView.timesheet");
+      };
+    }
+
+    @Override
+    public Report fromString(String string) {
+      throw new UnsupportedOperationException();
+    }
   }
 }

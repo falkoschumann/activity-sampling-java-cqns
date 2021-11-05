@@ -5,17 +5,20 @@
 
 package de.muspellheim.activitysampling.frontend;
 
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 
-public abstract class Request extends Task<Void> {
-  private static final ResourceBundle RESOURCES = ResourceBundle.getBundle("ActivitySampling");
+public abstract class Request<T> extends Task<T> {
+  private final ResourceBundle resources = ResourceBundle.getBundle("ActivitySampling");
 
   public static void runAsync(Runnable handler) {
     runAsync(
-        new Request() {
+        new Request<Void>() {
           @Override
           protected Void call() {
             handler.run();
@@ -24,7 +27,22 @@ public abstract class Request extends Task<Void> {
         });
   }
 
-  public static void runAsync(Request request) {
+  public static <T> void runAsync(Supplier<T> handler, Consumer<T> display) {
+    runAsync(
+        new Request<T>() {
+          @Override
+          protected T call() {
+            return handler.get();
+          }
+
+          @Override
+          protected void succeeded() {
+            Optional.ofNullable(getValue()).ifPresent(display);
+          }
+        });
+  }
+
+  public static <T> void runAsync(Request<T> request) {
     CompletableFuture.runAsync(request);
   }
 
@@ -33,9 +51,9 @@ public abstract class Request extends Task<Void> {
     getException().printStackTrace();
 
     var alert = new Alert(Alert.AlertType.ERROR);
-    alert.setTitle(RESOURCES.getString("request.failed.title"));
-    alert.setHeaderText(Request.RESOURCES.getString("request.failed.headerText"));
-    alert.setContentText(getException().getLocalizedMessage());
+    alert.setTitle(resources.getString("request.failed.title"));
+    alert.setHeaderText(resources.getString("request.failed.headerText"));
+    alert.setContentText(getException().getMessage());
     alert.show();
   }
 }

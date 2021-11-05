@@ -48,7 +48,7 @@ public class MainWindowController {
   @FXML private ProgressBar progressBar;
   @FXML private TextArea logText;
 
-  private TrayIconController trayIconViewController;
+  private final TrayIconController trayIconViewController = new TrayIconController();
 
   private MessageHandling messageHandling;
 
@@ -79,19 +79,68 @@ public class MainWindowController {
     // new AutoCompleteComboBoxListener<>(projectCombo);
     // new AutoCompleteComboBoxListener<>(taskCombo);
 
-    trayIconViewController = new TrayIconController();
-
     // Bind
     trayIconViewController.setOnActivitySelected(this::logActivity);
     Platform.runLater(() -> stage.setOnHiding(e -> trayIconViewController.hide()));
   }
 
   public void run() {
-    messageHandling.setOnPeriodProgressedNotification(this::display);
-    messageHandling.setOnPeriodEndedNotification(this::display);
+    messageHandling.setOnPeriodProgressedNotification(it -> Platform.runLater(() -> display(it)));
+    messageHandling.setOnPeriodEndedNotification(it -> Platform.runLater(() -> display(it)));
 
     display(messageHandling.handle(new MainWindowBoundsQuery()));
-    display(messageHandling.handle(new ActivityLogQuery()));
+    Request.runAsync(() -> messageHandling.handle(new ActivityLogQuery()), this::display);
+  }
+
+  @FXML
+  private void handleOpenPreferences() {
+    var controller = PreferencesController.create(stage, messageHandling);
+    controller.run();
+  }
+
+  @FXML
+  private void handleClose() {
+    messageHandling.handle(
+        new ChangeMainWindowBoundsCommand(
+            new Bounds(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight())));
+    stage.close();
+  }
+
+  @FXML
+  private void handleOpenTimeReport() {
+    var controller = TimeReportController.create(stage, messageHandling);
+    controller.run();
+  }
+
+  @FXML
+  private void handleOpenAbout() {
+    var controller = AboutController.create(stage);
+    controller.run();
+  }
+
+  @FXML
+  private void handleLogActivity() {
+    Request.runAsync(
+        () -> {
+          messageHandling.handle(
+              new LogActivityCommand(
+                  timestamp,
+                  period,
+                  clientCombo.getValue(),
+                  projectCombo.getValue(),
+                  taskCombo.getValue(),
+                  notesText.getText()));
+          return messageHandling.handle(new ActivityLogQuery());
+        },
+        it -> {
+          display(it);
+          clientCombo.setDisable(true);
+          projectCombo.setDisable(true);
+          taskCombo.setDisable(true);
+          notesText.setDisable(true);
+          logButton.setDisable(true);
+          trayIconViewController.hide();
+        });
   }
 
   private void display(ActivityLogQueryResult result) {
@@ -142,75 +191,22 @@ public class MainWindowController {
   }
 
   private void display(PeriodProgressedNotification notification) {
-    Platform.runLater(
-        () -> {
-          remainingTimeLabel.setText(
-              DateTimeFormatter.ofPattern("HH:mm:ss").format(notification.remaining()));
-          progressBar.setProgress(notification.progress());
-        });
+    remainingTimeLabel.setText(
+        DateTimeFormatter.ofPattern("HH:mm:ss").format(notification.remaining()));
+    progressBar.setProgress(notification.progress());
   }
 
   private void display(PeriodEndedNotification notification) {
-    Platform.runLater(
-        () -> {
-          remainingTimeLabel.setText("00:00:00");
-          progressBar.setProgress(1.0);
-          timestamp = notification.timestamp();
-          period = notification.period();
-          clientCombo.setDisable(false);
-          projectCombo.setDisable(false);
-          taskCombo.setDisable(false);
-          notesText.setDisable(false);
-          logButton.setDisable(false);
-          trayIconViewController.show();
-        });
-  }
-
-  @FXML
-  private void handleOpenPreferences() {
-    var controller = PreferencesController.create(stage, messageHandling);
-    controller.run();
-  }
-
-  @FXML
-  private void handleClose() {
-    messageHandling.handle(
-        new ChangeMainWindowBoundsCommand(
-            new Bounds(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight())));
-    stage.close();
-  }
-
-  @FXML
-  private void handleOpenTimeReport() {
-    var controller = TimeReportController.create(stage, messageHandling);
-    controller.run();
-  }
-
-  @FXML
-  private void handleOpenAbout() {
-    var controller = AboutController.create(stage);
-    controller.run();
-  }
-
-  @FXML
-  private void handleLogActivity() {
-    messageHandling.handle(
-        new LogActivityCommand(
-            timestamp,
-            period,
-            clientCombo.getValue(),
-            projectCombo.getValue(),
-            taskCombo.getValue(),
-            notesText.getText()));
-    clientCombo.setDisable(true);
-    projectCombo.setDisable(true);
-    taskCombo.setDisable(true);
-    notesText.setDisable(true);
-    logButton.setDisable(true);
-    trayIconViewController.hide();
-
-    var result = messageHandling.handle(new ActivityLogQuery());
-    display(result);
+    remainingTimeLabel.setText("00:00:00");
+    progressBar.setProgress(1.0);
+    timestamp = notification.timestamp();
+    period = notification.period();
+    clientCombo.setDisable(false);
+    projectCombo.setDisable(false);
+    taskCombo.setDisable(false);
+    notesText.setDisable(false);
+    logButton.setDisable(false);
+    trayIconViewController.show();
   }
 
   private void logActivity(ActivityTemplate activity) {
