@@ -1,7 +1,1 @@
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-}
-
 version = '1.2.0'

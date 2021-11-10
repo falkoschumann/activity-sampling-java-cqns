@@ -30,7 +30,7 @@ tasks.compileJava {
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(16)
+    languageVersion = JavaLanguageVersion.of(17)
   }
   modularity.inferModulePath.set(true)
 }
@@ -64,9 +64,8 @@ jacocoTestReport {
 pmd {
   //ignoreFailures = true
   consoleOutput = true
-  toolVersion = '6.40.0'
+  toolVersion = '6.40.0' // Support für Java 16 ab 6.32, für Java 17 ab 6.37
   rulesMinimumPriority = 2
-  ruleSets = []
   ruleSetFiles = files("${rootDir}/config/pmd-ruleset.xml")
 }
 

@@ -1,9 +1,9 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
-  id 'muspellheim.java-common-conventions'
   id 'application'
   id 'org.beryx.jlink'
+  id 'muspellheim.java-common-conventions'
 }
 
 jlink {
@@ -29,7 +29,7 @@ jlink {
 if (Os.isFamily(Os.FAMILY_MAC)) {
   jlink {
     jpackage {
-      icon = 'src/main/mac/app-icon.icns'
+      icon = "$projectDir/src/main/mac/app-icon.icns"
       imageOptions += [
         '--copyright', "Copyright © ${copyrightYear} Falko Schumann",
         '--mac-sign',
@@ -44,7 +44,7 @@ if (Os.isFamily(Os.FAMILY_MAC)) {
 if (Os.isFamily(Os.FAMILY_WINDOWS)) {
   jlink {
     jpackage {
-      icon = 'src/main/win/app-icon.ico'
+      icon = "$projectDir/src/main/win/app-icon.ico"
       imageOptions = [
         '--copyright', "Copyright (c) ${copyrightYear} Falko Schumann",
         '--resource-dir', "$projectDir/src/main/win",

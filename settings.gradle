@@ -4,5 +4,5 @@ include(
   'activity-sampling',
   'activity-sampling-frontend',
   'activity-sampling-backend',
-  'activity-sampling-contract'
+  'activity-sampling-contract',
 )

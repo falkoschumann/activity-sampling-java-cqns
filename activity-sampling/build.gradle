@@ -16,6 +16,7 @@ application {
   mainClass = 'de.muspellheim.activitysampling.App'
 }
 
+/* FIXME jlink schlägt aktuell fehl, wenn nicht auskommentiert
 jlink {
   jpackage {
     imageOptions += [
@@ -23,6 +24,7 @@ jlink {
     ]
   }
 }
+*/
 
 if (Os.isFamily(Os.FAMILY_MAC)) {
   jlink {
