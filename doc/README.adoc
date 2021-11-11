@@ -3,7 +3,7 @@
 
 == System Context
 
-image::system-context-activity-sampling.png[System-Context-Diagramm für Activity Sampling]
+image::assets/system-context-activity-sampling.png[System-Context-Diagramm für Activity Sampling]
 
 == Features
 
@@ -37,8 +37,8 @@ image::system-context-activity-sampling.png[System-Context-Diagramm für Activit
 
 === Containers
 
-image::container-activity-sampling.png[Container-Diagramm für Activity Sampling]
+image::assets/container-activity-sampling.png[Container-Diagramm für Activity Sampling]
 
 === Components
 
-image::components-activity-sampling.png[Component-Diagramm für Activity Sampling]
+image::assets/components-activity-sampling.png[Component-Diagramm für Activity Sampling]
