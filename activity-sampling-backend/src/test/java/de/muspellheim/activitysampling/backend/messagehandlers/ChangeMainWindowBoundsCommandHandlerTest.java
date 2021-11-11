@@ -14,9 +14,9 @@ import de.muspellheim.activitysampling.contract.messages.commands.ChangeMainWind
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import org.junit.jupiter.api.Test;
 
-class ChangeMainWindowBoundsCommandHandlerTests {
+class ChangeMainWindowBoundsCommandHandlerTest {
   @Test
-  void handle() {
+  void handle_success() {
     var repository = new MemoryPreferencesRepository();
     repository.addExamples();
     var handler = new ChangeMainWindowBoundsCommandHandler(repository);

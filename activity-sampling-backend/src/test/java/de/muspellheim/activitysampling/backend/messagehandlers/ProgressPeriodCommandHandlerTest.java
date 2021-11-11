@@ -17,12 +17,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import org.junit.jupiter.api.Test;
 
-class ProgressPeriodCommandHandlerTests {
+class ProgressPeriodCommandHandlerTest {
   private PeriodProgressedNotification periodProgressedNotification;
   private PeriodEndedNotification periodEndedNotification;
 
   @Test
-  void clockTicked_periodStarted() {
+  void handle_periodStarted() {
     var preferencesRepository = new MemoryPreferencesRepository();
     var handler = new ProgressPeriodCommandHandler(preferencesRepository);
     handler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
@@ -37,7 +37,7 @@ class ProgressPeriodCommandHandlerTests {
   }
 
   @Test
-  void clockTicked_periodProgressed() {
+  void handle_periodProgressed() {
     var preferencesRepository = new MemoryPreferencesRepository();
     var handler = new ProgressPeriodCommandHandler(preferencesRepository);
     handler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);
@@ -55,7 +55,7 @@ class ProgressPeriodCommandHandlerTests {
   }
 
   @Test
-  void clockTicked_periodEnded() {
+  void handle_periodEnded() {
     var preferencesRepository = new MemoryPreferencesRepository();
     var handler = new ProgressPeriodCommandHandler(preferencesRepository);
     handler.setOnPeriodProgressedNotification(n -> periodProgressedNotification = n);

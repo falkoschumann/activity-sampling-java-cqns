@@ -22,9 +22,9 @@ import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class TimeReportQueryHandlerTests {
+class TimeReportQueryHandlerTest {
   @Test
-  void handle() {
+  void handle_success() {
     var eventStore = new MemoryEventStore();
     eventStore.record(
         List.of(

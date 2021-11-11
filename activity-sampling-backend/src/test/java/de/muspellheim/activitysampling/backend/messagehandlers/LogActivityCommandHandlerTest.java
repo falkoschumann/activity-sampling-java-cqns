@@ -20,10 +20,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
-class LogActivityCommandHandlerTests {
-
+class LogActivityCommandHandlerTest {
   @Test
-  void handle() {
+  void handle_success() {
     var eventStore = new MemoryEventStore();
     var handler = new LogActivityCommandHandler(eventStore, () -> "#1");
 

@@ -13,9 +13,9 @@ import de.muspellheim.activitysampling.contract.messages.queries.MainWindowBound
 import de.muspellheim.activitysampling.contract.messages.queries.MainWindowBoundsQueryResult;
 import org.junit.jupiter.api.Test;
 
-class MainWindowBoundsQueryHandlerTests {
+class MainWindowBoundsQueryHandlerTest {
   @Test
-  void handle() {
+  void handle_success() {
     var repository = new MemoryPreferencesRepository();
     repository.addExamples();
     var handler = new MainWindowBoundsQueryHandler(repository);

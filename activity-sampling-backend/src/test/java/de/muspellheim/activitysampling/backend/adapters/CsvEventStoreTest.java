@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class CsvEventStoreTests {
+public class CsvEventStoreTest {
   private static final Path OUT_FILE = Paths.get("build/event-store/event-stream.csv");
   private static final Path SOLL_FILE = Paths.get("src/test/resources/event-stream.csv");
 
@@ -41,7 +41,7 @@ public class CsvEventStoreTests {
   }
 
   @Test
-  void replay_EventType() {
+  void replay_withEventType() {
     var eventStore = new CsvEventStore(SOLL_FILE);
 
     var events = eventStore.replay(ActivityLoggedEvent.class);
@@ -50,7 +50,7 @@ public class CsvEventStoreTests {
   }
 
   @Test
-  void replay_EventTypeCollection() {
+  void replay_withEventTypes() {
     var eventStore = new CsvEventStore(SOLL_FILE);
 
     var events = eventStore.replay(List.of(ActivityLoggedEvent.class));

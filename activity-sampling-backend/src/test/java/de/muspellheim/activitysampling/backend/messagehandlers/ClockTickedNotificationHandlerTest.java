@@ -12,11 +12,11 @@ import de.muspellheim.activitysampling.contract.messages.notification.ClockTicke
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
-class ClockTickedNotificationHandlerTests {
+class ClockTickedNotificationHandlerTest {
   private ProgressPeriodCommand progressPeriodCommand;
 
   @Test
-  void handle() {
+  void handle_success() {
     var handler = new ClockTickedNotificationHandler();
     handler.setOnProgressPeriodCommand(c -> progressPeriodCommand = c);
 

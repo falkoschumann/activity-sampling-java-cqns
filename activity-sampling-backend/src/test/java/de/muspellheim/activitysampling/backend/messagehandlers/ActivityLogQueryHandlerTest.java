@@ -20,14 +20,14 @@ import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ActivityLogQueryHandlerTests {
+class ActivityLogQueryHandlerTest {
   @BeforeEach
-  void setUp() {
+  void init() {
     Locale.setDefault(Locale.GERMANY);
   }
 
   @Test
-  void handle() {
+  void handle_success() {
     var store = new MemoryEventStore();
     store.record(
         List.of(
