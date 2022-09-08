@@ -11,26 +11,17 @@ import de.muspellheim.activitysampling.contract.messages.commands.CommandStatus;
 import de.muspellheim.activitysampling.contract.messages.commands.LogActivityCommand;
 import de.muspellheim.activitysampling.contract.messages.commands.Success;
 import java.time.ZoneId;
-import java.util.UUID;
-import java.util.function.Supplier;
 
 public class LogActivityCommandHandler {
   private final EventStore eventStore;
-  private final Supplier<String> idGenerator;
 
   public LogActivityCommandHandler(EventStore eventStore) {
-    this(eventStore, () -> UUID.randomUUID().toString());
-  }
-
-  public LogActivityCommandHandler(EventStore eventStore, Supplier<String> idGenerator) {
     this.eventStore = eventStore;
-    this.idGenerator = idGenerator;
   }
 
   public CommandStatus handle(LogActivityCommand command) {
     var event =
         new ActivityLoggedEvent(
-            idGenerator.get(),
             command.timestamp().atZone(ZoneId.systemDefault()).toInstant(),
             command.period(),
             command.client(),

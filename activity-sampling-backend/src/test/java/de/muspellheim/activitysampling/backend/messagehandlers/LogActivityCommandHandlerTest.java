@@ -24,7 +24,7 @@ class LogActivityCommandHandlerTest {
   @Test
   void handle_success() {
     var eventStore = new MemoryEventStore();
-    var handler = new LogActivityCommandHandler(eventStore, () -> "#1");
+    var handler = new LogActivityCommandHandler(eventStore);
 
     var status =
         handler.handle(
@@ -43,7 +43,6 @@ class LogActivityCommandHandlerTest {
             assertEquals(
                 List.of(
                     new ActivityLoggedEvent(
-                        "#1",
                         LocalDateTime.of(2020, 11, 22, 17, 47, 17)
                             .atZone(ZoneId.systemDefault())
                             .toInstant(),

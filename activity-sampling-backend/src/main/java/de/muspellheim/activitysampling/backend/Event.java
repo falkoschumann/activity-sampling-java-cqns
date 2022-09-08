@@ -5,10 +5,4 @@
 
 package de.muspellheim.activitysampling.backend;
 
-import java.time.Instant;
-
-public interface Event {
-  String id();
-
-  Instant timestamp();
-}
+public interface Event {}

@@ -18,7 +18,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Spliterator;
@@ -34,12 +33,9 @@ import org.apache.commons.csv.CSVRecord;
 public class CsvEventStore extends AbstractEventStore {
   private static final CSVFormat CSV_FORMAT =
       CSVFormat.Builder.create(CSVFormat.RFC4180).setNullString("").build();
-  private static final DateTimeFormatter TIMESTAMP_FORMATTER =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-  private static final DateTimeFormatter PERIOD_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+  private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
   private enum Headers {
-    ID,
     Timestamp,
     Period,
     Client,
@@ -51,7 +47,7 @@ public class CsvEventStore extends AbstractEventStore {
   private final Path file;
 
   public CsvEventStore() {
-    this(Paths.get(System.getProperty("user.home"), ".activity-sampling", "event-stream.csv"));
+    this(Paths.get(System.getProperty("user.home"), "activity-sampling.csv"));
   }
 
   public CsvEventStore(Path file) {
@@ -91,13 +87,10 @@ public class CsvEventStore extends AbstractEventStore {
       var formattedTimestamp =
           LocalDateTime.ofInstant(event.timestamp(), ZoneId.systemDefault())
               .format(TIMESTAMP_FORMATTER);
-      var formattedPeriod =
-          LocalTime.ofSecondOfDay(event.period().toSeconds()).format(PERIOD_FORMATTER);
       var printer = new CSVPrinter(out, CSV_FORMAT);
       printer.printRecord(
-          event.id(),
           formattedTimestamp,
-          formattedPeriod,
+          event.period().toSeconds(),
           event.client(),
           event.project(),
           event.task(),
@@ -136,18 +129,15 @@ public class CsvEventStore extends AbstractEventStore {
   }
 
   private ActivityLoggedEvent createEvent(CSVRecord record) {
-    var id = record.get(Headers.ID);
     var timestamp =
         LocalDateTime.parse(record.get(Headers.Timestamp), TIMESTAMP_FORMATTER)
             .atZone(ZoneId.systemDefault())
             .toInstant();
-    var period =
-        Duration.ofSeconds(
-            LocalTime.parse(record.get(Headers.Period), PERIOD_FORMATTER).toSecondOfDay());
+    var period = Duration.ofSeconds(Long.parseLong(record.get(Headers.Period)));
     var client = record.get(Headers.Client);
     var project = record.get(Headers.Project);
     var task = record.get(Headers.Task);
     var notes = record.get(Headers.Notes);
-    return new ActivityLoggedEvent(id, timestamp, period, client, project, task, notes);
+    return new ActivityLoggedEvent(timestamp, period, client, project, task, notes);
   }
 }

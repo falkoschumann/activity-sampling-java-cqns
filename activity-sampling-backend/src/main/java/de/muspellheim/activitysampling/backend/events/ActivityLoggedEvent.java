@@ -11,16 +11,9 @@ import java.time.Instant;
 import java.util.Objects;
 
 public record ActivityLoggedEvent(
-    String id,
-    Instant timestamp,
-    Duration period,
-    String client,
-    String project,
-    String task,
-    String notes)
+    Instant timestamp, Duration period, String client, String project, String task, String notes)
     implements Event {
   public ActivityLoggedEvent {
-    Objects.requireNonNull(id, "id");
     Objects.requireNonNull(timestamp, "timestamp");
     Objects.requireNonNull(period, "period");
     Objects.requireNonNull(client, "client");

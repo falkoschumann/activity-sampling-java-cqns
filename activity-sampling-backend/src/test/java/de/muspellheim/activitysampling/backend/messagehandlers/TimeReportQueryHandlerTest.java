@@ -29,7 +29,6 @@ class TimeReportQueryHandlerTest {
     eventStore.record(
         List.of(
             new ActivityLoggedEvent(
-                "a7caf1b0-886e-406f-8fbc-71da9f34714e",
                 LocalDateTime.of(2021, 8, 18, 19, 18).atZone(ZoneId.systemDefault()).toInstant(),
                 Duration.ofMinutes(20),
                 "Wayne Enterprises",
@@ -37,7 +36,6 @@ class TimeReportQueryHandlerTest {
                 "Design",
                 "Black car"),
             new ActivityLoggedEvent(
-                "d5abc0dd-60b0-4a3b-9b2f-8b02005fb256",
                 LocalDateTime.of(2021, 8, 18, 19, 38).atZone(ZoneId.systemDefault()).toInstant(),
                 Duration.ofMinutes(20),
                 "Axis Chemical Co.",
@@ -45,7 +43,6 @@ class TimeReportQueryHandlerTest {
                 "Production",
                 "Double the production of Smylex"),
             new ActivityLoggedEvent(
-                "e5321e60-ee93-4935-a27c-a3ef46d8176b",
                 LocalDateTime.of(2021, 8, 18, 20, 6).atZone(ZoneId.systemDefault()).toInstant(),
                 Duration.ofMinutes(20),
                 "Wayne Enterprises",
@@ -53,7 +50,6 @@ class TimeReportQueryHandlerTest {
                 "Design",
                 "Black car"),
             new ActivityLoggedEvent(
-                "1d095806-578e-4e46-b307-09cccac8f419",
                 LocalDateTime.of(2021, 8, 19, 20, 26).atZone(ZoneId.systemDefault()).toInstant(),
                 Duration.ofMinutes(20),
                 "Wayne Enterprises",
