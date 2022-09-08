@@ -17,7 +17,8 @@ public record TimeReportQueryResult(
     List<ClientEntry> clients,
     List<ProjectEntry> projects,
     List<TaskEntry> tasks,
-    List<TimesheetEntry> timesheet) {
+    List<TimesheetEntry> timesheet,
+    List<SummaryEntry> summaries) {
   public TimeReportQueryResult {
     Objects.requireNonNull(start, "start");
     Objects.requireNonNull(end, "end");
@@ -26,16 +27,17 @@ public record TimeReportQueryResult(
     Objects.requireNonNull(projects, "projects");
     Objects.requireNonNull(tasks, "tasks");
     Objects.requireNonNull(timesheet, "timesheet");
+    Objects.requireNonNull(summaries, "summaries");
   }
 
-  public static record ClientEntry(String client, Duration hours) {
+  public record ClientEntry(String client, Duration hours) {
     public ClientEntry {
       Objects.requireNonNull(client, "client");
       Objects.requireNonNull(hours, "hours");
     }
   }
 
-  public static record ProjectEntry(String project, String client, Duration hours) {
+  public record ProjectEntry(String project, String client, Duration hours) {
     public ProjectEntry {
       Objects.requireNonNull(client, "client");
       Objects.requireNonNull(project, "project");
@@ -43,7 +45,7 @@ public record TimeReportQueryResult(
     }
   }
 
-  public static record TaskEntry(String task, Duration hours) {
+  public record TaskEntry(String task, Duration hours) {
     public TaskEntry {
       Objects.requireNonNull(task, "task");
       Objects.requireNonNull(hours, "hours");
@@ -52,7 +54,7 @@ public record TimeReportQueryResult(
 
   // TODO TeamEntry(name, hours)
 
-  public static record TimesheetEntry(
+  public record TimesheetEntry(
       LocalDate date,
       String client,
       String project,
@@ -67,6 +69,15 @@ public record TimeReportQueryResult(
       Objects.requireNonNull(project, "project");
       Objects.requireNonNull(task, "task");
       Objects.requireNonNull(notes, "notes");
+      Objects.requireNonNull(hours, "hours");
+    }
+  }
+
+  public record SummaryEntry(String client, String project, String task, Duration hours) {
+    public SummaryEntry {
+      Objects.requireNonNull(client, "client");
+      Objects.requireNonNull(project, "project");
+      Objects.requireNonNull(task, "task");
       Objects.requireNonNull(hours, "hours");
     }
   }

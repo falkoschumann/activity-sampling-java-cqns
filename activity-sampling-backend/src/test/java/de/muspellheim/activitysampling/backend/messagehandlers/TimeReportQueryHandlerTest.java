@@ -13,6 +13,7 @@ import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQuery
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.ClientEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.ProjectEntry;
+import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.SummaryEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.TaskEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.TimesheetEntry;
 import java.time.Duration;
@@ -102,7 +103,12 @@ class TimeReportQueryHandlerTest {
                     "Black car",
                     Duration.ofMinutes(20),
                     null,
-                    null))),
+                    null)),
+            List.of(
+                new SummaryEntry(
+                    "Axis Chemical Co.", "Gotham", "Production", Duration.ofMinutes(20)),
+                new SummaryEntry(
+                    "Wayne Enterprises", "Batmobil", "Design", Duration.ofMinutes(60)))),
         result);
   }
 }

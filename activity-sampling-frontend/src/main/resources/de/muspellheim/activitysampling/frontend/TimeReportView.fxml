@@ -63,6 +63,14 @@
                            <TableColumn fx:id="timesheetLastNameColumn" prefWidth="120.0" text="Last Name" />
                        </columns>
                      </TableView>
+                    <TableView fx:id="summaryTable">
+                      <columns>
+                        <TableColumn fx:id="summaryClientColumn" prefWidth="200.0" text="Client" />
+                        <TableColumn fx:id="summaryProjectColumn" prefWidth="200.0" text="Project" />
+                        <TableColumn fx:id="summaryTaskColumn" prefWidth="200.0" text="Task" />
+                        <TableColumn fx:id="summaryHoursColumn" prefWidth="100.0" text="Hours" />
+                      </columns>
+                    </TableView>
                   </children>
                </StackPane>
                <HBox alignment="CENTER_LEFT" spacing="12.0">

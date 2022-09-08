@@ -12,6 +12,7 @@ import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQuery
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.ClientEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.ProjectEntry;
+import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.SummaryEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.TaskEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.TimesheetEntry;
 import java.time.Duration;
@@ -129,6 +130,7 @@ public class TimeReportQueryHandler {
           d.projects.add(new ProjectEntry(e.project(), e.client(), e.hours()));
           d.tasks.add(new TaskEntry(e.task(), e.hours()));
           d.timesheet.add(e);
+          d.summaries.add(new SummaryEntry(e.client(), e.project(), e.task(), e.hours()));
         } else {
           d.totalHours = d.totalHours.plus(e.hours());
           d.timesheet.add(e);
@@ -191,6 +193,36 @@ public class TimeReportQueryHandler {
             var entry = addHours(d.tasks.get(taskIndex), e.hours());
             d.tasks.set(taskIndex, entry);
           }
+
+          var summaryIndex = -1;
+          for (var i = 0; i < d.summaries.size(); i++) {
+            var entry = d.summaries.get(i);
+            if (Objects.equals(entry.client(), e.client())
+                && Objects.equals(entry.project(), e.project())
+                && Objects.equals(entry.task(), e.task())) {
+              summaryIndex = i;
+              break;
+            }
+          }
+          if (summaryIndex == -1) {
+            var entry = new SummaryEntry(e.client(), e.project(), e.task(), e.hours());
+            d.summaries.add(entry);
+            d.summaries.sort(
+                (e1, e2) -> {
+                  var c = e1.client().compareToIgnoreCase(e2.client());
+                  if (c != 0) {
+                    return c;
+                  }
+                  c = e1.project().compareToIgnoreCase(e2.project());
+                  if (c != 0) {
+                    return c;
+                  }
+                  return e1.task().compareToIgnoreCase(e2.task());
+                });
+          } else {
+            var entry = addHours(d.summaries.get(summaryIndex), e.hours());
+            d.summaries.set(summaryIndex, entry);
+          }
         }
       };
     }
@@ -207,6 +239,11 @@ public class TimeReportQueryHandler {
       return new TaskEntry(entry.task(), entry.hours().plus(value));
     }
 
+    private static SummaryEntry addHours(SummaryEntry entry, Duration value) {
+      return new SummaryEntry(
+          entry.client(), entry.project(), entry.task(), entry.hours().plus(value));
+    }
+
     @Override
     public BinaryOperator<TimeReportData> combiner() {
       return (d1, d2) -> {
@@ -218,7 +255,14 @@ public class TimeReportQueryHandler {
     public Function<TimeReportData, TimeReportQueryResult> finisher() {
       return d ->
           new TimeReportQueryResult(
-              d.start, d.end, d.totalHours, d.clients, d.projects, d.tasks, d.timesheet);
+              d.start,
+              d.end,
+              d.totalHours,
+              d.clients,
+              d.projects,
+              d.tasks,
+              d.timesheet,
+              d.summaries);
     }
 
     @Override
@@ -235,6 +279,7 @@ public class TimeReportQueryHandler {
     List<ProjectEntry> projects = new ArrayList<>();
     List<TaskEntry> tasks = new ArrayList<>();
     List<TimesheetEntry> timesheet = new ArrayList<>();
+    List<SummaryEntry> summaries = new ArrayList<>();
 
     TimeReportData(LocalDate start, LocalDate end) {
       this.start = start;

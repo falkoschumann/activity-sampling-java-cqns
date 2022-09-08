@@ -10,6 +10,7 @@ import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQuery
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.ClientEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.ProjectEntry;
+import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.SummaryEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.TaskEntry;
 import de.muspellheim.activitysampling.contract.messages.queries.TimeReportQueryResult.TimesheetEntry;
 import java.io.IOException;
@@ -57,6 +58,12 @@ public class TimeReportController {
   @FXML TableColumn<TimesheetEntry, String> timesheetFirstNameColumn;
   @FXML TableColumn<TimesheetEntry, String> timesheetLastNameColumn;
 
+  @FXML TableView<SummaryEntry> summaryTable;
+  @FXML TableColumn<SummaryEntry, String> summaryClientColumn;
+  @FXML TableColumn<SummaryEntry, String> summaryProjectColumn;
+  @FXML TableColumn<SummaryEntry, String> summaryTaskColumn;
+  @FXML TableColumn<SummaryEntry, Duration> summaryHoursColumn;
+
   @FXML private ResourceBundle resources;
 
   private MessageHandling messageHandling;
@@ -98,6 +105,10 @@ public class TimeReportController {
     timesheetHoursColumn.setCellValueFactory(new ComponentValueFactory<>("hours"));
     timesheetFirstNameColumn.setCellValueFactory(new ComponentValueFactory<>("firstName"));
     timesheetLastNameColumn.setCellValueFactory(new ComponentValueFactory<>("lastName"));
+    summaryClientColumn.setCellValueFactory(new ComponentValueFactory<>("client"));
+    summaryProjectColumn.setCellValueFactory(new ComponentValueFactory<>("project"));
+    summaryTaskColumn.setCellValueFactory(new ComponentValueFactory<>("task"));
+    summaryHoursColumn.setCellValueFactory(new ComponentValueFactory<>("hours"));
 
     // Bind
     reportChoice.valueProperty().addListener(o -> update());
@@ -126,6 +137,7 @@ public class TimeReportController {
     projectsTable.getItems().setAll(result.projects());
     tasksTable.getItems().setAll(result.tasks());
     timesheetTable.getItems().setAll(result.timesheet());
+    summaryTable.getItems().setAll(result.summaries());
     update();
   }
 
@@ -136,24 +148,35 @@ public class TimeReportController {
         projectsTable.setVisible(false);
         tasksTable.setVisible(false);
         timesheetTable.setVisible(false);
+        summaryTable.setVisible(false);
       }
       case PROJECTS -> {
         clientsTable.setVisible(false);
         projectsTable.setVisible(true);
         tasksTable.setVisible(false);
         timesheetTable.setVisible(false);
+        summaryTable.setVisible(false);
       }
       case TASKS -> {
         clientsTable.setVisible(false);
         projectsTable.setVisible(false);
         tasksTable.setVisible(true);
         timesheetTable.setVisible(false);
+        summaryTable.setVisible(false);
       }
       case TIMESHEET -> {
         clientsTable.setVisible(false);
         projectsTable.setVisible(false);
         tasksTable.setVisible(false);
         timesheetTable.setVisible(true);
+        summaryTable.setVisible(false);
+      }
+      case SUMMARY -> {
+        clientsTable.setVisible(false);
+        projectsTable.setVisible(false);
+        tasksTable.setVisible(false);
+        timesheetTable.setVisible(false);
+        summaryTable.setVisible(true);
       }
     }
   }
@@ -162,7 +185,8 @@ public class TimeReportController {
     CLIENTS,
     PROJECTS,
     TASKS,
-    TIMESHEET
+    TIMESHEET,
+    SUMMARY
   }
 
   private class ReportStringConverter extends StringConverter<Report> {
@@ -173,6 +197,7 @@ public class TimeReportController {
         case PROJECTS -> resources.getString("timeReportView.projects");
         case TASKS -> resources.getString("timeReportView.tasks");
         case TIMESHEET -> resources.getString("timeReportView.timesheet");
+        case SUMMARY -> resources.getString("timeReportView.summary");
       };
     }
 
